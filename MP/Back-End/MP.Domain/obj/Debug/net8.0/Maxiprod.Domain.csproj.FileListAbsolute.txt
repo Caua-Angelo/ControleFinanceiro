@@ -1,0 +1,15 @@
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\bin\Debug\net8.0\Maxiprod.Domain.deps.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\bin\Debug\net8.0\Maxiprod.Domain.runtimeconfig.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\bin\Debug\net8.0\Maxiprod.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\bin\Debug\net8.0\Maxiprod.Domain.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.csproj.AssemblyReference.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.AssemblyInfoInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.AssemblyInfo.cs
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.csproj.CoreCompileInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.sourcelink.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\refint\Maxiprod.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\Maxiprod.Domain.genruntimeconfig.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\MP.Domain\obj\Debug\net8.0\ref\Maxiprod.Domain.dll

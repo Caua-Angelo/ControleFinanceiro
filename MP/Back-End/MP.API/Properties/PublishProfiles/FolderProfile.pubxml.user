@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <History>True|2024-03-15T12:19:38.9303188Z;True|2024-03-01T09:34:45.7137805-03:00;True|2024-02-28T09:50:34.5658133-03:00;True|2024-02-28T09:08:53.0967282-03:00;False|2024-02-28T09:03:35.7544085-03:00;False|2024-02-28T09:00:09.7564390-03:00;False|2024-02-28T08:59:50.9497442-03:00;</History>
+    <_PublishTargetUrl>C:\PUBLICACAO\WebApiControleFerias</_PublishTargetUrl>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,65 @@
+{
+  "version": 2,
+  "dgSpecHash": "tEUypJzWT5E=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\fluentassertions\\8.6.0\\fluentassertions.8.6.0.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\mediatr\\13.0.0\\mediatr.13.0.0.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.19\\microsoft.entityframeworkcore.8.0.19.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.19\\microsoft.entityframeworkcore.abstractions.8.0.19.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.19\\microsoft.entityframeworkcore.analyzers.8.0.19.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.11\\microsoft.entityframeworkcore.relational.8.0.11.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0\\microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.caching.memory\\8.0.1\\microsoft.extensions.caching.memory.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.1\\microsoft.extensions.dependencyinjection.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.logging\\8.0.1\\microsoft.extensions.logging.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.options\\8.0.2\\microsoft.extensions.options.8.0.2.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.0.1\\microsoft.identitymodel.abstractions.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\8.0.1\\microsoft.identitymodel.jsonwebtokens.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.identitymodel.logging\\8.0.1\\microsoft.identitymodel.logging.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.0.1\\microsoft.identitymodel.tokens.8.0.1.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\npgsql\\8.0.6\\npgsql.8.0.6.nupkg.sha512",
+    "C:\\Users\\caua.lopes\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.11\\npgsql.entityframeworkcore.postgresql.8.0.11.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Não é possível encontrar o projeto 'C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Data\\ControleFerias.Infra.Data.csproj'. Verifique se a referência do projeto é válida e se o arquivo de projeto existe.",
+      "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+      "filePath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+      "libraryId": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Data\\ControleFerias.Infra.Data.csproj",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Não é possível encontrar o projeto 'C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Application\\ControleFerias.Application.csproj'. Verifique se a referência do projeto é válida e se o arquivo de projeto existe.",
+      "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+      "filePath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+      "libraryId": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Application\\ControleFerias.Application.csproj",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Não é possível encontrar o projeto 'C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Domain\\ControleFerias.Domain.csproj'. Verifique se a referência do projeto é válida e se o arquivo de projeto existe.",
+      "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+      "filePath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Infraestructure\\Maxiprod.Infra.IoC.csproj",
+      "libraryId": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\MP.Domain\\ControleFerias.Domain.csproj",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
+}
