@@ -1,0 +1,15 @@
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\bin\Debug\net8.0\ControleFinanceiro.Domain.deps.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\bin\Debug\net8.0\ControleFinanceiro.Domain.runtimeconfig.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\bin\Debug\net8.0\ControleFinanceiro.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\bin\Debug\net8.0\ControleFinanceiro.Domain.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.csproj.AssemblyReference.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.AssemblyInfoInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.AssemblyInfo.cs
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.csproj.CoreCompileInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.sourcelink.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\refint\ControleFinanceiro.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ControleFinanceiro.Domain.genruntimeconfig.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Domain\obj\Debug\net8.0\ref\ControleFinanceiro.Domain.dll

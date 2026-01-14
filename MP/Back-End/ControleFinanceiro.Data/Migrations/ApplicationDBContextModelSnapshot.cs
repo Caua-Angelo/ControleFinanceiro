@@ -1,0 +1,202 @@
+﻿
+using System;
+using ControleFinanceiro.Infraestructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+#nullable disable
+
+namespace ControleFinanceiro.Migrations
+{
+    [DbContext(typeof(ApplicationDBContext))]
+    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasDefaultSchema("public")
+                .HasAnnotation("ProductVersion", "8.0.19")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Usuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EquipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("sNome")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EquipeId");
+
+                    b.ToTable("Usuario", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.ColaboradorFerias", b =>
+                {
+                    b.Property<int>("FeriasId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ColaboradorId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FeriasId", "ColaboradorId");
+
+                    b.HasIndex("ColaboradorId");
+
+                    b.ToTable("ColaboradorFerias", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Equipe", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("sNome")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Equipe", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Ferias", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("dDataFinal")
+                        .HasColumnType("timestamp");
+
+                    b.Property<DateTime>("dDataInicio")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("sComentario")
+                        .HasColumnType("text");
+
+                    b.Property<int>("sDias")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ferias", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.LogAlteracaoColaborador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ColaboradorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EquipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ddataAlteracao")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("sNome")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ColaboradorId");
+
+                    b.HasIndex("EquipeId");
+
+                    b.ToTable("LogAlteracaoColaborador", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Usuario", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Models.Equipe", "Equipe")
+                        .WithMany("Colaboradores")
+                        .HasForeignKey("EquipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Equipe");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.ColaboradorFerias", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Models.Usuario", "Usuario")
+                        .WithMany("ColaboradorFerias")
+                        .HasForeignKey("ColaboradorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ControleFinanceiro.Models.Ferias", "Ferias")
+                        .WithMany("ColaboradorFerias")
+                        .HasForeignKey("FeriasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+
+                    b.Navigation("Ferias");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.LogAlteracaoColaborador", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("ColaboradorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ControleFinanceiro.Models.Equipe", null)
+                        .WithMany()
+                        .HasForeignKey("EquipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Usuario", b =>
+                {
+                    b.Navigation("ColaboradorFerias");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Equipe", b =>
+                {
+                    b.Navigation("Colaboradores");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Models.Ferias", b =>
+                {
+                    b.Navigation("ColaboradorFerias");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}

@@ -1,0 +1,469 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.API\\ControleFinanceiro.API.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.API\\ControleFinanceiro.API.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.API\\ControleFinanceiro.API.csproj",
+        "projectName": "ControleFinanceiro.API",
+        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.API\\ControleFinanceiro.API.csproj",
+        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.API\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "http://10.150.235.175:43675/nuget": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj": {
+                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj"
+              },
+              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj": {
+                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj"
+              },
+              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[8.6.0, )"
+            },
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[8.1.4, )"
+            },
+            "Swashbuckle.AspNetCore.Annotations": {
+              "target": "Package",
+              "version": "[8.1.4, )"
+            },
+            "Swashbuckle.AspNetCore.Filters": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj",
+        "projectName": "ControleFinanceiro.Application",
+        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj",
+        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "http://10.150.235.175:43675/nuget": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[8.6.0, )"
+            },
+            "Swashbuckle.AspNetCore.Annotations": {
+              "target": "Package",
+              "version": "[8.1.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj",
+        "projectName": "ControleFinanceiro.Infra.Data",
+        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj",
+        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "http://10.150.235.175:43675/nuget": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[8.6.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj",
+        "projectName": "ControleFinanceiro.Domain",
+        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj",
+        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "http://10.150.235.175:43675/nuget": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[8.6.0, )"
+            },
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.19, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
+            "MySql.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.17, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[8.1.4, )"
+            },
+            "Swashbuckle.AspNetCore.Annotations": {
+              "target": "Package",
+              "version": "[8.1.4, )"
+            },
+            "Swashbuckle.AspNetCore.Filters": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

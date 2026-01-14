@@ -1,0 +1,6 @@
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.csproj.AssemblyReference.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.AssemblyInfoInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.AssemblyInfo.cs
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.csproj.CoreCompileInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.sourcelink.json

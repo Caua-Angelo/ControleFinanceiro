@@ -1,0 +1,7 @@
+Entidades
+---------
+Usuário >  Crud Básico + Deletar todas as transações ao deletar o usuário
+   ˅
+   Id
+   Nome(string)
+   Idade(int)

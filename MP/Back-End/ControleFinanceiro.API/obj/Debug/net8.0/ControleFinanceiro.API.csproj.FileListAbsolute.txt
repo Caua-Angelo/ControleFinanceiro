@@ -1,0 +1,8 @@
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.csproj.AssemblyReference.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.AssemblyInfoInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.AssemblyInfo.cs
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.csproj.CoreCompileInputs.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.API\obj\Debug\net8.0\ControleFinanceiro.API.sourcelink.json
