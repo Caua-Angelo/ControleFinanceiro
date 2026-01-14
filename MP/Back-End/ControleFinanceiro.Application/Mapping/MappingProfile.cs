@@ -1,69 +1,65 @@
 ﻿using AutoMapper;
-using ControleFinanceiro.Application.DTO;
+using ControleFinanceiro.Application.DTO.Categoria;
+using ControleFinanceiro.Application.DTO.Resumo;
+using ControleFinanceiro.Application.DTO.Transacao;
+using ControleFinanceiro.Application.DTO.Usuario;
 using ControleFinanceiro.Domain.Models;
 
 namespace ControleFinanceiro.AutoMapper
 {
-
     public class MappingProfile : Profile
     {
         public MappingProfile()
         {
-            // Usuario -> colaboradorconsultadto
-            CreateMap<Usuario, ColaboradorConsultarDTO>()
-    .ForMember(dest => dest.EquipeNome,
-               opt => opt.MapFrom(src => src.Equipe.sNome));
-            CreateMap<Usuario, ColaboradorConsultarFeriasDTO>()
-    .ForMember(dest => dest.EquipeNome,
-               opt => opt.MapFrom(src => src.Equipe.sNome));
-            CreateMap<Usuario, ColaboradorIncluirDTO>();
-            CreateMap<Usuario, ColaboradorAlterarDTO>();
 
+            CreateMap<Usuario, UsuarioConsultarDTO>()
+                .ForMember(dest => dest.TotalReceitas,
+                    opt => opt.MapFrom(src =>
+                        src.Transacao
+                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Receita)
+                           .Sum(t => t.Valor)))
+                .ForMember(dest => dest.TotalDespesas,
+                    opt => opt.MapFrom(src =>
+                        src.Transacao
+                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Despesa)
+                           .Sum(t => t.Valor)));
 
-            // dto -> entidade (incluir Usuario)
-            CreateMap<ColaboradorIncluirDTO, Usuario>();
+            CreateMap<UsuarioIncluirDTO, Usuario>();
+            CreateMap<UsuarioAlterarDTO, Usuario>();
 
-            // ferias -> feriasdto (com datas formatadas)
-            //CreateMap<Ferias, FeriasConsultarDTO>().ReverseMap()
-            //    .ForMember(dest => dest.dDataInicio,
-            //        opt => opt.MapFrom(src => src.dDataInicio.ToString("dd/MM/yyyy")))
-            //    .ForMember(dest => dest.dDataFinal,
-            //        opt => opt.MapFrom(src => src.dDataFinal.ToString("dd/MM/yyyy")));
+            CreateMap<Categoria, CategoriaConsultarDTO>();
+            CreateMap<CategoriaIncluirDTO, Categoria>();
+            CreateMap<CategoriaAlterarDTO, Categoria>();
 
-            //CreateMap<Ferias, FeriasIncluirDTO>().ReverseMap()
-            //    .ForMember(dest => dest.dDataInicio,
-            //        opt => opt.MapFrom(src => src.dDataInicio.ToString("dd/MM/yyyy")))
-            //    .ForMember(dest => dest.dDataFinal,
-            //        opt => opt.MapFrom(src => src.dDataFinal.ToString("dd/MM/yyyy")));
-            //CreateMap<Ferias,FeriasAlterarDTO>().ReverseMap()
-            //    .ForMember(dest => dest.dDataInicio,
-            //        opt => opt.MapFrom(src => src.dDataInicio.ToString("dd/MM/yyyy")))
-            //    .ForMember(dest => dest.dDataFinal,
-            //        opt => opt.MapFrom(src => src.dDataFinal.ToString("dd/MM/yyyy")));
+            CreateMap<Transacao, TransacaoConsultarDTO>()
+                .ForMember(dest => dest.UsuarioNome,
+                    opt => opt.MapFrom(src => src.Usuario.Nome))
+                .ForMember(dest => dest.CategoriaDescricao,
+                    opt => opt.MapFrom(src => src.Categoria.Descricao));
 
-          
+            CreateMap<TransacaoCriarDTO, Transacao>()
+                .ForMember(dest => dest.Usuario, opt => opt.Ignore())
+                .ForMember(dest => dest.Categoria, opt => opt.Ignore());
 
-            // Mapeamento para FeriasIncluirDTO
-            CreateMap<Ferias, FeriasIncluirDTO>()
-                .ForMember(dest => dest.dDataInicio,
-                           opt => opt.MapFrom(src => src.dDataInicio.ToString("dd/MM/yyyy")))
-                .ForMember(dest => dest.dDataFinal,
-                           opt => opt.MapFrom(src => src.dDataFinal.ToString("dd/MM/yyyy")))
-                .ReverseMap();
+            CreateMap<TransacaoAtualizarDTO, Transacao>()
+                .ForMember(dest => dest.Usuario, opt => opt.Ignore())
+                .ForMember(dest => dest.UsuarioId, opt => opt.Ignore());
 
-            // Mapeamento para FeriasAlterarDTO
-            CreateMap<Ferias, FeriasAlterarDTO>()
-                .ForMember(dest => dest.dDataInicio,
-                           opt => opt.MapFrom(src => src.dDataInicio.ToString("dd/MM/yyyy")))
-                .ForMember(dest => dest.dDataFinal,
-                           opt => opt.MapFrom(src => src.dDataFinal.ToString("dd/MM/yyyy")))
-                .ReverseMap();
-
-            //equipe -> equipedto
-            CreateMap<Equipe, EquipeIncluirDTO>().ReverseMap();
-            CreateMap<Equipe, EquipeAlterarDTO>().ReverseMap();
-            CreateMap<Equipe, EquipeConsultarDTO>().ReverseMap();
-            //CreateMap<Equipe, Ferias>().ReverseMap();
+            CreateMap<Usuario, UsuarioResumoFinanceiroDTO>()
+                .ForMember(dest => dest.UsuarioId,
+                    opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Nome,
+                    opt => opt.MapFrom(src => src.Nome))
+                .ForMember(dest => dest.TotalReceitas,
+                    opt => opt.MapFrom(src =>
+                        src.Transacao
+                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Receita)
+                           .Sum(t => t.Valor)))
+                .ForMember(dest => dest.TotalDespesas,
+                    opt => opt.MapFrom(src =>
+                        src.Transacao
+                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Despesa)
+                           .Sum(t => t.Valor)));
         }
     }
 }

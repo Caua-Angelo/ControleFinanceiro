@@ -36,7 +36,7 @@ namespace ControleFinanceiro.Infraestructure.Data
 
             // 🔹 Relacionamento com Usuario (N -> 1)
             builder.HasOne(t => t.Usuario)
-                   .WithMany(u => u.Transacoes)
+                   .WithMany(u => u.Transacao)
                    .HasForeignKey(t => t.UsuarioId)
                    .OnDelete(DeleteBehavior.Cascade);
         }

@@ -1,81 +1,73 @@
 ﻿using AutoMapper;
-using ControleFinanceiro.Application.DTO;
+using ControleFinanceiro.Application.DTO.Categoria;
 using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Domain.Models;
 
-
 namespace ControleFinanceiro.Application.Services
 {
-    public class EquipeService : ICategoriaService
+    public class CategoriaService : ICategoriaService
     {
-        private readonly IEquipeRepository _equipeRepository;
+        private readonly ICategoriaRepository _categoriaRepository;
         private readonly IMapper _mapper;
 
-        public EquipeService(IEquipeRepository equipeRepository, IMapper mapper)
+        public CategoriaService(ICategoriaRepository categoriaRepository, IMapper mapper)
         {
-            _equipeRepository = equipeRepository;
+            _categoriaRepository = categoriaRepository;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<EquipeConsultarDTO>> ConsultarEquipes()
+        // 🔹 CONSULTAR TODAS
+        public async Task<IEnumerable<CategoriaConsultarDTO>> ConsultarAsync()
         {
-            var equipes = await _equipeRepository.ConsultarEquipes();
-
-             var equipeConsultarDTO = _mapper.Map<IEnumerable<EquipeConsultarDTO>>(equipes);
-            return equipeConsultarDTO;
+            var categorias = await _categoriaRepository.ConsultarAsync();
+            return _mapper.Map<IEnumerable<CategoriaConsultarDTO>>(categorias);
         }
 
-        public async Task<EquipeConsultarDTO> ConsultarEquipePorId(int id)
+        // 🔹 CONSULTAR POR ID
+        public async Task<CategoriaConsultarDTO> ConsultarPorIdAsync(int id)
         {
-            var equipe = await _equipeRepository.ConsultarEquipePorId(id);
-            if (equipe == null)
-                throw new KeyNotFoundException($"Equipe com ID {id} não encontrada.");
+            var categoria = await _categoriaRepository.ConsultarPorIdAsync(id);
+            if (categoria == null)
+                throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
-            var equipeConsultarDTO = _mapper.Map<EquipeConsultarDTO>(equipe);
-            return equipeConsultarDTO;
-        }
-        public async Task<IEnumerable<ColaboradorConsultarDTO>> ConsultarColaboradoresPorEquipe(int id)
-        {
-            var colaboradores = await _equipeRepository.ConsultarColaboradoresPorEquipe(id);
-            if (colaboradores == null)
-                throw new KeyNotFoundException($"Equipe com ID {id} não encontrada.");
-
-            if (!colaboradores.Any())
-                throw new KeyNotFoundException($"Nenhum Usuario encontrado para a equipe com ID {id}.");
-
-
-            var colaboradorConsultarDTO = _mapper.Map<IEnumerable<ColaboradorConsultarDTO>>(colaboradores);
-            return colaboradorConsultarDTO;
+            return _mapper.Map<CategoriaConsultarDTO>(categoria);
         }
 
-        public async Task<EquipeConsultarDTO> IncluirEquipe(EquipeIncluirDTO dto)
+        // 🔹 CRIAR
+        public async Task<CategoriaConsultarDTO> CriarAsync(CategoriaIncluirDTO dto)
         {
-            var equipe = new Equipe(dto.sNome);
-            await _equipeRepository.IncluirEquipe(equipe);
-            await _equipeRepository.SalvarMudancas();
-            return _mapper.Map<EquipeConsultarDTO>(equipe);
+            var categoria = _mapper.Map<Categoria>(dto);
+
+            await _categoriaRepository.AdicionarAsync(categoria);
+            await _categoriaRepository.SalvarAsync();
+
+            return _mapper.Map<CategoriaConsultarDTO>(categoria);
         }
 
-        public async Task<EquipeConsultarDTO> AlterarEquipe(int id, EquipeAlterarDTO dto)
+        // 🔹 ALTERAR
+        public async Task<CategoriaConsultarDTO> AlterarAsync(int id, CategoriaAlterarDTO dto)
         {
-            var equipeExistente = await _equipeRepository.ConsultarEquipePorId(id);
-            if (equipeExistente == null)
-                throw new KeyNotFoundException($"Equipe com ID {id} não encontrada.");
+            var categoriaExistente = await _categoriaRepository.ConsultarPorIdAsync(id);
+            if (categoriaExistente == null)
+                throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
-            equipeExistente.Update(dto.sNome);
-            await _equipeRepository.SalvarMudancas();
+            categoriaExistente.Update(dto.Descricao, dto.Finalidade);
 
-            return _mapper.Map<EquipeConsultarDTO>(equipeExistente);
+            await _categoriaRepository.SalvarAsync();
+
+            return _mapper.Map<CategoriaConsultarDTO>(categoriaExistente);
         }
 
-        public async Task<EquipeConsultarDTO> ExcluirEquipe(int id)
+        // 🔹 EXCLUIR
+        public async Task ExcluirAsync(int id)
         {
-            var equipeExistente = await _equipeRepository.ExcluirEquipe(id);
-            if (equipeExistente == null)
-                throw new KeyNotFoundException($"Equipe com ID {id} não encontrada.");
-            await _equipeRepository.SalvarMudancas();
-            return _mapper.Map<EquipeConsultarDTO>(equipeExistente);
+            var categoria = await _categoriaRepository.ConsultarPorIdAsync(id);
+            if (categoria == null)
+                throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
+
+            await _categoriaRepository.RemoverAsync(categoria);
+            await _categoriaRepository.SalvarAsync();
         }
     }
 }

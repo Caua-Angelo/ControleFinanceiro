@@ -1,49 +1,49 @@
 ﻿using ControleFinanceiro.Domain.Validation;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
 namespace ControleFinanceiro.Domain.Models
 {
     public class Usuario
     {
-        public int Id { get; set; }
-        [Required(ErrorMessage = "Nome é obrigatório")]
-        [Column(TypeName = "text")]
-        public string sNome { get; set; } = null!;
-        [Column()]
-        public int EquipeId { get; set; }
+        public int Id { get; private set; }
 
-        public Equipe? Equipe { get; set; }
-        
-        public ICollection<Ferias>? Ferias { get; set; }
+        public string Nome { get; private set; } = null!;
 
-        public Usuario() { }
-        public Usuario(string sNome, int EquipeId)
+        public int Idade { get; private set; }
+
+        // 🔹 1 usuário possui várias transações
+        public ICollection<Transacao> Transacao { get; private set; } = new List<Transacao>();
+
+        protected Usuario() { }
+
+        public Usuario(string nome, int idade)
         {
-            ValidateDomain(sNome, EquipeId);
+            ValidateDomain(nome, idade);
         }
-        public void Update(string snome, int equipeid)
+
+        public void Update(string nome, int idade)
         {
-            ValidateDomain(snome, equipeid);
+            ValidateDomain(nome, idade);
         }
-        private void ValidateDomain(string snome, int equipeid)
+
+        private void ValidateDomain(string nome, int idade)
         {
-            snome = snome?.Trim() ?? string.Empty;
+            nome = nome?.Trim() ?? string.Empty;
 
-            DomainExceptionValidation.When((string.IsNullOrEmpty(snome) && equipeid <= 0), "sNome e equipeId precisam ser preenchidos");
+            DomainExceptionValidation.When(string.IsNullOrEmpty(nome),
+                "O nome do usuário precisa ser preenchido.");
 
-            DomainExceptionValidation.When(string.IsNullOrEmpty(snome), "O nome do Usuario precisa ser preenchido.");
+            DomainExceptionValidation.When(nome.Length < 3 || nome.Length > 60,
+                "O nome do usuário deve ter entre 3 e 60 caracteres.");
 
-            DomainExceptionValidation.When(snome.Length < 3 || snome.Length > 44, "O nome do Usuario deve ter entre 3 e 44 caracteres.");
+            DomainExceptionValidation.When(!Regex.IsMatch(nome, @"^[\p{L}\s]+$"),
+                "O nome do usuário deve conter apenas letras.");
 
-            DomainExceptionValidation.When(!Regex.IsMatch(snome, @"^[\p{L}\s]+$"), "O nome do Usuario deve conter apenas letras.");
+            DomainExceptionValidation.When(idade <= 0,
+                "A idade deve ser um número inteiro positivo.");
 
-            DomainExceptionValidation.When(equipeid <= 0 || equipeid > 100, "Id de equipe inválido,Deve ser maior que 0 e menor que 100");
-
-
-            this.sNome = snome;
-            this.EquipeId = equipeid;
+            Nome = nome;
+            Idade = idade;
         }
     }
 }

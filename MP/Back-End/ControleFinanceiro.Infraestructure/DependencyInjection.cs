@@ -12,28 +12,32 @@ namespace ControleFinanceiro.Infra.IoC
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services,
-           IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
-            services.AddDbContext<ApplicationDBContext>(options => options.UseNpgsql(configuration.GetConnectionString(
-                "DefaultConnection"
-            ), b => b.MigrationsAssembly(typeof(ApplicationDBContext).Assembly.FullName)));
+            // 🔹 DbContext
+            services.AddDbContext<ApplicationDBContext>(options =>
+                options.UseNpgsql(
+                    configuration.GetConnectionString("PostgresConnection"),
+                    b => b.MigrationsAssembly(typeof(ApplicationDBContext).Assembly.FullName)
+                )
+            );
 
-            services.AddScoped<IColaboradorRepository, ColaboradorRepository>();
-            services.AddScoped<IEquipeRepository, CategoriaRepository>();
-            services.AddScoped<IFeriasRepository, TransacaoRepository>();
+            // 🔹 Repositories
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+            services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 
+            // 🔹 Services
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<ICategoriaService, CategoriaService>();
             services.AddScoped<ITransacaoService, TransacaoService>();
+
+            // 🔹 AutoMapper
             services.AddAutoMapper(typeof(MappingProfile));
 
-            var myhandlers = AppDomain.CurrentDomain.Load("ControleFinanceiro.Application");
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(myhandlers));
             return services;
         }
-
-
-
     }
 }

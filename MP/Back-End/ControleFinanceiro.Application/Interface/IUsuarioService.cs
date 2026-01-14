@@ -1,14 +1,14 @@
-﻿using ControleFinanceiro.Application.DTO;
-using ControleFinanceiro.Domain.Models;
+﻿using ControleFinanceiro.Application.DTO.Usuario;
 
 namespace ControleFinanceiro.Application.Interfaces
 {
-    public interface IColaboradorService
+    public interface IUsuarioService
     {
-        Task<IEnumerable<ColaboradorConsultarDTO>> ConsultarColaboradores();
-        Task<ColaboradorConsultarDTO> ConsultarColaboradorPorId(int id);
-        Task<ColaboradorConsultarDTO> IncluirColaborador(ColaboradorIncluirDTO dto);
-        Task<ColaboradorConsultarDTO> AlterarColaborador(int id, ColaboradorAlterarDTO dto);
-        Task<ColaboradorConsultarDTO> ExcluirColaborador(int id);
+        Task<IEnumerable<UsuarioConsultarDTO>> ConsultarAsync();
+        Task<UsuarioConsultarDTO> ConsultarPorIdAsync(int id);
+
+        Task<UsuarioConsultarDTO> CriarAsync(UsuarioIncluirDTO dto);
+        Task<UsuarioConsultarDTO> AlterarAsync(int id, UsuarioAlterarDTO dto);
+        Task ExcluirAsync(int id);
     }
 }

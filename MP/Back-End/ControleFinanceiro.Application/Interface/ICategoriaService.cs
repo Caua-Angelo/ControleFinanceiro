@@ -1,15 +1,14 @@
-﻿using ControleFinanceiro.Application.DTO;
-using ControleFinanceiro.Domain.Models;
+﻿using ControleFinanceiro.Application.DTO.Categoria;
 
 namespace ControleFinanceiro.Application.Interfaces
 {
-    public interface IEquipeService
+    public interface ICategoriaService
     {
-        Task<IEnumerable<EquipeConsultarDTO>> ConsultarEquipes();          
-        Task<EquipeConsultarDTO> ConsultarEquipePorId(int id);                  
-        Task<IEnumerable<ColaboradorConsultarDTO>> ConsultarColaboradoresPorEquipe(int id);
-        Task<EquipeConsultarDTO> IncluirEquipe(EquipeIncluirDTO dto);                
-        Task<EquipeConsultarDTO> AlterarEquipe(int id, EquipeAlterarDTO dto);          
-        Task<EquipeConsultarDTO> ExcluirEquipe(int id);                                   
+        Task<IEnumerable<CategoriaConsultarDTO>> ConsultarAsync();
+        Task<CategoriaConsultarDTO> ConsultarPorIdAsync(int id);
+
+        Task<CategoriaConsultarDTO> CriarAsync(CategoriaIncluirDTO dto);
+        Task<CategoriaConsultarDTO> AlterarAsync(int id, CategoriaAlterarDTO dto);
+        Task ExcluirAsync(int id);
     }
 }

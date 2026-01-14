@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using ControleFinanceiro.Application.DTO;
-using ControleFinanceiro.Application.Interfaces;
+using ControleFinanceiro.Application.DTO.Transacao;
 using ControleFinanceiro.Domain.Enums;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Domain.Models;
@@ -58,7 +57,7 @@ namespace ControleFinanceiro.Application.Services
         // 🔹 LISTAR POR CATEGORIA
         public async Task<IEnumerable<TransacaoConsultarDTO>> ListarPorCategoriaAsync(int categoriaId)
         {
-            var categoria = await _categoriaRepository.ObterPorIdAsync(categoriaId);
+            var categoria = await _categoriaRepository.ConsultarPorIdAsync(categoriaId);
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {categoriaId} não encontrada.");
 
@@ -73,7 +72,7 @@ namespace ControleFinanceiro.Application.Services
             if (usuario == null)
                 throw new InvalidOperationException("Usuário não encontrado.");
 
-            var categoria = await _categoriaRepository.ObterPorIdAsync(dto.CategoriaId);
+            var categoria = await _categoriaRepository.ConsultarPorIdAsync(dto.CategoriaId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
 
@@ -114,7 +113,7 @@ namespace ControleFinanceiro.Application.Services
             if (transacao == null)
                 throw new KeyNotFoundException("Transação não encontrada.");
 
-            var categoria = await _categoriaRepository.ObterPorIdAsync(dto.CategoriaId);
+            var categoria = await _categoriaRepository.ConsultarPorIdAsync(dto.CategoriaId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
 
@@ -128,4 +127,17 @@ namespace ControleFinanceiro.Application.Services
 
             await _transacaoRepository.SalvarAsync();
 
-            return _mapper.Map<TransacaoConsultarDTO>(transacao_
+            return _mapper.Map<TransacaoConsultarDTO>(transacao);
+        }
+
+        public async Task ExcluirAsync(int id)
+        {
+            var transacao = await _transacaoRepository.ObterPorIdAsync(id);
+            if (transacao == null)
+                throw new KeyNotFoundException("Transação não encontrada.");
+
+            await _transacaoRepository.RemoverAsync(transacao);
+            await _transacaoRepository.SalvarAsync();
+        }
+    }
+}

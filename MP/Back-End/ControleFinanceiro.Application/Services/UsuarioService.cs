@@ -1,79 +1,73 @@
 ﻿using AutoMapper;
-using ControleFinanceiro.Application.DTO;
+using ControleFinanceiro.Application.DTO.Usuario;
 using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Domain.Models;
 
 namespace ControleFinanceiro.Application.Services
 {
-    public class ColaboradorService : IUsuarioService
+    public class UsuarioService : IUsuarioService
     {
-        private readonly IColaboradorRepository _colaboradorRepository;
-        private readonly IEquipeRepository _equipeRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
         private readonly IMapper _mapper;
 
-        public ColaboradorService(IColaboradorRepository colaboradorRepository, IMapper mapper, IEquipeRepository equipeRepository)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IMapper mapper)
         {
-            _colaboradorRepository = colaboradorRepository;
+            _usuarioRepository = usuarioRepository;
             _mapper = mapper;
-            _equipeRepository = equipeRepository;
         }
 
-        public async Task<IEnumerable<ColaboradorConsultarDTO>> ConsultarColaboradores()
+        // 🔹 CONSULTAR TODOS
+        public async Task<IEnumerable<UsuarioConsultarDTO>> ConsultarAsync()
         {
-            var colaboradores = await _colaboradorRepository.ConsultarColaboradores();
-            return _mapper.Map<IEnumerable<ColaboradorConsultarDTO>>(colaboradores);
+            var usuarios = await _usuarioRepository.ListarAsync();
+            return _mapper.Map<IEnumerable<UsuarioConsultarDTO>>(usuarios);
         }
 
-        public async Task<ColaboradorConsultarDTO> ConsultarColaboradorPorId(int id)
+        // 🔹 CONSULTAR POR ID
+        public async Task<UsuarioConsultarDTO> ConsultarPorIdAsync(int id)
         {
-            var Usuario = await _colaboradorRepository.ConsultarColaboradorPorId(id);
-            if (Usuario == null)
-                throw new KeyNotFoundException($"Usuario com ID {id} não encontrado.");
+            var usuario = await _usuarioRepository.ObterPorIdAsync(id);
+            if (usuario == null)
+                throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
 
-            return _mapper.Map<ColaboradorConsultarDTO>(Usuario);
+            return _mapper.Map<UsuarioConsultarDTO>(usuario);
         }
 
-        public async Task<ColaboradorConsultarDTO> IncluirColaborador(ColaboradorIncluirDTO dto)
+        // 🔹 CRIAR
+        public async Task<UsuarioConsultarDTO> CriarAsync(UsuarioIncluirDTO dto)
         {
-            // Chama o Repositório de Equipe para verificar se o ID existe
-            var equipeExiste = await _equipeRepository.ConsultarEquipePorId(dto.EquipeId);
+            var usuario = _mapper.Map<Usuario>(dto);
 
-            if (equipeExiste == null) { throw new KeyNotFoundException($"Nenhuma equipe encontrada com o ID {dto.EquipeId}."); }
+            await _usuarioRepository.AdicionarAsync(usuario);
+            await _usuarioRepository.SalvarAsync();
 
-            var Usuario = new Usuario(dto.sNome, dto.EquipeId);
-
-            await _colaboradorRepository.IncluirColaborador(Usuario);
-
-            return _mapper.Map<ColaboradorConsultarDTO>(Usuario);
+            return _mapper.Map<UsuarioConsultarDTO>(usuario);
         }
 
-        public async Task<ColaboradorConsultarDTO> AlterarColaborador(int id, ColaboradorAlterarDTO dto)
+        // 🔹 ALTERAR
+        public async Task<UsuarioConsultarDTO> AlterarAsync(int id, UsuarioAlterarDTO dto)
         {
-          
-                var colaboradorExistente = await _colaboradorRepository.ConsultarColaboradorPorId(id);
-                if (colaboradorExistente == null)
-                    throw new KeyNotFoundException($"Usuario com ID {id} não encontrado.");
-                var equipeExiste = await _equipeRepository.ConsultarEquipePorId(dto.EquipeId);
-                if (equipeExiste == null)
-                    throw new KeyNotFoundException($"Nenhuma equipe encontrada com o ID {dto.EquipeId}.");
+            var usuario = await _usuarioRepository.ObterPorIdAsync(id);
+            if (usuario == null)
+                throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
 
-                colaboradorExistente.Update(dto.sNome, dto.EquipeId);
+            usuario.Update(dto.Nome,dto.Idade); // ajuste conforme sua entidade
 
-                await _colaboradorRepository.SalvarMudancas();
-                return _mapper.Map<ColaboradorConsultarDTO>(colaboradorExistente);
+            await _usuarioRepository.SalvarAsync();
+
+            return _mapper.Map<UsuarioConsultarDTO>(usuario);
         }
 
-        public async Task<ColaboradorConsultarDTO> ExcluirColaborador(int id)
+        // 🔹 EXCLUIR
+        public async Task ExcluirAsync(int id)
         {
-            var Usuario = await _colaboradorRepository.ConsultarColaboradorPorId(id);
-            if (Usuario == null)
-            {
-                throw new Exception($"O Usuario com ID {id} não foi encontrado.");
-            }
-            var colaboradorExcluido = await _colaboradorRepository.ExcluirColaborador(id);
+            var usuario = await _usuarioRepository.ObterPorIdAsync(id);
+            if (usuario == null)
+                throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
 
-            return _mapper.Map<ColaboradorConsultarDTO>(colaboradorExcluido);
+            await _usuarioRepository.RemoverAsync(usuario);
+            await _usuarioRepository.SalvarAsync();
         }
     }
 }
