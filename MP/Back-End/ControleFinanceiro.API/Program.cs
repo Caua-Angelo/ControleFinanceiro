@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -77,6 +77,26 @@ app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 app.MapControllers();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+    try
+    {
+        if (db.Database.CanConnect())
+        {
+            Console.WriteLine(" Conexão com o banco OK!");
+        }
+        else
+        {
+            Console.WriteLine(" Não foi possível conectar ao banco.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($" Erro ao conectar: {ex.Message}");
+    }
+}
+
 
 app.Run();
 

@@ -15,7 +15,7 @@ namespace ControleFinanceiro.Infraestructure.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            
+
             builder.HasDefaultSchema("public");
 
             builder.ApplyConfiguration(new ConfigurationUsuario());
