@@ -2,9 +2,12 @@ import React from 'react';
 
 export default function Hub() {
   return (
+    <div>
     <div style={{ padding: '2rem' }}>
-      <h1>Hub</h1>
+      <h1>Página inicial</h1>
       <p>Página principal do sistema, aqui você pode colocar um resumo ou atalhos.</p>
+
+    </div>
     </div>
   );
 }

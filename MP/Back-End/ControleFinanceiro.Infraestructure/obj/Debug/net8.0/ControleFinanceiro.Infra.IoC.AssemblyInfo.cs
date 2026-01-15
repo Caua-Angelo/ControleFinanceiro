@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ControleFinanceiro.Infra.IoC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+480cc7ff15d6b415df1d18093d5b4a679af9a38c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce0cb20ad88888da440ab34ea734cd3b1d5541e3")]
 [assembly: System.Reflection.AssemblyProductAttribute("ControleFinanceiro.Infra.IoC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ControleFinanceiro.Infra.IoC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'https://seuapp.onrender.com/api', // URL da sua WebAPI
+  baseURL: 'https://localhost:7244/api', // URL da sua WebAPI
 });
 
 // Exemplo de função para login
