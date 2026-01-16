@@ -12,17 +12,7 @@ namespace ControleFinanceiro.AutoMapper
         public MappingProfile()
         {
 
-            CreateMap<Usuario, UsuarioConsultarDTO>()
-                .ForMember(dest => dest.TotalReceitas,
-                    opt => opt.MapFrom(src =>
-                        src.Transacao
-                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Receita)
-                           .Sum(t => t.Valor)))
-                .ForMember(dest => dest.TotalDespesas,
-                    opt => opt.MapFrom(src =>
-                        src.Transacao
-                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Despesa)
-                           .Sum(t => t.Valor)));
+            CreateMap<Usuario, UsuarioConsultarDTO>();
 
             CreateMap<UsuarioIncluirDTO, Usuario>();
             CreateMap<UsuarioAlterarDTO, Usuario>();

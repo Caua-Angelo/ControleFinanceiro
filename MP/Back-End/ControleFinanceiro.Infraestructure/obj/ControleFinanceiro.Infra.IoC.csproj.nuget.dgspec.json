@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj": {}
+    "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj": {}
   },
   "projects": {
-    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj": {
+    "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj",
+        "projectUniqueName": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj",
         "projectName": "ControleFinanceiro.Application",
-        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj",
-        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\obj\\",
+        "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj",
+        "packagesPath": "C:\\Users\\Caua Angelo\\.nuget\\packages\\",
+        "outputPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Caua Angelo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,16 +26,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "http://10.150.235.175:43675/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
-                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
+              "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+                "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
               }
             }
           }
@@ -50,7 +48,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -85,24 +83,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj": {
+    "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj",
+        "projectUniqueName": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj",
         "projectName": "ControleFinanceiro.Infra.Data",
-        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj",
-        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\obj\\",
+        "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj",
+        "packagesPath": "C:\\Users\\Caua Angelo\\.nuget\\packages\\",
+        "outputPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Caua Angelo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -111,16 +109,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "http://10.150.235.175:43675/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
-                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
+              "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+                "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
               }
             }
           }
@@ -135,7 +131,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -162,24 +158,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+    "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj",
+        "projectUniqueName": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj",
         "projectName": "ControleFinanceiro.Domain",
-        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj",
-        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\obj\\",
+        "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj",
+        "packagesPath": "C:\\Users\\Caua Angelo\\.nuget\\packages\\",
+        "outputPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Caua Angelo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -188,8 +184,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "http://10.150.235.175:43675/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -208,7 +202,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -303,24 +297,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj": {
+    "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj",
+        "projectUniqueName": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj",
         "projectName": "ControleFinanceiro.Infra.IoC",
-        "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj",
-        "packagesPath": "C:\\Users\\caua.lopes\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\obj\\",
+        "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\ControleFinanceiro.Infra.IoC.csproj",
+        "packagesPath": "C:\\Users\\Caua Angelo\\.nuget\\packages\\",
+        "outputPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Infraestructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\caua.lopes\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Caua Angelo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -329,22 +323,20 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "http://10.150.235.175:43675/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj": {
-                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj"
+              "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj": {
+                "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Application\\ControleFinanceiro.Application.csproj"
               },
-              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj": {
-                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj"
+              "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj": {
+                "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Data\\ControleFinanceiro.Infra.Data.csproj"
               },
-              "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
-                "projectPath": "C:\\Users\\caua.lopes\\source\\repos\\Caua-Angelo\\EstudoJS\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
+              "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj": {
+                "projectPath": "D:\\Site1\\MP\\Back-End\\ControleFinanceiro.Domain\\ControleFinanceiro.Domain.csproj"
               }
             }
           }
@@ -359,7 +351,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -398,7 +390,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

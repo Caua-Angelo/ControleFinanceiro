@@ -1,1 +1,4 @@
 /MP/Back-End/.vs
+*.cache
+*.cache
+*.json
