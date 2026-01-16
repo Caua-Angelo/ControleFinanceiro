@@ -5,7 +5,7 @@ import Usuario from './Pages/Usuario.tsx';
 import Transacao from './Pages/Transacao.tsx';
 import Layout from './Components/layout.tsx'
 
-function App() {
+function app() {
   return (
     <Router>
       <Routes>
@@ -21,4 +21,4 @@ function App() {
   );
 }
 
-export default App;
+export default app;

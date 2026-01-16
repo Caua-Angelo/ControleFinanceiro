@@ -1,87 +1,86 @@
 import React, { useState } from 'react';
-import { criarUsuario,ListarUsuario } from "../Services/UsuarioService";
+import { criarUsuario, ListarUsuario } from "../Services/UsuarioService";
 
 type Acao = "criar" | "editar" | "excluir" | null;
 export default function Usuario() {
   const [acao, setAcao] = useState<Acao>(null);
   const [nome, setNome] = useState("");
   const [, setUsuarioCriado] = useState<UsuarioResponse | null>(null);
-  const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]); 
+  const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]);
 
   const [idade, setIdade] = useState<number | "">("");
 
   interface UsuarioResponse {
-  id: number;
-  nome: string;
-  idade: number;
-}
+    id: number;
+    nome: string;
+    idade: number;
+  }
 
   async function CriarUsuario() {
-      try {
-    if (!nome || idade === "") {
-      alert("Preencha todos os campos");
-      return;
+    try {
+      if (!nome || idade === "") {
+        alert("Preencha todos os campos");
+        return;
+      }
+
+      const payload = {
+        nome,
+        idade: Number(idade),
+      };
+
+      const usuario = await criarUsuario(payload);
+      setUsuarioCriado(usuario);
+      console.log("Usuário criado com sucesso:", usuario);
+      alert("Usuário criado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao criar usuário");
     }
-
-    const payload = {
-      nome,
-      idade: Number(idade),
-    };
-
-    const usuario = await criarUsuario(payload);
-  setUsuarioCriado(usuario);
-  console.log("Usuário criado com sucesso:", usuario);
-  alert("Usuário criado com sucesso!");
-} catch (error) {
-    console.error(error);
-    alert("Erro ao criar usuário");
-  }
   }
 
   async function listarUsuarios() {
-      try {
- 
-    const usuariosData = await ListarUsuario();
+    try {
+
+      const usuariosData = await ListarUsuario();
       setUsuarios(usuariosData);
-  console.log("Usuário Existentes:", usuariosData);
+      console.log("Usuário Existentes:", usuariosData);
 
-} catch (error) {
-    console.error(error);
-    alert("Erro ao consultar a lista de usuários usuário");
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao consultar a lista de usuários usuário");
+    }
   }
-  }
-
 
   return (
     <div className=''>
-      
+
       <div className=' items-center flex flex-col mb-6'>
-      <h1 className="text-2xl font-bold"> Sessão do usuário </h1>
-      <p className="text-2xl font-bold">Aqui você pode gerenciar os usuários do sistema.</p>
+        <h1 className="text-2xl font-bold"> Sessão do usuário </h1>
+        <p className="text-2xl font-bold">Aqui você pode gerenciar os usuários do sistema.</p>
       </div>
-      <div className="flex justify-center gap-4 bg-gray-600 p-6 rounded-lg">
-        <button onClick={() => setAcao("criar")} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+      <div className="flex justify-center  gap-4 bg-white p-6 backdrop-blur-md rounded-lg">
+        <button onClick={() => setAcao("criar")} className="px-4 py-2 bg-[#5F9EA0] text-white rounded hover:bg-[#2F4F4F] transition">
           Criar
         </button>
 
-       <button 
-  onClick={async () => {
-    setAcao("editar");
-    await listarUsuarios();
-  }} 
-  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
->
-  Editar
-</button>
+        <button
+          onClick={async () => {
+            setAcao("editar");
+            await listarUsuarios();
+          }}
+          className="px-4 py-2 bg-[#5F9EA0] text-white rounded hover:bg-[#2F4F4F] transition"
+        >
+          Editar
+        </button>
 
-        <button onClick={() => setAcao("excluir")} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+        <button onClick={() => setAcao("excluir")} className="px-4 py-2 bg-[#5F9EA0] text-white rounded hover:bg-[#2F4F4F] transition">
           Excluir
         </button>
       </div>
       {/* Conteúdo dinâmico */}
       {acao === "criar" && (
-        <div className="mt-6 bg-white p-6 rounded-lg shadow-md w-full max-w-md mx-auto">
-          <h2 className="text-xl font-semibold mb-4">Criar usuário</h2>
+        <div className="mt-6 bg-white p-6 rounded-lg backdrop-blur-sm w-full max-w-md mx-auto">
+          <h2 className="text-xl  font-semibold mb-4">Criar usuário</h2>
 
           <div className="flex flex-col gap-4">
             {/* Nome */}
@@ -101,7 +100,7 @@ export default function Usuario() {
               onChange={(e) =>
                 setIdade(e.target.value === "" ? "" : Number(e.target.value))
               }
-              className="border p-2 rounded"
+              className=" border p-2 rounded"
             />
 
             <button
@@ -116,12 +115,12 @@ export default function Usuario() {
       {acao === "editar" && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto">
           <h2 className="text-xl font-semibold mb-4">Editar usuário</h2>
-          
+
           {usuarios.length > 0 ? (
             <div className="space-y-3">
               {usuarios.map((user) => (
-                <div 
-                  key={user.id} 
+                <div
+                  key={user.id}
                   className="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-50 transition"
                 >
                   <div>
@@ -144,7 +143,7 @@ export default function Usuario() {
 
 
 
-      
+
       {acao === "excluir" && (
         <div>🗑️ Confirmação de exclusão</div>)}
 

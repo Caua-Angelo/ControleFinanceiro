@@ -24,3 +24,17 @@ D:\Site1\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\Control
 D:\Site1\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\refint\ControleFinanceiro.Infra.IoC.dll
 D:\Site1\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.pdb
 D:\Site1\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ref\ControleFinanceiro.Infra.IoC.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Infra.IoC.deps.json
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Infra.IoC.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Infra.IoC.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Application.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Domain.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Infra.Data.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Application.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Infra.Data.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\bin\Debug\net8.0\ControleFinanceiro.Domain.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\Controle.EBD976FC.Up2Date
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\refint\ControleFinanceiro.Infra.IoC.dll
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ControleFinanceiro.Infra.IoC.pdb
+C:\Users\caua.lopes\source\repos\Caua-Angelo\EstudoJS\MP\Back-End\ControleFinanceiro.Infraestructure\obj\Debug\net8.0\ref\ControleFinanceiro.Infra.IoC.dll
