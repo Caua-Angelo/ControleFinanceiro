@@ -115,12 +115,12 @@ dotnet run
 
 A API ficará disponível em:
 
-https://localhost:5001
+https://localhost:7244
 
 
 A documentação da API pode ser acessada via Swagger:
 
-https://localhost:5001/swagger
+https://localhost:7244/swagger
 
 🖥️ Frontend (React)
 
