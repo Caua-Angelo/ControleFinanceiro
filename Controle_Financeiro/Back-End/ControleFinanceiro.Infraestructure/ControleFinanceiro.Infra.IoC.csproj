@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<BuildProject>false</BuildProject>
+	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="FluentAssertions" Version="8.6.0" />
+	  <PackageReference Include="MediatR" Version="13.0.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.19" />
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ControleFinanceiro.Application\ControleFinanceiro.Application.csproj" />
+	  <ProjectReference Include="..\ControleFinanceiro.Data\ControleFinanceiro.Infra.Data.csproj" />
+	  <ProjectReference Include="..\ControleFinanceiro.Domain\ControleFinanceiro.Domain.csproj" />
+	</ItemGroup>
+
+
+</Project>
