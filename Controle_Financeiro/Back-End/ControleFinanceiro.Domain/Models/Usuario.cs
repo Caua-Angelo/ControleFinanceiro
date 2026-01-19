@@ -11,7 +11,7 @@ namespace ControleFinanceiro.Domain.Models
 
         public int Idade { get; private set; }
 
-        // 🔹 1 usuário possui várias transações
+        //  1 usuário possui várias transações
         public ICollection<Transacao> Transacao { get; private set; } = new List<Transacao>();
 
         protected Usuario() { }

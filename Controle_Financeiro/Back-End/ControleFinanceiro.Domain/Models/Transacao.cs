@@ -104,7 +104,7 @@ namespace ControleFinanceiro.Domain.Models
                 "Categoria de despesa não pode ser usada em uma receita."
             );
 
-            // 🔹 Atribuições
+            //  Atribuições
             Descricao = descricao;
             Valor = valor;
             Tipo = tipo;

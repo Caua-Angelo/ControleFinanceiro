@@ -20,7 +20,7 @@ namespace ControleFinanceiro.Infraestructure.Data
             builder.Property(u => u.Idade)
                    .IsRequired();
 
-            // 🔹 Relacionamento 1 -> N (Usuário tem várias Transações)
+            //  Relacionamento 1 -> N (Usuário tem várias Transações)
             builder.HasMany(u => u.Transacao)
                    .WithOne(t => t.Usuario)
                    .HasForeignKey(t => t.UsuarioId)

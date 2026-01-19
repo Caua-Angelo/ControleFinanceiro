@@ -10,10 +10,10 @@ namespace ControleFinanceiro.Domain.Models
 
         public string Descricao { get; private set; } = null!;
 
-        // 🔹 Define se a categoria aceita Receita, Despesa ou Ambas
+        //  Define se a categoria aceita Receita, Despesa ou Ambas
         public FinalidadeCategoria Finalidade { get; private set; }
 
-        // 🔹 Uma categoria pode estar em várias transações
+        //  Uma categoria pode estar em várias transações
         public ICollection<Transacao> Transacoes { get; private set; } = new List<Transacao>();
 
         protected Categoria() { }
