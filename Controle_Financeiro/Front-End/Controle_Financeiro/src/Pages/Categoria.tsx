@@ -143,8 +143,9 @@ export default function Categoria() {
 
               {/* Finalidade */}
               <div>
-                <h3 className="text-xl text-[#2F4F4F] mb-2">Finalidade</h3>
+                <label htmlFor="select-finalidade" className="text-xl text-[#2F4F4F] mb-2">Finalidade</label>
                 <select
+                  id="select-finalidade"
                   value={finalidade}
                   onChange={(e) =>
                     setFinalidade(
@@ -262,8 +263,9 @@ export default function Categoria() {
             </h2>
 
             <div className="mb-4">
-              <label className="block mb-1 text-[#2F4F4F]">Descrição</label>
+              <label htmlFor="input-descricao" className="block mb-1 text-[#2F4F4F]">Descrição</label>
               <input
+                id="input-descricao"
                 type="text"
                 value={descricaoEdit}
                 onChange={(e) => setDescricaoEdit(e.target.value)}
@@ -272,8 +274,9 @@ export default function Categoria() {
             </div>
 
             <div className="mb-4">
-              <label className="block mb-1 text-[#2F4F4F]">Finalidade</label>
+              <label htmlFor="select-finalidade" className="block mb-1 text-[#2F4F4F]">Finalidade</label>
               <select
+                id="select-finalidade"
                 value={finalidadeEdit}
                 onChange={(e) =>
                   setFinalidadeEdit(

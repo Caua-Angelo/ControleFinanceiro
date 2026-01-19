@@ -10,20 +10,20 @@ namespace ControleFinanceiro.Infraestructure.Data
         {
             builder.ToTable("Categoria");
 
-            // 🔹 Chave primária
+            //  Chave primária
             builder.HasKey(c => c.Id);
 
-            // 🔹 Descrição
+            //  Descrição
             builder.Property(c => c.Descricao)
                    .IsRequired()
                    .HasMaxLength(100);
 
-            // 🔹 Finalidade (enum)
+            //  Finalidade (enum)
             builder.Property(c => c.Finalidade)
                    .IsRequired()
                    .HasConversion<int>();
 
-            // 🔹 Relacionamento 1 -> N (Categoria tem várias Transações)
+            //  Relacionamento 1 -> N (Categoria tem várias Transações)
             builder.HasMany(c => c.Transacoes)
                    .WithOne(t => t.Categoria)
                    .HasForeignKey(t => t.CategoriaId)

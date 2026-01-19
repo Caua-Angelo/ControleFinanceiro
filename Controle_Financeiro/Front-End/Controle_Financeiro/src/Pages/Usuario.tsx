@@ -245,8 +245,9 @@ export default function Usuario() {
             </h2>
 
             <div className="mb-4">
-              <label className="block mb-1 text-[#2F4F4F]">Nome</label>
+              <label htmlFor="input-nome" className="block mb-1 text-[#2F4F4F]">Nome</label>
               <input
+                id="input-nome"
                 type="text"
                 value={nomeEdit}
                 onChange={(e) => setNomeEdit(e.target.value)}
@@ -255,8 +256,9 @@ export default function Usuario() {
             </div>
 
             <div className="mb-4">
-              <label className="block mb-1 text-[#2F4F4F]">Idade</label>
+              <label htmlFor="input-idade" className="block mb-1 text-[#2F4F4F]">Idade</label>
               <input
+                id="input-idade"
                 type="number"
                 value={idadeEdit}
                 onChange={(e) =>

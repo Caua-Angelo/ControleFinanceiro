@@ -62,9 +62,7 @@ export default function RelatorioFinanceiro() {
     // Filtrar por mês
     if (mesSelecionado !== "todos") {
       resultados = resultados.filter((t) => {
-        // Assumindo que você tem uma data na transação ou vai adicionar
-        // Se não tiver, você pode remover este filtro ou adaptar
-        const dataTransacao = new Date(t.data); // Ajuste conforme sua API
+        const dataTransacao = new Date(t.data);
         const mesAno = `${dataTransacao.getFullYear()}-${String(dataTransacao.getMonth() + 1).padStart(2, "0")}`;
         return mesAno === mesSelecionado;
       });
@@ -119,7 +117,7 @@ export default function RelatorioFinanceiro() {
     setSaldoGeralFinal(saldoFinal);
   }
 
-  // Gerar lista de meses (últimos 12 meses)
+  // Gerar lista de meses
   function gerarMeses() {
     const meses = [];
     const hoje = new Date();
@@ -163,10 +161,14 @@ export default function RelatorioFinanceiro() {
         <div className="grid grid-cols-2 gap-4">
           {/* Filtro de Usuário */}
           <div>
-            <label className="block mb-2 text-[#2F4F4F] font-medium">
+            <label
+              htmlFor="select-usuario"
+              className="block mb-2 text-[#2F4F4F] font-medium"
+            >
               Usuário
             </label>
             <select
+              id="select-usuario"
               value={usuarioSelecionado}
               onChange={(e) =>
                 setUsuarioSelecionado(
@@ -186,8 +188,14 @@ export default function RelatorioFinanceiro() {
 
           {/* Filtro de Mês */}
           <div>
-            <label className="block mb-2 text-[#2F4F4F] font-medium">Mês</label>
+            <label
+              htmlFor="select-mes"
+              className="block mb-2 text-[#2F4F4F] font-medium"
+            >
+              Mês
+            </label>
             <select
+              id="select-mes"
               value={mesSelecionado}
               onChange={(e) => setMesSelecionado(e.target.value)}
               className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"

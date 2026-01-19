@@ -17,11 +17,11 @@ namespace ControleFinanceiro.Domain.Models
 
         public DateTime Data { get; private set; }
 
-        // 🔹 Relacionamento com Categoria
+        //  Relacionamento com Categoria
         public int CategoriaId { get; private set; }
         public Categoria Categoria { get; private set; } = null!;
 
-        // 🔹 Relacionamento com Usuário
+        //  Relacionamento com Usuário
         public int UsuarioId { get; private set; }
         public Usuario Usuario { get; private set; } = null!;
 
@@ -59,7 +59,7 @@ namespace ControleFinanceiro.Domain.Models
         {
             descricao = descricao?.Trim() ?? string.Empty;
 
-            // 🔹 Validações básicas
+            //  Validações básicas
             DomainExceptionValidation.When(string.IsNullOrWhiteSpace(descricao),
                 "A descrição da transação é obrigatória.");
 
@@ -81,11 +81,11 @@ namespace ControleFinanceiro.Domain.Models
             DomainExceptionValidation.When(usuario is null,
                 "Usuário é obrigatório.");
 
-            // ← ADICIONAR validação de data (opcional)
+            // validação de data 
             DomainExceptionValidation.When(data == default,
                 "A data da transação é obrigatória.");
 
-            // 🔴 REGRA 1: Menor de idade só pode registrar despesa
+            // Menor de idade só pode registrar despesa
             DomainExceptionValidation.When(
                 usuario.Idade < 18 && tipo != TipoTransacao.Despesa,
                 "Usuários menores de 18 anos podem registrar apenas despesas."

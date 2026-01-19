@@ -20,7 +20,7 @@ export default function Transacao() {
   const [tipo, setTipo] = useState<number | "">("");
   const [categoriaId, setCategoriaId] = useState<number | "">("");
   const [usuarioId, setUsuarioId] = useState<number | "">("");
-  const [data, setData] = useState<string>(""); // ← NOVO
+  const [data, setData] = useState<string>("");
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -32,7 +32,7 @@ export default function Transacao() {
   const [tipoEdit, setTipoEdit] = useState<number | "">("");
   const [categoriaIdEdit, setCategoriaIdEdit] = useState<number | "">("");
   const [usuarioIdEdit, setUsuarioIdEdit] = useState<number | "">("");
-  const [dataEdit, setDataEdit] = useState<string>(""); // ← NOVO
+  const [dataEdit, setDataEdit] = useState<string>("");
 
   const transacoesPorPagina = 4;
   const totalPaginas = Math.ceil(transacoes.length / transacoesPorPagina);
@@ -50,10 +50,8 @@ export default function Transacao() {
     ? usuarioSelecionado.idade < 18
     : false;
 
-  // Tipo atual (FUNCIONA PARA CRIAÇÃO E EDIÇÃO)
   const tipoAtual = showModal ? tipoEdit : tipo;
 
-  // Filtrar categorias baseado no tipo selecionado (FUNCIONA PARA CRIAÇÃO E EDIÇÃO)
   const categoriasFiltradas = categorias.filter((categoria) => {
     if (tipoAtual === "") return false;
 
@@ -73,7 +71,7 @@ export default function Transacao() {
         tipo === "" ||
         categoriaId === "" ||
         usuarioId === "" ||
-        !data // ← VALIDAR DATA
+        !data
       ) {
         alert("Preencha todos os campos");
         return;
@@ -93,8 +91,6 @@ export default function Transacao() {
         usuarioId: Number(usuarioId),
         data: dataISO,
       };
-      console.log("📅 Data antes de enviar:", data); // ← ADICIONE ISSO
-      console.log("📦 Payload completo:", payload); // ← E ISSO
 
       const transacao = await criarTransacao(payload);
       console.log("Transação criada com sucesso:", transacao);
@@ -107,7 +103,7 @@ export default function Transacao() {
       setTipo("");
       setCategoriaId("");
       setUsuarioId("");
-      setData(""); // ← LIMPAR DATA
+      setData("");
     } catch (error) {
       console.error(error);
       alert("Erro ao criar transação");
@@ -172,7 +168,7 @@ export default function Transacao() {
         tipo: Number(tipoEdit),
         categoriaId: Number(categoriaIdEdit),
         usuarioId: Number(usuarioIdEdit),
-        data: dataEdit, // ← ADICIONAR DATA
+        data: dataEdit,
       });
 
       await listarTodasTransacoes();
@@ -205,7 +201,7 @@ export default function Transacao() {
     setCategoriaIdEdit(transacao.categoriaId);
     setUsuarioIdEdit(transacao.usuarioId);
 
-    // ← FORMATAR DATA PARA O INPUT (yyyy-MM-dd)
+    // formata data para o input
     const dataFormatada = transacao.data.split("T")[0];
     setDataEdit(dataFormatada);
 
@@ -271,6 +267,7 @@ export default function Transacao() {
                   Valor
                 </label>
                 <input
+                  id="select-valor"
                   type="text"
                   placeholder="R$ 100,00"
                   value={valor}
@@ -582,9 +579,14 @@ export default function Transacao() {
             </div>
 
             <div className="mb-4">
-              <label   htmlFor="select-usuario" className="block mb-1 text-[#2F4F4F]">Usuário</label>
+              <label
+                htmlFor="select-usuario"
+                className="block mb-1 text-[#2F4F4F]"
+              >
+                Usuário
+              </label>
               <select
-              id="select-usuario"
+                id="select-usuario"
                 value={usuarioIdEdit}
                 onChange={(e) =>
                   setUsuarioIdEdit(
@@ -603,9 +605,14 @@ export default function Transacao() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="select-tipo" className="block mb-1 text-[#2F4F4F]">Tipo</label>
+              <label
+                htmlFor="select-tipo"
+                className="block mb-1 text-[#2F4F4F]"
+              >
+                Tipo
+              </label>
               <select
-              id="select-tipo"
+                id="select-tipo"
                 value={tipoEdit}
                 onChange={(e) => {
                   setTipoEdit(
@@ -630,7 +637,12 @@ export default function Transacao() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="select-categoria" className="block mb-1 text-[#2F4F4F]">Categoria</label>
+              <label
+                htmlFor="select-categoria"
+                className="block mb-1 text-[#2F4F4F]"
+              >
+                Categoria
+              </label>
               <select
                 id="select-categoria"
                 value={categoriaIdEdit}

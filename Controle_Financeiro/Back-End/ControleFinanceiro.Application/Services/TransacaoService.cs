@@ -25,14 +25,14 @@ namespace ControleFinanceiro.Application.Services
             _mapper = mapper;
         }
 
-        // 🔹 LISTAR TODAS
+        //  LISTAR TODAS
         public async Task<IEnumerable<TransacaoConsultarDTO>> ListarAsync()
         {
             var transacoes = await _transacaoRepository.ListarAsync();
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
-        // 🔹 OBTER POR ID
+        //  OBTER POR ID
         public async Task<TransacaoConsultarDTO> ObterPorIdAsync(int id)
         {
             var transacao = await _transacaoRepository.ObterPorIdAsync(id);
@@ -43,7 +43,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        // 🔹 LISTAR POR USUÁRIO
+        //  LISTAR POR USUÁRIO
         public async Task<IEnumerable<TransacaoConsultarDTO>> ListarPorUsuarioAsync(int usuarioId)
         {
             var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId);
@@ -54,7 +54,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
-        // 🔹 LISTAR POR CATEGORIA
+        //  LISTAR POR CATEGORIA
         public async Task<IEnumerable<TransacaoConsultarDTO>> ListarPorCategoriaAsync(int categoriaId)
         {
             var categoria = await _categoriaRepository.ConsultarPorIdAsync(categoriaId);
@@ -65,7 +65,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
-        // 🔹 CRIAR
+        //  CRIAR
         public async Task<TransacaoConsultarDTO> CriarAsync(TransacaoCriarDTO dto)
         {
             var usuario = await _usuarioRepository.ObterPorIdAsync(dto.UsuarioId);
@@ -76,12 +76,12 @@ namespace ControleFinanceiro.Application.Services
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
 
-            // 🔴 REGRA: menor de idade só pode despesa
+            // menor de idade só pode despesa
             if (usuario.Idade < 18 && dto.Tipo != TipoTransacao.Despesa)
                 throw new InvalidOperationException(
                     "Usuários menores de 18 anos podem registrar apenas despesas.");
 
-            // 🔴 REGRA: categoria compatível com tipo
+            // categoria compatível com tipo
             if (dto.Tipo == TipoTransacao.Despesa &&
                 categoria.Finalidade == FinalidadeCategoria.Receita)
                 throw new InvalidOperationException(
@@ -107,7 +107,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        // 🔹 ATUALIZAR
+        //  ATUALIZAR
         public async Task<TransacaoConsultarDTO> AtualizarAsync(int id, TransacaoAtualizarDTO dto)
         {
             var transacao = await _transacaoRepository.ObterPorIdAsync(id);

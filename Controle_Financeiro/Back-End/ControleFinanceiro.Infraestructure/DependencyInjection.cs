@@ -16,7 +16,7 @@ namespace ControleFinanceiro.Infra.IoC
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // 🔹 DbContext
+            //  DbContext
             services.AddDbContext<ApplicationDBContext>(options =>
                 options.UseNpgsql(
                     configuration.GetConnectionString("PostgresConnection"),
@@ -24,17 +24,17 @@ namespace ControleFinanceiro.Infra.IoC
                 )
             );
 
-            // 🔹 Repositories
+            //  Repositories
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             services.AddScoped<ICategoriaRepository, CategoriaRepository>();
             services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 
-            // 🔹 Services
+            //  Services
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<ICategoriaService, CategoriaService>();
             services.AddScoped<ITransacaoService, TransacaoService>();
 
-            // 🔹 AutoMapper
+            //  AutoMapper
             services.AddAutoMapper(typeof(MappingProfile));
 
             return services;
