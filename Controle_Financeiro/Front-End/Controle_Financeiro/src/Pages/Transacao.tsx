@@ -262,7 +262,7 @@ export default function Transacao() {
               <div>
                 <label
                   htmlFor="select-valor"
-                  className="text-xl text-[#2F4F4F] mb-2"
+                  className="block text-xl text-[#2F4F4F] mb-2"
                 >
                   Valor
                 </label>
@@ -356,8 +356,9 @@ export default function Transacao() {
                     setCategoriaId("");
                   }}
                   disabled={usuarioId === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
+                    usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">Selecione o tipo</option>
                   {!isMenorDeIdade && <option value="1">Receita</option>}
@@ -387,8 +388,9 @@ export default function Transacao() {
                     )
                   }
                   disabled={tipo === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${tipo === "" ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
+                    tipo === "" ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">Selecione a categoria</option>
                   {categoriasFiltradas.map((categoria) => (
@@ -419,14 +421,14 @@ export default function Transacao() {
           </h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
-          <div className="ml-3 mb-2 grid grid-cols-7 w-250">
+          <div className="mb-2 grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr] gap-4 px-4">
             <h3 className="text-xl text-[#2F4F4F]">Usuário</h3>
             <h3 className="text-xl text-[#2F4F4F]">Descrição</h3>
             <h3 className="text-xl text-[#2F4F4F]">Data</h3>
             <h3 className="text-xl text-[#2F4F4F]">Valor</h3>
             <h3 className="text-xl text-[#2F4F4F]">Tipo</h3>
             <h3 className="text-xl text-[#2F4F4F]">Categoria</h3>
-            <h3 className="text-xl ml-16 text-[#2F4F4F]">Ações</h3>
+            <h3 className="text-xl text-[#2F4F4F]">Ações</h3>
           </div>
 
           {transacoes.length > 0 ? (
@@ -434,35 +436,40 @@ export default function Transacao() {
               {transacoesPaginadas.map((transacao) => (
                 <div
                   key={transacao.id}
-                  className="flex items-center p-4 border border-[#C8D6D1] rounded-lg bg-white hover:bg-[#E8EFED] transition"
+                  className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr] gap-4 items-center p-4 border border-[#C8D6D1] rounded-lg bg-white hover:bg-[#E8EFED] transition"
                 >
                   <p className="font-medium text-[#2F4F4F]">
                     {transacao.usuarioNome}
                   </p>
-                  <p className="font-medium ml-30 text-[#2F4F4F]">
+
+                  <p
+                    className="font-medium text-[#2F4F4F] truncate"
+                    title={transacao.descricao}
+                  >
                     {transacao.descricao}
                   </p>
-                  <p className=" ml-20 text-[#5A7067]">
-                    {" "}
-                    {/* ← NOVO */}
+
+                  <p className="text-[#5A7067]">
                     {formatarData(transacao.data)}
                   </p>
+
                   <p
-                    className={`font-medium px-3 py-1 ml-10 rounded ${transacao.tipo === 1 ? " text-green-700" : " text-red-700"
-                      }`}
+                    className={`font-medium ${transacao.tipo === 1 ? "text-green-700" : "text-red-700"}`}
                   >
                     {formatarValor(transacao.valor, transacao.tipo)}
                   </p>
+
                   <p
-                    className={`font-medium ml-8 ${transacao.tipo === 1 ? "text-green-600" : "text-red-600"}`}
+                    className={`font-medium ${transacao.tipo === 1 ? "text-green-600" : "text-red-600"}`}
                   >
                     {getTipoLabel(transacao.tipo)}
                   </p>
-                  <p className=" ml-25 text-[#5A7067]">
+
+                  <p className="text-[#5A7067]">
                     {transacao.categoriaDescricao}
                   </p>
 
-                  <div className="ml-25 flex gap-2">
+                  <div className="flex gap-2">
                     <button
                       onClick={() => abrirModalEditar(transacao)}
                       className="px-3 py-2 bg-[#7A9D8F] hover:bg-[#5A7067] text-white rounded"
@@ -498,10 +505,11 @@ export default function Transacao() {
                 <button
                   key={pagina}
                   onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${paginaAtual === pagina
-                    ? "bg-[#2F4F4F] text-white"
-                    : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                    }`}
+                  className={`px-3 py-1 rounded ${
+                    paginaAtual === pagina
+                      ? "bg-[#2F4F4F] text-white"
+                      : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
+                  }`}
                 >
                   {pagina}
                 </button>
@@ -617,8 +625,9 @@ export default function Transacao() {
                   setCategoriaIdEdit("");
                 }}
                 disabled={usuarioIdEdit === ""}
-                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${
+                  usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 <option value="">Selecione o tipo</option>
                 {!isMenorDeIdade && <option value="1">Receita</option>}

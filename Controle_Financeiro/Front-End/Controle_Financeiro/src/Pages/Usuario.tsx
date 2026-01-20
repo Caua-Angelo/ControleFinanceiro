@@ -154,7 +154,7 @@ export default function Usuario() {
               <div className="flex items-end">
                 <button
                   onClick={CriarUsuario}
-                  className="bg-[#7A9D8F] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
+                  className="bg-[#27503f] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
                 >
                   Criar Usuário
                 </button>
@@ -245,7 +245,9 @@ export default function Usuario() {
             </h2>
 
             <div className="mb-4">
-              <label htmlFor="input-nome" className="block mb-1 text-[#2F4F4F]">Nome</label>
+              <label htmlFor="input-nome" className="block mb-1 text-[#2F4F4F]">
+                Nome
+              </label>
               <input
                 id="input-nome"
                 type="text"
@@ -256,7 +258,12 @@ export default function Usuario() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="input-idade" className="block mb-1 text-[#2F4F4F]">Idade</label>
+              <label
+                htmlFor="input-idade"
+                className="block mb-1 text-[#2F4F4F]"
+              >
+                Idade
+              </label>
               <input
                 id="input-idade"
                 type="number"

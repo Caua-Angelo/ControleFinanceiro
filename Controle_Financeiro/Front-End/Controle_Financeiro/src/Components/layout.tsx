@@ -1,10 +1,10 @@
 import { Link, Outlet } from "react-router-dom";
 
-import icon from "../assets/icone.png";
 import user from "../assets/user.png";
 import category from "../assets/category.png";
 import Finance from "../assets/finance.png";
 import transaction from "../assets/transaction.png";
+import logo from "../assets/logo.png";
 
 export default function Layout() {
   return (
@@ -12,11 +12,11 @@ export default function Layout() {
       {/* Menu lateral */}
       <aside className="w-70 bg-[#2F4F4F]/90 backdrop-blur-sm text-white p-5 flex flex-col shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
         <div className="mb-8 flex flex-col items-center">
-          <img src={icon} alt="Logo" className="w-12 h-12" />
+          <img src={logo} alt="Logo" className="w-12 h-12" />
           <h2 className="text-xl font-semibold mb-4">Controle Financeiro</h2>
         </div>
         <div className="ml-4">
-          <Link to="/" className={`${menuLink} flex items-center`}>
+          <Link to="/" className={` ${menuLink} flex items-center`}>
             <img src={Finance} alt="Logo" className="w-6 h-6 mr-2" /> Resumo
           </Link>
         </div>
@@ -56,4 +56,4 @@ export default function Layout() {
 }
 
 const menuLink =
-  "mb-2 px-2 py-1 rounded hover:bg-gray-600 transition-colors text-xl";
+  "mb-2 px-2 py-1 rounded hover:bg-gray-600 transition-colors text-2xl";
