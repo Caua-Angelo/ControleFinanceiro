@@ -245,10 +245,16 @@ export default function Transacao() {
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
           <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               {/* Descrição */}
               <div>
-                <h3 className="text-xl text-[#2F4F4F] mb-2">Descrição</h3>
+
+                <label
+                  htmlFor="select-descricao"
+                  className="block text-xl text-[#2F4F4F] mb-2"
+                >
+                  Descricão
+                </label>
                 <input
                   type="text"
                   placeholder="Digite a descrição"
@@ -288,28 +294,11 @@ export default function Transacao() {
                 />
               </div>
 
-              {/* Data ← NOVO CAMPO */}
-              <div>
-                <label
-                  htmlFor="select-data"
-                  className="text-xl text-[#2F4F4F] mb-2"
-                >
-                  Data
-                </label>
-                <input
-                  id="select-data"
-                  type="date"
-                  value={data}
-                  onChange={(e) => setData(e.target.value)}
-                  className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
-                />
-              </div>
-
               {/* Usuário */}
               <div>
                 <label
                   htmlFor="select-usuario"
-                  className="text-xl text-[#2F4F4F] mb-2"
+                  className=" block text-xl text-[#2F4F4F] mb-2"
                 >
                   Usuário
                 </label>
@@ -336,11 +325,30 @@ export default function Transacao() {
                 </select>
               </div>
 
+              {/* Data */}
+              <div>
+                <label
+                  htmlFor="select-data"
+                  className="block text-xl text-[#2F4F4F] mb-2"
+                >
+                  Data
+                </label>
+                <input
+                  id="select-data"
+                  type="date"
+                  value={data}
+                  onChange={(e) => setData(e.target.value)}
+                  className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
+                />
+              </div>
+
+
+
               {/* Tipo */}
               <div>
                 <label
                   htmlFor="select-tipo"
-                  className="text-xl text-[#2F4F4F] mb-2"
+                  className="block text-xl text-[#2F4F4F] mb-2"
                 >
                   Tipo
                 </label>
@@ -356,9 +364,8 @@ export default function Transacao() {
                     setCategoriaId("");
                   }}
                   disabled={usuarioId === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
-                    usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">Selecione o tipo</option>
                   {!isMenorDeIdade && <option value="1">Receita</option>}
@@ -375,7 +382,7 @@ export default function Transacao() {
               <div>
                 <label
                   htmlFor="select-categoria"
-                  className="text-xl text-[#2F4F4F] mb-2"
+                  className="block text-xl text-[#2F4F4F] mb-2"
                 >
                   Categoria
                 </label>
@@ -388,9 +395,8 @@ export default function Transacao() {
                     )
                   }
                   disabled={tipo === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
-                    tipo === "" ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${tipo === "" ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">Selecione a categoria</option>
                   {categoriasFiltradas.map((categoria) => (
@@ -428,7 +434,7 @@ export default function Transacao() {
             <h3 className="text-xl text-[#2F4F4F]">Valor</h3>
             <h3 className="text-xl text-[#2F4F4F]">Tipo</h3>
             <h3 className="text-xl text-[#2F4F4F]">Categoria</h3>
-            <h3 className="text-xl text-[#2F4F4F]">Ações</h3>
+            <h3 className="text-xl ml-16 text-[#2F4F4F]">Ações</h3>
           </div>
 
           {transacoes.length > 0 ? (
@@ -505,11 +511,10 @@ export default function Transacao() {
                 <button
                   key={pagina}
                   onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${
-                    paginaAtual === pagina
-                      ? "bg-[#2F4F4F] text-white"
-                      : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                  }`}
+                  className={`px-3 py-1 rounded ${paginaAtual === pagina
+                    ? "bg-[#2F4F4F] text-white"
+                    : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
+                    }`}
                 >
                   {pagina}
                 </button>
@@ -565,7 +570,6 @@ export default function Transacao() {
               />
             </div>
 
-            {/* Data ← NOVO CAMPO NO MODAL */}
             <div className="mb-4">
               <label
                 htmlFor="select-data"
@@ -625,9 +629,8 @@ export default function Transacao() {
                   setCategoriaIdEdit("");
                 }}
                 disabled={usuarioIdEdit === ""}
-                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${
-                  usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 <option value="">Selecione o tipo</option>
                 {!isMenorDeIdade && <option value="1">Receita</option>}

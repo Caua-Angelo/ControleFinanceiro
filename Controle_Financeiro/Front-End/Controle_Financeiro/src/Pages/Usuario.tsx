@@ -154,7 +154,7 @@ export default function Usuario() {
               <div className="flex items-end">
                 <button
                   onClick={CriarUsuario}
-                  className="bg-[#27503f] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
+                  className="bg-[#7A9D8F] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
                 >
                   Criar Usuário
                 </button>
@@ -222,11 +222,10 @@ export default function Usuario() {
                 <button
                   key={pagina}
                   onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${
-                    paginaAtual === pagina
+                  className={`px-3 py-1 rounded ${paginaAtual === pagina
                       ? "bg-[#2F4F4F] text-white"
                       : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                  }`}
+                    }`}
                 >
                   {pagina}
                 </button>

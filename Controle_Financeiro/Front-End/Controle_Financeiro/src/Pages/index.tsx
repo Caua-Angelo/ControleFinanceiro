@@ -11,23 +11,19 @@ interface UsuarioResumo {
   totalDespesas: number;
   saldoFinal: number;
 }
-
 export default function RelatorioFinanceiro() {
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
-  const [transacoesFiltradas, setTransacoesFiltradas] = useState<
-    TransacaoResponse[]
-  >([]);
   const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]);
+  const [transacoesFiltradas, setTransacoesFiltradas] = useState<TransacaoResponse[]>([]);
   const [resumoPorUsuario, setResumoPorUsuario] = useState<UsuarioResumo[]>([]);
   const [totalGeralReceitas, setTotalGeralReceitas] = useState(0);
   const [totalGeralDespesas, setTotalGeralDespesas] = useState(0);
   const [saldoGeralFinal, setSaldoGeralFinal] = useState(0);
 
   // Filtros
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState<
-    number | "todos"
-  >("todos");
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState<number | "todos">("todos");
   const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
+  const [tipoSelecionado, setTipoSelecionado] = useState<number | "todos">("todos");
 
   async function ListarTransacoes() {
     try {
@@ -51,26 +47,7 @@ export default function RelatorioFinanceiro() {
   }
 
   // Aplicar filtros
-  useEffect(() => {
-    let resultados = [...transacoes];
 
-    // Filtrar por usuário
-    if (usuarioSelecionado !== "todos") {
-      resultados = resultados.filter((t) => t.usuarioId === usuarioSelecionado);
-    }
-
-    // Filtrar por mês
-    if (mesSelecionado !== "todos") {
-      resultados = resultados.filter((t) => {
-        const dataTransacao = new Date(t.data);
-        const mesAno = `${dataTransacao.getFullYear()}-${String(dataTransacao.getMonth() + 1).padStart(2, "0")}`;
-        return mesAno === mesSelecionado;
-      });
-    }
-
-    setTransacoesFiltradas(resultados);
-    calcularResumos(resultados);
-  }, [usuarioSelecionado, mesSelecionado, transacoes]);
 
   function calcularResumos(transacoesData: TransacaoResponse[]) {
     // Agrupar por usuário
@@ -116,7 +93,6 @@ export default function RelatorioFinanceiro() {
     setTotalGeralDespesas(totalDespesas);
     setSaldoGeralFinal(saldoFinal);
   }
-
   // Gerar lista de meses
   function gerarMeses() {
     const meses = [];
@@ -135,17 +111,42 @@ export default function RelatorioFinanceiro() {
     return meses;
   }
 
-  useEffect(() => {
-    ListarTransacoes();
-    ListarUsuarios();
-  }, []);
-
   function formatarValor(valor: number): string {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
   }
+  useEffect(() => {
+    let resultados = [...transacoes];
+
+    // Filtrar por usuário
+    if (usuarioSelecionado !== "todos") {
+      resultados = resultados.filter((t) => t.usuarioId === usuarioSelecionado);
+    }
+    // Filtrar por mês
+    if (mesSelecionado !== "todos") {
+      resultados = resultados.filter((t) => {
+        const dataTransacao = new Date(t.data);
+        const mesAno = `${dataTransacao.getFullYear()}-${String(dataTransacao.getMonth() + 1).padStart(2, "0")}`;
+        return mesAno === mesSelecionado;
+      });
+    }
+    // Filtrar por categoria
+    if (tipoSelecionado !== "todos") {
+      resultados = resultados.filter(
+        (t) => t.tipo === Number(tipoSelecionado)
+      );
+    }
+
+    setTransacoesFiltradas(resultados);
+    calcularResumos(resultados);
+  }, [usuarioSelecionado, mesSelecionado, tipoSelecionado, transacoes]);
+
+  useEffect(() => {
+    ListarTransacoes();
+    ListarUsuarios();
+  }, []);
 
   return (
     <div className="p-6">
@@ -154,7 +155,7 @@ export default function RelatorioFinanceiro() {
       </h1>
 
       {/* Filtros */}
-      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+      <div className="bg-[#F5F7F6] rounded-lg  p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
         <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Filtros</h2>
         <hr className="mb-4 border-[#9DB4AB]" />
 
@@ -208,7 +209,32 @@ export default function RelatorioFinanceiro() {
               ))}
             </select>
           </div>
+          {/* Filtro de Tipo */}
+          <div>
+            <label
+              htmlFor="select-TipoSelecionado"
+              className="block mb-2 text-[#2F4F4F] font-medium"
+            >
+              Categoria
+            </label>
+            <select
+              id="select-TipoSelecionado"
+              value={tipoSelecionado}
+              onChange={(e) =>
+                setTipoSelecionado(
+                  e.target.value === "todos" ? "todos" : Number(e.target.value)
+                )
+              }
+              className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
+            >
+              <option value="todos">Todos</option>
+              <option value={1}>Receita</option>
+              <option value={2}>Despesa</option>
+            </select>
+          </div>
+
         </div>
+
       </div>
 
       {/* Cards individuais por usuário */}
@@ -245,9 +271,8 @@ export default function RelatorioFinanceiro() {
                   Saldo Final:
                 </span>
                 <span
-                  className={`font-bold text-xl ${
-                    usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"
-                  }`}
+                  className={`font-bold text-xl ${usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"
+                    }`}
                 >
                   {formatarValor(usuario.saldoFinal)}
                 </span>
@@ -284,9 +309,8 @@ export default function RelatorioFinanceiro() {
               Saldo Geral Final
             </p>
             <p
-              className={`font-bold text-4xl ${
-                saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"
-              }`}
+              className={`font-bold text-4xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"
+                }`}
             >
               {formatarValor(saldoGeralFinal)}
             </p>
@@ -295,7 +319,7 @@ export default function RelatorioFinanceiro() {
       </div>
 
       {resumoPorUsuario.length === 0 && (
-        <p className="text-center text-[#89A49D] mt-8">
+        <p className="text-center text-[#2F4F4F] mt-8">
           Nenhuma transação encontrada para gerar o relatório
         </p>
       )}
