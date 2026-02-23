@@ -111,7 +111,7 @@ Front-End/
 - **Categorias são filtradas** com base no tipo de transação selecionado:
   - Receita: categorias com finalidade "Receita" ou "Ambos"
   - Despesa: categorias com finalidade "Despesa" ou "Ambos"
-- **Valores monetários** são formatados automaticamente no padrão brasileiro (R$)
+- **Valores monetários** são formatados automaticamente no padrão brasileairo (R$)
 - **Datas** são obrigatórias para todas as transações
 - **Validação de campos** antes do envio ao backend
 
@@ -120,31 +120,7 @@ Front-End/
 Este projeto utiliza **PostgreSQL**.
 
 ### ⚠️ Importante para este Teste Técnico
-Por questões de **praticidade para avaliação**, a connection string está configurada diretamente no código, apontando para um banco de dados de teste gratuito no **Render.com** (válido até **13 de fevereiro de 2025**).
-
-**🚨 Esta abordagem NÃO é recomendada para produção!**
-
-### ✅ Configuração Recomendada (Ambiente Profissional)
-
-Em produção, utilize variáveis de ambiente:
-
-**Linux/Mac:**
-```bash
-export ConnectionStrings__DefaultConnection="Host=seu-host;Database=seu-db;Username=user;Password=pass"
-dotnet run
-```
-
-**Windows (PowerShell):**
-```powershell
-$env:ConnectionStrings__DefaultConnection="Host=seu-host;Database=seu-db;Username=user;Password=pass"
-dotnet run
-```
-
-**Docker/Docker Compose:**
-```yaml
-environment:
-  - ConnectionStrings__DefaultConnection=Host=db;Database=financeiro;Username=postgres;Password=senha
-```
+Por questões de **praticidade para avaliação**, a connection string está configurada diretamente no código, apontando para um banco de dados de teste gratuito no **Render.com** (válido até **22 de março de 2026**).
 
 ## 🔌 Endpoints Principais da API
 
