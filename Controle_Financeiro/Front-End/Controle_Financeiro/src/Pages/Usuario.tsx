@@ -8,7 +8,7 @@ import {
 import trashCan from "../assets/trash.png";
 import pencil from "../assets/pencil.png";
 import type { UsuarioResponse } from "../Types/UsuarioResponse";
-
+import { Button } from "../Components/Button";
 export default function Usuario() {
   const [nome, setNome] = useState("");
   const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]);
@@ -121,8 +121,15 @@ export default function Usuario() {
             <div className="grid grid-cols-2 gap-4">
               {/* Nome */}
               <div>
-                <h3 className="text-xl text-[#2F4F4F] mb-2">Nome Completo</h3>
+                <label
+                  htmlFor="input-nome"
+                  className="text-xl text-[#2F4F4F] mb-2"
+                >
+                  Nome Completo
+                </label>
+
                 <input
+                  id="input-nome"
                   type="text"
                   placeholder="Digite o nome completo"
                   value={nome}
@@ -133,7 +140,8 @@ export default function Usuario() {
 
               {/* Idade */}
               <div>
-                <h3 className="text-xl text-[#2F4F4F] mb-2">Idade</h3>
+                
+                <label className="text-xl text-[#2F4F4F] mb-2">Idade</label>
                 <input
                   type="number"
                   placeholder="Ex: 18"
@@ -152,12 +160,7 @@ export default function Usuario() {
 
               {/* Botão */}
               <div className="flex items-end">
-                <button
-                  onClick={CriarUsuario}
-                  className="bg-[#7A9D8F] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
-                >
-                  Criar Usuário
-                </button>
+                <Button onClick={CriarUsuario} label="Criar Usuário"></Button>
               </div>
             </div>
           </div>
@@ -222,10 +225,11 @@ export default function Usuario() {
                 <button
                   key={pagina}
                   onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${paginaAtual === pagina
+                  className={`px-3 py-1 rounded ${
+                    paginaAtual === pagina
                       ? "bg-[#2F4F4F] text-white"
                       : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                    }`}
+                  }`}
                 >
                   {pagina}
                 </button>
@@ -276,19 +280,18 @@ export default function Usuario() {
               />
             </div>
 
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
-              >
-                Cancelar
-              </button>
-
+            <div className="flex justify-center gap-2">
               <button
                 onClick={editarUsuario}
                 className="px-4 py-2 bg-[#7A9D8F] text-white rounded hover:bg-[#5A7067]"
               >
                 Salvar
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
+              >
+                Cancelar
               </button>
             </div>
           </div>

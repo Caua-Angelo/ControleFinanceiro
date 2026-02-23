@@ -248,7 +248,6 @@ export default function Transacao() {
             <div className="grid grid-cols-2 gap-2">
               {/* Descrição */}
               <div>
-
                 <label
                   htmlFor="select-descricao"
                   className="block text-xl text-[#2F4F4F] mb-2"
@@ -342,8 +341,6 @@ export default function Transacao() {
                 />
               </div>
 
-
-
               {/* Tipo */}
               <div>
                 <label
@@ -364,8 +361,9 @@ export default function Transacao() {
                     setCategoriaId("");
                   }}
                   disabled={usuarioId === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
+                    usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">Selecione o tipo</option>
                   {!isMenorDeIdade && <option value="1">Receita</option>}
@@ -395,8 +393,9 @@ export default function Transacao() {
                     )
                   }
                   disabled={tipo === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${tipo === "" ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
+                    tipo === "" ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">Selecione a categoria</option>
                   {categoriasFiltradas.map((categoria) => (
@@ -511,10 +510,11 @@ export default function Transacao() {
                 <button
                   key={pagina}
                   onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${paginaAtual === pagina
-                    ? "bg-[#2F4F4F] text-white"
-                    : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                    }`}
+                  className={`px-3 py-1 rounded ${
+                    paginaAtual === pagina
+                      ? "bg-[#2F4F4F] text-white"
+                      : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
+                  }`}
                 >
                   {pagina}
                 </button>
@@ -629,8 +629,9 @@ export default function Transacao() {
                   setCategoriaIdEdit("");
                 }}
                 disabled={usuarioIdEdit === ""}
-                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${
+                  usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 <option value="">Selecione o tipo</option>
                 {!isMenorDeIdade && <option value="1">Receita</option>}
@@ -668,20 +669,19 @@ export default function Transacao() {
                 ))}
               </select>
             </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
-              >
-                Cancelar
-              </button>
-
+            {/* botões do Modal de Edição */}
+            <div className="flex justify-center gap-2">
               <button
                 onClick={editarTransacao}
                 className="px-4 py-2 bg-[#7A9D8F] text-white rounded hover:bg-[#5A7067]"
               >
                 Salvar
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
+              >
+                Cancelar
               </button>
             </div>
           </div>

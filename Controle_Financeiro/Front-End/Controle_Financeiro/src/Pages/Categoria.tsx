@@ -5,11 +5,9 @@ import {
   deletarCategoria,
   alterarCategoria,
 } from "../Services/CategoriaService";
-import trashCan from "../assets/trash.png";
-import pencil from "../assets/pencil.png";
 import { Finalidade } from "../Types/Finalidade";
-
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
+import { Button } from "../Components/Button";
 
 export default function Categoria() {
   const [descricao, setDescricao] = useState("");
@@ -131,9 +129,15 @@ export default function Categoria() {
             <div className="grid grid-cols-2 gap-4">
               {/* Descrição */}
               <div>
-                <h3 className="text-xl text-[#2F4F4F] mb-2">Descrição</h3>
+                <label
+                  htmlFor="input-descricao"
+                  className="text-xl text-[#2F4F4F] mb-2"
+                >
+                  Descrição
+                </label>
                 <input
                   type="text"
+                  id="input-descricao"
                   placeholder="Ex: Aluguel ou Salário"
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
@@ -143,7 +147,12 @@ export default function Categoria() {
 
               {/* Finalidade */}
               <div>
-                <label htmlFor="select-finalidade" className="text-xl text-[#2F4F4F] mb-2">Finalidade</label>
+                <label
+                  htmlFor="select-finalidade"
+                  className="text-xl text-[#2F4F4F] mb-2"
+                >
+                  Finalidade
+                </label>
                 <select
                   id="select-finalidade"
                   value={finalidade}
@@ -166,12 +175,10 @@ export default function Categoria() {
 
               {/* Botão */}
               <div className="flex items-end">
-                <button
+                <Button
                   onClick={CriarCategoria}
-                  className="bg-[#7A9D8F] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
-                >
-                  Criar Categoria
-                </button>
+                  label="Criar Categoria"
+                ></Button>
               </div>
             </div>
           </div>
@@ -205,24 +212,17 @@ export default function Categoria() {
                   </p>
 
                   <div className="flex gap-2 ml-35">
-                    <button
+                    <Button
                       onClick={() => abrirModalEditar(categoria)}
-                      className="px-3 py-2 bg-[#7A9D8F] hover:bg-[#5A7067] text-white rounded"
-                    >
-                      <div className="flex items-center gap-1">
-                        <img src={pencil} alt="Editar" className="w-5 h-5" />
-                        Editar
-                      </div>
-                    </button>
-                    <button
+                      label="Editar"
+                      variant="edit"
+                    ></Button>
+                    <Button
                       className="px-3 py-2 bg-[#AD675C] hover:bg-[#6d2a21] text-white rounded"
                       onClick={() => DeletarCategoria(categoria.id)}
-                    >
-                      <div className="flex items-center gap-1">
-                        <img src={trashCan} alt="Excluir" className="w-5 h-5" />
-                        Excluir
-                      </div>
-                    </button>
+                      label="Excluir"
+                      variant="delete"
+                    ></Button>
                   </div>
                 </div>
               ))}
@@ -263,7 +263,12 @@ export default function Categoria() {
             </h2>
 
             <div className="mb-4">
-              <label htmlFor="input-descricao" className="block mb-1 text-[#2F4F4F]">Descrição</label>
+              <label
+                htmlFor="input-descricao"
+                className="block mb-1 text-[#2F4F4F]"
+              >
+                Descrição
+              </label>
               <input
                 id="input-descricao"
                 type="text"
@@ -274,7 +279,12 @@ export default function Categoria() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="select-finalidade" className="block mb-1 text-[#2F4F4F]">Finalidade</label>
+              <label
+                htmlFor="select-finalidade"
+                className="block mb-1 text-[#2F4F4F]"
+              >
+                Finalidade
+              </label>
               <select
                 id="select-finalidade"
                 value={finalidadeEdit}
@@ -292,19 +302,18 @@ export default function Categoria() {
               </select>
             </div>
 
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
-              >
-                Cancelar
-              </button>
-
+            <div className="flex justify-center gap-2">
               <button
                 onClick={editarCategoria}
                 className="px-4 py-2 bg-[#7A9D8F] text-white rounded hover:bg-[#5A7067]"
               >
                 Salvar
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
+              >
+                Cancelar
               </button>
             </div>
           </div>
