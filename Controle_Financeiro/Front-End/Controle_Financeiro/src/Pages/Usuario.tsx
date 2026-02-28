@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  criarUsuario,
-  consultarUsuario,
-  deletarUsuario,
-  alterarUsuario,
-} from "../Services/UsuarioService";
-import trashCan from "../assets/trash.png";
-import pencil from "../assets/pencil.png";
+import { criarUsuario, consultarUsuario, deletarUsuario, alterarUsuario } from "../Services/UsuarioService";
 import type { UsuarioResponse } from "../Types/UsuarioResponse";
 import { Button } from "../Components/Button";
 export default function Usuario() {
@@ -25,8 +18,7 @@ export default function Usuario() {
   const indiceFinal = indiceInicial + usuariosPorPagina;
   const usuariosPaginados = usuarios.slice(indiceInicial, indiceFinal);
 
-  const [usuarioSelecionado, setUsuarioSelecionado] =
-    useState<UsuarioResponse | null>(null);
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState<UsuarioResponse | null>(null);
 
   async function CriarUsuario() {
     try {
@@ -112,19 +104,14 @@ export default function Usuario() {
       <div className="flex flex-col">
         {/* Card de Criar Usuário */}
         <div className="mt-6 bg-[#F5F7F6] rounded-lg p-6 w-290 mx-auto shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">
-            Adicionar Novo Usuário
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Adicionar Novo Usuário</h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               {/* Nome */}
               <div>
-                <label
-                  htmlFor="input-nome"
-                  className="text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="input-nome" className="text-xl text-[#2F4F4F] mb-2">
                   Nome Completo
                 </label>
 
@@ -140,17 +127,12 @@ export default function Usuario() {
 
               {/* Idade */}
               <div>
-                
                 <label className="text-xl text-[#2F4F4F] mb-2">Idade</label>
                 <input
                   type="number"
                   placeholder="Ex: 18"
                   value={idade}
-                  onChange={(e) =>
-                    setIdade(
-                      e.target.value === "" ? "" : Number(e.target.value),
-                    )
-                  }
+                  onChange={(e) => setIdade(e.target.value === "" ? "" : Number(e.target.value))}
                   className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
                 />
               </div>
@@ -168,9 +150,7 @@ export default function Usuario() {
 
         {/* Card de Listar Usuários */}
         <div className="mt-6 bg-[#F5F7F6] p-6 rounded-xl mx-auto w-290 h-130 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-shadow duration-200 ease-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">
-            Lista de Usuários
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Lista de Usuários</h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
           <div className="ml-3 mb-2 grid grid-cols-3 gap-22 w-250">
@@ -190,51 +170,25 @@ export default function Usuario() {
                   <p className="text-[#5A7067]">{user.idade} anos</p>
 
                   <div className="flex gap-2 ml-35">
-                    <button
-                      onClick={() => abrirModalEditar(user)}
-                      className="px-3 py-2 bg-[#7A9D8F] hover:bg-[#5A7067] text-white rounded"
-                    >
-                      <div className="flex items-center gap-1">
-                        <img src={pencil} alt="Editar" className="w-5 h-5" />
-                        Editar
-                      </div>
-                    </button>
-                    <button
-                      className="px-3 py-2 bg-[#AD675C] hover:bg-[#6d2a21] text-white rounded"
-                      onClick={() => DeletarUsuarios(user.id)}
-                    >
-                      <div className="flex items-center gap-1">
-                        <img src={trashCan} alt="Excluir" className="w-5 h-5" />
-                        Excluir
-                      </div>
-                    </button>
+                    <Button onClick={() => abrirModalEditar(user)} variant="edit" label="Editar"></Button>
+                    <Button onClick={() => DeletarUsuarios(user.id)} variant="delete" label="Excluir"></Button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[#89A49D] text-center">
-              Nenhum usuário encontrado
-            </p>
+            <p className="text-[#89A49D] text-center">Nenhum usuário encontrado</p>
           )}
 
-          <div className="flex justify-center gap-2 mt-6">
-            {Array.from({ length: totalPaginas }).map((_, index) => {
-              const pagina = index + 1;
-              return (
-                <button
-                  key={pagina}
-                  onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${
-                    paginaAtual === pagina
-                      ? "bg-[#2F4F4F] text-white"
-                      : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                  }`}
-                >
-                  {pagina}
-                </button>
-              );
-            })}
+          <div className="flex justify-center">
+            <Button
+              label=""
+              variant="paginacao"
+              onClick={() => {}}
+              paginaAtual={paginaAtual}
+              totalPaginas={totalPaginas}
+              setPaginaAtual={setPaginaAtual}
+            ></Button>
           </div>
         </div>
       </div>
@@ -243,9 +197,7 @@ export default function Usuario() {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 border border-[#9DB4AB]">
-            <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">
-              Editar Usuário
-            </h2>
+            <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Editar Usuário</h2>
 
             <div className="mb-4">
               <label htmlFor="input-nome" className="block mb-1 text-[#2F4F4F]">
@@ -261,38 +213,21 @@ export default function Usuario() {
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="input-idade"
-                className="block mb-1 text-[#2F4F4F]"
-              >
+              <label htmlFor="input-idade" className="block mb-1 text-[#2F4F4F]">
                 Idade
               </label>
               <input
                 id="input-idade"
                 type="number"
                 value={idadeEdit}
-                onChange={(e) =>
-                  setIdadeEdit(
-                    e.target.value === "" ? "" : Number(e.target.value),
-                  )
-                }
+                onChange={(e) => setIdadeEdit(e.target.value === "" ? "" : Number(e.target.value))}
                 className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
               />
             </div>
 
             <div className="flex justify-center gap-2">
-              <button
-                onClick={editarUsuario}
-                className="px-4 py-2 bg-[#7A9D8F] text-white rounded hover:bg-[#5A7067]"
-              >
-                Salvar
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
-              >
-                Cancelar
-              </button>
+              <Button onClick={editarUsuario} label="Salvar" variant="saveModal"></Button>
+              <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
             </div>
           </div>
         </div>

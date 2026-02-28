@@ -1,18 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  criarTransacao,
-  listarTransacoes,
-  deletarTransacao,
-  alterarTransacao,
-  type TransacaoRequest,
-} from "../Services/TransacaoService";
+import { criarTransacao, listarTransacoes, deletarTransacao, alterarTransacao, type TransacaoRequest } from "../Services/TransacaoService";
 import { consultarUsuario } from "../Services/UsuarioService";
 import { consultarCategoria } from "../Services/CategoriaService";
-import trashCan from "../assets/trash.png";
-import pencil from "../assets/pencil.png";
 import type { UsuarioResponse } from "../Types/UsuarioResponse";
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
 import type { TransacaoResponse } from "../Types/TransacaoResponse";
+import { Button } from "../Components/Button";
 
 export default function Transacao() {
   const [descricao, setDescricao] = useState("");
@@ -40,15 +33,12 @@ export default function Transacao() {
   const indiceFinal = indiceInicial + transacoesPorPagina;
   const transacoesPaginadas = transacoes.slice(indiceInicial, indiceFinal);
 
-  const [transacaoSelecionada, setTransacaoSelecionada] =
-    useState<TransacaoResponse | null>(null);
+  const [transacaoSelecionada, setTransacaoSelecionada] = useState<TransacaoResponse | null>(null);
 
   // Verificar se usuário é menor de idade
   const usuarioAtual = showModal ? usuarioIdEdit : usuarioId;
   const usuarioSelecionado = usuarios.find((u) => u.id === usuarioAtual);
-  const isMenorDeIdade = usuarioSelecionado
-    ? usuarioSelecionado.idade < 18
-    : false;
+  const isMenorDeIdade = usuarioSelecionado ? usuarioSelecionado.idade < 18 : false;
 
   const tipoAtual = showModal ? tipoEdit : tipo;
 
@@ -65,14 +55,7 @@ export default function Transacao() {
 
   async function CriarTransacao() {
     try {
-      if (
-        !descricao ||
-        valor === "" ||
-        tipo === "" ||
-        categoriaId === "" ||
-        usuarioId === "" ||
-        !data
-      ) {
+      if (!descricao || valor === "" || tipo === "" || categoriaId === "" || usuarioId === "" || !data) {
         alert("Preencha todos os campos");
         return;
       }
@@ -239,19 +222,14 @@ export default function Transacao() {
       <div className="flex flex-col">
         {/* Card de Criar Transação */}
         <div className="mt-6 bg-[#F5F7F6] rounded-lg p-6 w-290 mx-auto shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">
-            Adicionar Nova Transação
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Adicionar Nova Transação</h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-2">
               {/* Descrição */}
               <div>
-                <label
-                  htmlFor="select-descricao"
-                  className="block text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="select-descricao" className="block text-xl text-[#2F4F4F] mb-2">
                   Descricão
                 </label>
                 <input
@@ -265,10 +243,7 @@ export default function Transacao() {
 
               {/* Valor */}
               <div>
-                <label
-                  htmlFor="select-valor"
-                  className="block text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="select-valor" className="block text-xl text-[#2F4F4F] mb-2">
                   Valor
                 </label>
                 <input
@@ -282,9 +257,7 @@ export default function Transacao() {
                     if (apenasNumeros === "") {
                       setValor("");
                     } else {
-                      const numeroFormatado = (
-                        Number(apenasNumeros) / 100
-                      ).toFixed(2);
+                      const numeroFormatado = (Number(apenasNumeros) / 100).toFixed(2);
                       const valorComVirgula = numeroFormatado.replace(".", ",");
                       setValor(valorComVirgula);
                     }
@@ -295,18 +268,14 @@ export default function Transacao() {
 
               {/* Usuário */}
               <div>
-                <label
-                  htmlFor="select-usuario"
-                  className=" block text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="select-usuario" className=" block text-xl text-[#2F4F4F] mb-2">
                   Usuário
                 </label>
                 <select
                   id="select-usuario"
                   value={usuarioId}
                   onChange={(e) => {
-                    const novoUsuarioId =
-                      e.target.value === "" ? "" : Number(e.target.value);
+                    const novoUsuarioId = e.target.value === "" ? "" : Number(e.target.value);
                     setUsuarioId(novoUsuarioId);
 
                     // Limpa tipo e categoria ao trocar de usuário
@@ -326,10 +295,7 @@ export default function Transacao() {
 
               {/* Data */}
               <div>
-                <label
-                  htmlFor="select-data"
-                  className="block text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="select-data" className="block text-xl text-[#2F4F4F] mb-2">
                   Data
                 </label>
                 <input
@@ -343,59 +309,42 @@ export default function Transacao() {
 
               {/* Tipo */}
               <div>
-                <label
-                  htmlFor="select-tipo"
-                  className="block text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="select-tipo" className="block text-xl text-[#2F4F4F] mb-2">
                   Tipo
                 </label>
                 <select
                   id="select-tipo"
                   value={tipo}
                   onChange={(e) => {
-                    const novoTipo =
-                      e.target.value === "" ? "" : Number(e.target.value);
+                    const novoTipo = e.target.value === "" ? "" : Number(e.target.value);
                     setTipo(novoTipo);
 
                     // Limpa categoria ao trocar de tipo
                     setCategoriaId("");
                   }}
                   disabled={usuarioId === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
-                    usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${usuarioId === "" ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Selecione o tipo</option>
                   {!isMenorDeIdade && <option value="1">Receita</option>}
                   <option value="2">Despesa</option>
                 </select>
                 {isMenorDeIdade && usuarioId !== "" && (
-                  <p className="text-sm text-orange-600 mt-1">
-                    ⚠️ Menor de 18 anos - Apenas despesas permitidas
-                  </p>
+                  <p className="text-sm text-orange-600 mt-1">⚠️ Menor de 18 anos - Apenas despesas permitidas</p>
                 )}
               </div>
 
               {/* Categoria */}
               <div>
-                <label
-                  htmlFor="select-categoria"
-                  className="block text-xl text-[#2F4F4F] mb-2"
-                >
+                <label htmlFor="select-categoria" className="block text-xl text-[#2F4F4F] mb-2">
                   Categoria
                 </label>
                 <select
                   id="select-categoria"
                   value={categoriaId}
-                  onChange={(e) =>
-                    setCategoriaId(
-                      e.target.value === "" ? "" : Number(e.target.value),
-                    )
-                  }
+                  onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
                   disabled={tipo === ""}
-                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${
-                    tipo === "" ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F] ${tipo === "" ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Selecione a categoria</option>
                   {categoriasFiltradas.map((categoria) => (
@@ -408,12 +357,7 @@ export default function Transacao() {
 
               {/* Botão */}
               <div className="flex items-end">
-                <button
-                  onClick={CriarTransacao}
-                  className="bg-[#7A9D8F] text-white w-full h-11 rounded hover:bg-[#5A7067] transition"
-                >
-                  Criar Transação
-                </button>
+                <Button onClick={CriarTransacao} variant="primary" label="Criar Transação" />
               </div>
             </div>
           </div>
@@ -421,9 +365,7 @@ export default function Transacao() {
 
         {/* Card de Listar Transações */}
         <div className="mt-6 bg-[#F5F7F6] p-6 rounded-xl mx-auto w-290 h-130 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-shadow duration-200 ease-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">
-            Lista de Transações
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Lista de Transações</h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
           <div className="mb-2 grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr] gap-4 px-4">
@@ -443,83 +385,43 @@ export default function Transacao() {
                   key={transacao.id}
                   className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr] gap-4 items-center p-4 border border-[#C8D6D1] rounded-lg bg-white hover:bg-[#E8EFED] transition"
                 >
-                  <p className="font-medium text-[#2F4F4F]">
-                    {transacao.usuarioNome}
-                  </p>
+                  <p className="font-medium text-[#2F4F4F]">{transacao.usuarioNome}</p>
 
-                  <p
-                    className="font-medium text-[#2F4F4F] truncate"
-                    title={transacao.descricao}
-                  >
+                  <p className="font-medium text-[#2F4F4F] truncate" title={transacao.descricao}>
                     {transacao.descricao}
                   </p>
 
-                  <p className="text-[#5A7067]">
-                    {formatarData(transacao.data)}
-                  </p>
+                  <p className="text-[#5A7067]">{formatarData(transacao.data)}</p>
 
-                  <p
-                    className={`font-medium ${transacao.tipo === 1 ? "text-green-700" : "text-red-700"}`}
-                  >
+                  <p className={`font-medium ${transacao.tipo === 1 ? "text-green-700" : "text-red-700"}`}>
                     {formatarValor(transacao.valor, transacao.tipo)}
                   </p>
 
-                  <p
-                    className={`font-medium ${transacao.tipo === 1 ? "text-green-600" : "text-red-600"}`}
-                  >
-                    {getTipoLabel(transacao.tipo)}
-                  </p>
+                  <p className={`font-medium ${transacao.tipo === 1 ? "text-green-600" : "text-red-600"}`}>{getTipoLabel(transacao.tipo)}</p>
 
-                  <p className="text-[#5A7067]">
-                    {transacao.categoriaDescricao}
-                  </p>
+                  <p className="text-[#5A7067]">{transacao.categoriaDescricao}</p>
 
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => abrirModalEditar(transacao)}
-                      className="px-3 py-2 bg-[#7A9D8F] hover:bg-[#5A7067] text-white rounded"
-                    >
-                      <div className="flex items-center gap-1">
-                        <img src={pencil} alt="Editar" className="w-5 h-5" />
-                        Editar
-                      </div>
-                    </button>
-                    <button
-                      className="px-3 py-2 bg-[#AD675C] hover:bg-[#6d2a21] text-white rounded"
-                      onClick={() => DeletarTransacao(transacao.id)}
-                    >
-                      <div className="flex items-center gap-1">
-                        <img src={trashCan} alt="Excluir" className="w-5 h-5" />
-                        Excluir
-                      </div>
-                    </button>
+                    <Button onClick={() => abrirModalEditar(transacao)} variant="edit" label="Editar"></Button>
+
+                    <Button onClick={() => DeletarTransacao(transacao.id)} variant="delete" label="Excluir"></Button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[#89A49D] text-center">
-              Nenhuma transação encontrada
-            </p>
+            <p className="text-[#89A49D] text-center">Nenhuma transação encontrada</p>
           )}
 
-          <div className="flex justify-center gap-2 mt-6">
-            {Array.from({ length: totalPaginas }).map((_, index) => {
-              const pagina = index + 1;
-              return (
-                <button
-                  key={pagina}
-                  onClick={() => setPaginaAtual(pagina)}
-                  className={`px-3 py-1 rounded ${
-                    paginaAtual === pagina
-                      ? "bg-[#2F4F4F] text-white"
-                      : "bg-[#D4E2DC] hover:bg-[#C8D6D1] text-[#2F4F4F]"
-                  }`}
-                >
-                  {pagina}
-                </button>
-              );
-            })}
+          <div className="flex justify-center">
+            <Button
+              label=""
+              variant="paginacao"
+              onClick={() => {}}
+              paginaAtual={paginaAtual}
+              totalPaginas={totalPaginas}
+              setPaginaAtual={setPaginaAtual}
+            ></Button>
           </div>
         </div>
       </div>
@@ -528,15 +430,10 @@ export default function Transacao() {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 border border-[#9DB4AB]">
-            <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">
-              Editar Transação
-            </h2>
+            <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Editar Transação</h2>
 
             <div className="mb-4">
-              <label
-                htmlFor="select-descricao"
-                className="block mb-1 text-[#2F4F4F]"
-              >
+              <label htmlFor="select-descricao" className="block mb-1 text-[#2F4F4F]">
                 Descrição
               </label>
               <input
@@ -559,9 +456,7 @@ export default function Transacao() {
                   if (apenasNumeros === "") {
                     setValorEdit("");
                   } else {
-                    const numeroFormatado = (
-                      Number(apenasNumeros) / 100
-                    ).toFixed(2);
+                    const numeroFormatado = (Number(apenasNumeros) / 100).toFixed(2);
                     const valorComVirgula = numeroFormatado.replace(".", ",");
                     setValorEdit(valorComVirgula);
                   }
@@ -571,10 +466,7 @@ export default function Transacao() {
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="select-data"
-                className="block mb-1 text-[#2F4F4F]"
-              >
+              <label htmlFor="select-data" className="block mb-1 text-[#2F4F4F]">
                 Data
               </label>
               <input
@@ -587,20 +479,13 @@ export default function Transacao() {
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="select-usuario"
-                className="block mb-1 text-[#2F4F4F]"
-              >
+              <label htmlFor="select-usuario" className="block mb-1 text-[#2F4F4F]">
                 Usuário
               </label>
               <select
                 id="select-usuario"
                 value={usuarioIdEdit}
-                onChange={(e) =>
-                  setUsuarioIdEdit(
-                    e.target.value === "" ? "" : Number(e.target.value),
-                  )
-                }
+                onChange={(e) => setUsuarioIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
                 className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
               >
                 <option value="">Selecione o usuário</option>
@@ -613,52 +498,36 @@ export default function Transacao() {
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="select-tipo"
-                className="block mb-1 text-[#2F4F4F]"
-              >
+              <label htmlFor="select-tipo" className="block mb-1 text-[#2F4F4F]">
                 Tipo
               </label>
               <select
                 id="select-tipo"
                 value={tipoEdit}
                 onChange={(e) => {
-                  setTipoEdit(
-                    e.target.value === "" ? "" : Number(e.target.value),
-                  );
+                  setTipoEdit(e.target.value === "" ? "" : Number(e.target.value));
                   setCategoriaIdEdit("");
                 }}
                 disabled={usuarioIdEdit === ""}
-                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${
-                  usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F] ${usuarioIdEdit === "" ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <option value="">Selecione o tipo</option>
                 {!isMenorDeIdade && <option value="1">Receita</option>}
                 <option value="2">Despesa</option>
               </select>
               {isMenorDeIdade && usuarioIdEdit !== "" && (
-                <p className="text-sm text-orange-600 mt-1">
-                  ⚠️ Menor de 18 anos - Apenas despesas permitidas
-                </p>
+                <p className="text-sm text-orange-600 mt-1">⚠️ Menor de 18 anos - Apenas despesas permitidas</p>
               )}
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="select-categoria"
-                className="block mb-1 text-[#2F4F4F]"
-              >
+              <label htmlFor="select-categoria" className="block mb-1 text-[#2F4F4F]">
                 Categoria
               </label>
               <select
                 id="select-categoria"
                 value={categoriaIdEdit}
-                onChange={(e) =>
-                  setCategoriaIdEdit(
-                    e.target.value === "" ? "" : Number(e.target.value),
-                  )
-                }
+                onChange={(e) => setCategoriaIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
                 className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
               >
                 <option value="">Selecione a categoria</option>
@@ -671,18 +540,8 @@ export default function Transacao() {
             </div>
             {/* botões do Modal de Edição */}
             <div className="flex justify-center gap-2">
-              <button
-                onClick={editarTransacao}
-                className="px-4 py-2 bg-[#7A9D8F] text-white rounded hover:bg-[#5A7067]"
-              >
-                Salvar
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-[#C8D6D1] text-[#2F4F4F] rounded hover:bg-[#9DB4AB]"
-              >
-                Cancelar
-              </button>
+              <Button onClick={editarTransacao} label="Salvar" variant="saveModal"></Button>
+              <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
             </div>
           </div>
         </div>
