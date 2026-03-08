@@ -28,6 +28,7 @@ namespace ControleFinanceiro.Infra.Data.Repositories
             return await _context.Set<Transacao>()
                 .Include(t => t.Usuario)
                 .Include(t => t.Categoria)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

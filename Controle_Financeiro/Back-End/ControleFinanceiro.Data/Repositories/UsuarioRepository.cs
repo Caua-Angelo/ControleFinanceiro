@@ -25,7 +25,8 @@ namespace ControleFinanceiro.Infra.Data.Repositories
         public async Task<Usuario?> ObterPorIdAsync(int id)
         {
             return await _context.Usuario
-                .Include(u => u.Transacao)
+                .Include(u => u.Transacao) 
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 

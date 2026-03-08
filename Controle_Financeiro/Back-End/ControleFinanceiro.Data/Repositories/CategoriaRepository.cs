@@ -24,6 +24,7 @@ namespace ControleFinanceiro.Infra.Data.Repositories
         public async Task<Categoria?> ConsultarPorIdAsync(int id)
         {
             return await _context.Set<Categoria>()
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
