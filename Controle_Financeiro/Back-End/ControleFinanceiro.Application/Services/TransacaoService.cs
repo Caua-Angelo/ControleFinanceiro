@@ -26,16 +26,16 @@ namespace ControleFinanceiro.Application.Services
         }
 
         //  LISTAR TODAS
-        public async Task<IEnumerable<TransacaoConsultarDTO>> ListarAsync()
+        public async Task<IEnumerable<TransacaoConsultarDTO>> ListAsync()
         {
-            var transacoes = await _transacaoRepository.ListarAsync();
+            var transacoes = await _transacaoRepository.ListAsync();
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
         //  OBTER POR ID
-        public async Task<TransacaoConsultarDTO> ObterPorIdAsync(int id)
+        public async Task<TransacaoConsultarDTO> GetByIdAsync(int id)
         {
-            var transacao = await _transacaoRepository.ObterPorIdAsync(id);
+            var transacao = await _transacaoRepository.GetByIdAsync(id);
 
             if (transacao == null)
                 throw new KeyNotFoundException($"Transação com ID {id} não encontrada.");
@@ -44,35 +44,35 @@ namespace ControleFinanceiro.Application.Services
         }
 
         //  LISTAR POR USUÁRIO
-        public async Task<IEnumerable<TransacaoConsultarDTO>> ListarPorUsuarioAsync(int usuarioId)
+        public async Task<IEnumerable<TransacaoConsultarDTO>> ListByUserAsync(int usuarioId)
         {
-            var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId);
+            var usuario = await _usuarioRepository.GetByIdAsync(usuarioId);
             if (usuario == null)
                 throw new KeyNotFoundException($"Usuário com ID {usuarioId} não encontrado.");
 
-            var transacoes = await _transacaoRepository.ListarPorUsuarioAsync(usuarioId);
+            var transacoes = await _transacaoRepository.ListByUserAsync(usuarioId);
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
         //  LISTAR POR CATEGORIA
-        public async Task<IEnumerable<TransacaoConsultarDTO>> ListarPorCategoriaAsync(int categoriaId)
+        public async Task<IEnumerable<TransacaoConsultarDTO>> ListByCategoryAsync(int categoriaId)
         {
-            var categoria = await _categoriaRepository.ConsultarPorIdAsync(categoriaId);
+            var categoria = await _categoriaRepository.GetByIdAsync(categoriaId);
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {categoriaId} não encontrada.");
 
-            var transacoes = await _transacaoRepository.ListarPorCategoriaAsync(categoriaId);
+            var transacoes = await _transacaoRepository.ListByCategoryAsync(categoriaId);
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
         //  CRIAR
-        public async Task<TransacaoConsultarDTO> CriarAsync(TransacaoCriarDTO dto)
+        public async Task<TransacaoConsultarDTO> AddAsync(TransacaoCriarDTO dto)
         {
-            var usuario = await _usuarioRepository.ObterPorIdAsync(dto.UsuarioId);
+            var usuario = await _usuarioRepository.GetByIdAsync(dto.UsuarioId);
             if (usuario == null)
                 throw new InvalidOperationException("Usuário não encontrado.");
 
-            var categoria = await _categoriaRepository.ConsultarPorIdAsync(dto.CategoriaId);
+            var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
 
@@ -101,20 +101,20 @@ namespace ControleFinanceiro.Application.Services
                 dto.Data
             );
 
-            await _transacaoRepository.AdicionarAsync(transacao);
-            await _transacaoRepository.SalvarAsync();
+            await _transacaoRepository.AddAsync(transacao);
+            await _transacaoRepository.SaveAsync();
 
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
         //  ATUALIZAR
-        public async Task<TransacaoConsultarDTO> AtualizarAsync(int id, TransacaoAtualizarDTO dto)
+        public async Task<TransacaoConsultarDTO> UpdateAsync(int id, TransacaoAtualizarDTO dto)
         {
-            var transacao = await _transacaoRepository.ObterPorIdAsync(id);
+            var transacao = await _transacaoRepository.GetByIdAsync(id);
             if (transacao == null)
                 throw new KeyNotFoundException("Transação não encontrada.");
 
-            var categoria = await _categoriaRepository.ConsultarPorIdAsync(dto.CategoriaId);
+            var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
 
@@ -127,19 +127,19 @@ namespace ControleFinanceiro.Application.Services
                 dto.Data
             );
 
-            await _transacaoRepository.SalvarAsync();
+            await _transacaoRepository.SaveAsync();
 
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        public async Task ExcluirAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            var transacao = await _transacaoRepository.ObterPorIdAsync(id);
+            var transacao = await _transacaoRepository.GetByIdAsync(id);
             if (transacao == null)
                 throw new KeyNotFoundException("Transação não encontrada.");
 
-            await _transacaoRepository.RemoverAsync(transacao);
-            await _transacaoRepository.SalvarAsync();
+            await _transacaoRepository.DeleteAsync(transacao);
+            await _transacaoRepository.SaveAsync();
         }
     }
 }

@@ -14,32 +14,32 @@ namespace ControleFinanceiro.Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Categoria>> ConsultarAsync()
+        public async Task<IEnumerable<Categoria>> ListAsync()
         {
             return await _context.Set<Categoria>()
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<Categoria?> ConsultarPorIdAsync(int id)
+        public async Task<Categoria?> GetByIdAsync(int id)
         {
             return await _context.Set<Categoria>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task AdicionarAsync(Categoria categoria)
+        public async Task AddAsync(Categoria categoria)
         {
             await _context.Set<Categoria>().AddAsync(categoria);
         }
 
-        public Task RemoverAsync(Categoria categoria)
+        public Task DeleteAsync(Categoria categoria)
         {
             _context.Set<Categoria>().Remove(categoria);
             return Task.CompletedTask;
         }
 
-        public async Task SalvarAsync()
+        public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
         }

@@ -23,7 +23,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ListarCategorias")]
         public async Task<ActionResult<IEnumerable<CategoriaConsultarDTO>>> Get()
         {
-            var categorias = await _categoriaService.ConsultarAsync();
+            var categorias = await _categoriaService.ListAsync();
             return Ok(categorias);
         }
 
@@ -34,7 +34,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ConsultarCategoriaPorId")]
         public async Task<ActionResult<CategoriaConsultarDTO>> GetById(int id)
         {
-            var categoria = await _categoriaService.ConsultarPorIdAsync(id);
+            var categoria = await _categoriaService.GetByIdAsync(id);
             return Ok(categoria);
         }
 
@@ -46,7 +46,7 @@ namespace ControleFinanceiro.API.Controllers
         public async Task<ActionResult<CategoriaConsultarDTO>> Post(
             [FromBody] CategoriaIncluirDTO dto)
         {
-            var categoria = await _categoriaService.CriarAsync(dto);
+            var categoria = await _categoriaService.AddAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -64,7 +64,7 @@ namespace ControleFinanceiro.API.Controllers
             int id,
             [FromBody] CategoriaAlterarDTO dto)
         {
-            var categoria = await _categoriaService.AlterarAsync(id, dto);
+            var categoria = await _categoriaService.UpdateAsync(id, dto);
             return Ok(categoria);
         }
 
@@ -75,7 +75,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ExcluirCategoria")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _categoriaService.ExcluirAsync(id);
+            await _categoriaService.DeleteAsync(id);
             return NoContent();
         }
     }

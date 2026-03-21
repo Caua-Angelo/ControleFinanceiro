@@ -4,11 +4,11 @@ namespace ControleFinanceiro.Application.Interfaces
 {
     public interface IUsuarioService
     {
-        Task<IEnumerable<UsuarioConsultarDTO>> ConsultarAsync();
-        Task<UsuarioConsultarDTO> ConsultarPorIdAsync(int id);
+        Task<IEnumerable<UsuarioConsultarDTO>> ListAsync();
+        Task<UsuarioConsultarDTO> GetByIdAsync(int id);
 
-        Task<UsuarioConsultarDTO> CriarAsync(UsuarioIncluirDTO dto);
-        Task<UsuarioConsultarDTO> AlterarAsync(int id, UsuarioAlterarDTO dto);
-        Task ExcluirAsync(int id);
+        Task<UsuarioConsultarDTO> AddAsync(UsuarioIncluirDTO dto);
+        Task<UsuarioConsultarDTO> UpdateAsync(int id, UsuarioAlterarDTO dto);
+        Task DeleteAsync(int id);
     }
 }
