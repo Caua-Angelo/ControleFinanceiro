@@ -17,14 +17,14 @@ namespace ControleFinanceiro.Application.Services
             _mapper = mapper;
         }
 
-        //  CONSULTAR TODOS
+        
         public async Task<IEnumerable<UsuarioConsultarDTO>> ListAsync()
         {
             var usuarios = await _usuarioRepository.ListAsync();
             return _mapper.Map<IEnumerable<UsuarioConsultarDTO>>(usuarios);
         }
 
-        //  CONSULTAR POR ID
+        
         public async Task<UsuarioConsultarDTO> GetByIdAsync(int id)
         {
             var usuario = await _usuarioRepository.GetByIdAsync(id);
@@ -34,7 +34,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<UsuarioConsultarDTO>(usuario);
         }
 
-        //  CRIAR
+        
         public async Task<UsuarioConsultarDTO> AddAsync(UsuarioIncluirDTO dto)
         {
             var usuario = _mapper.Map<Usuario>(dto);
@@ -45,7 +45,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<UsuarioConsultarDTO>(usuario);
         }
 
-        //  ALTERAR
+        
         public async Task<UsuarioConsultarDTO> UpdateAsync(int id, UsuarioAlterarDTO dto)
         {
             var usuario = await _usuarioRepository.GetByIdAsync(id);
@@ -59,7 +59,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<UsuarioConsultarDTO>(usuario);
         }
 
-        //  EXCLUIR
+        
         public async Task DeleteAsync(int id)
         {
             var usuario = await _usuarioRepository.GetByIdAsync(id);

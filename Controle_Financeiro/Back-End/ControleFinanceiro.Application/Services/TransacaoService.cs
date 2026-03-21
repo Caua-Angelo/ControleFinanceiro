@@ -25,14 +25,14 @@ namespace ControleFinanceiro.Application.Services
             _mapper = mapper;
         }
 
-        //  LISTAR TODAS
+
         public async Task<IEnumerable<TransacaoConsultarDTO>> ListAsync()
         {
             var transacoes = await _transacaoRepository.ListAsync();
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
-        //  OBTER POR ID
+
         public async Task<TransacaoConsultarDTO> GetByIdAsync(int id)
         {
             var transacao = await _transacaoRepository.GetByIdAsync(id);
@@ -43,7 +43,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        //  LISTAR POR USUÁRIO
+  
         public async Task<IEnumerable<TransacaoConsultarDTO>> ListByUserAsync(int usuarioId)
         {
             var usuario = await _usuarioRepository.GetByIdAsync(usuarioId);
@@ -53,9 +53,7 @@ namespace ControleFinanceiro.Application.Services
             var transacoes = await _transacaoRepository.ListByUserAsync(usuarioId);
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
-
-        //  LISTAR POR CATEGORIA
-        public async Task<IEnumerable<TransacaoConsultarDTO>> ListByCategoryAsync(int categoriaId)
+       public async Task<IEnumerable<TransacaoConsultarDTO>> ListByCategoryAsync(int categoriaId)
         {
             var categoria = await _categoriaRepository.GetByIdAsync(categoriaId);
             if (categoria == null)
@@ -65,7 +63,7 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
-        //  CRIAR
+   
         public async Task<TransacaoConsultarDTO> AddAsync(TransacaoCriarDTO dto)
         {
             var usuario = await _usuarioRepository.GetByIdAsync(dto.UsuarioId);
@@ -107,7 +105,6 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        //  ATUALIZAR
         public async Task<TransacaoConsultarDTO> UpdateAsync(int id, TransacaoAtualizarDTO dto)
         {
             var transacao = await _transacaoRepository.GetByIdAsync(id);
