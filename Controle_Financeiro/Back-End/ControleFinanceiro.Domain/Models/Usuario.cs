@@ -19,10 +19,10 @@ namespace ControleFinanceiro.Domain.Models
 
         protected Usuario() { }
 
-        public Usuario(string nome, int idade, string email)
+        public Usuario(string nome, int idade, string email,string senhaHash)
         {
             ValidateDomain(nome, idade,email);
-            HashSenha = HashSenha;
+            HashSenha = senhaHash;
         }
 
         public void Update(string nome, int idade,string email)

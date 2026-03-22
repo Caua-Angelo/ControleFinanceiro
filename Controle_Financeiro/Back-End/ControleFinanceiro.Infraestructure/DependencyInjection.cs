@@ -1,6 +1,6 @@
 ﻿using ControleFinanceiro.Application.Interfaces;
+using ControleFinanceiro.Application.Mapping;
 using ControleFinanceiro.Application.Services;
-using ControleFinanceiro.AutoMapper;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Infra.Data.Repositories;
 using ControleFinanceiro.Infraestructure.Data;
@@ -35,7 +35,7 @@ namespace ControleFinanceiro.Infra.IoC
             services.AddScoped<ITransacaoService, TransacaoService>();
 
             //  AutoMapper
-            services.AddAutoMapper(typeof(MappingProfile));
+            services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfile).Assembly));
 
             return services;
         }
