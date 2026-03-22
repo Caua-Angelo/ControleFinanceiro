@@ -14,7 +14,7 @@ namespace ControleFinanceiro.Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Transacao>> ListarAsync()
+        public async Task<IEnumerable<Transacao>> ListAsync()
         {
             return await _context.Set<Transacao>()
                 .Include(t => t.Usuario)
@@ -23,15 +23,16 @@ namespace ControleFinanceiro.Infra.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Transacao?> ObterPorIdAsync(int id)
+        public async Task<Transacao?> GetByIdAsync(int id)
         {
             return await _context.Set<Transacao>()
                 .Include(t => t.Usuario)
                 .Include(t => t.Categoria)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task<IEnumerable<Transacao>> ListarPorUsuarioAsync(int usuarioId)
+        public async Task<IEnumerable<Transacao>> ListByUserAsync(int usuarioId)
         {
             return await _context.Set<Transacao>()
                 .Include(t => t.Categoria)
@@ -40,7 +41,7 @@ namespace ControleFinanceiro.Infra.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Transacao>> ListarPorCategoriaAsync(int categoriaId)
+        public async Task<IEnumerable<Transacao>> ListByCategoryAsync(int categoriaId)
         {
             return await _context.Set<Transacao>()
                 .Include(t => t.Usuario)
@@ -49,24 +50,24 @@ namespace ControleFinanceiro.Infra.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task AdicionarAsync(Transacao transacao)
+        public async Task AddAsync(Transacao transacao)
         {
             await _context.Set<Transacao>().AddAsync(transacao);
         }
 
-        public Task AtualizarAsync(Transacao transacao)
+        public Task UpdateAsync(Transacao transacao)
         {
             _context.Set<Transacao>().Update(transacao);
             return Task.CompletedTask;
         }
 
-        public Task RemoverAsync(Transacao transacao)
+        public Task DeleteAsync(Transacao transacao)
         {
             _context.Set<Transacao>().Remove(transacao);
             return Task.CompletedTask;
         }
 
-        public async Task SalvarAsync()
+        public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
         }

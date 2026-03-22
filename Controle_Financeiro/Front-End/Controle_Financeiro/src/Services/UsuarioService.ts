@@ -3,6 +3,7 @@ import { api } from "./Apiservice";
 export interface UsuarioRequest {
   nome: string;
   idade: number;
+  email?: string;
 }
 
 export async function criarUsuario(data: UsuarioRequest) {

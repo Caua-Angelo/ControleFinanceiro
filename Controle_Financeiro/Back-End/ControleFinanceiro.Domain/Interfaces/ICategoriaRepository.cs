@@ -4,12 +4,12 @@ namespace ControleFinanceiro.Domain.Interfaces
 {
     public interface ICategoriaRepository
     {
-        Task<IEnumerable<Categoria>> ConsultarAsync();
-        Task<Categoria?> ConsultarPorIdAsync(int id);
+        Task<IEnumerable<Categoria>> ListAsync();
+        Task<Categoria?> GetByIdAsync(int id);
 
-        Task AdicionarAsync(Categoria categoria);
-        Task RemoverAsync(Categoria categoria);
+        Task AddAsync(Categoria categoria);
+        Task DeleteAsync(Categoria categoria);
 
-        Task SalvarAsync();
+        Task SaveAsync();
     }
 }

@@ -26,12 +26,12 @@ namespace ControleFinanceiro.API.Controllers
             [FromQuery] int? categoriaId)
         {
             if (usuarioId.HasValue)
-                return Ok(await _transacaoService.ListarPorUsuarioAsync(usuarioId.Value));
+                return Ok(await _transacaoService.ListByUserAsync(usuarioId.Value));
 
             if (categoriaId.HasValue)
-                return Ok(await _transacaoService.ListarPorCategoriaAsync(categoriaId.Value));
+                return Ok(await _transacaoService.ListByCategoryAsync(categoriaId.Value));
 
-            return Ok(await _transacaoService.ListarAsync());
+            return Ok(await _transacaoService.ListAsync());
         }
 
         // GET /api/transacoes/{id}
@@ -41,7 +41,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ConsultarTransacaoPorId")]
         public async Task<ActionResult<TransacaoConsultarDTO>> GetById(int id)
         {
-            var transacao = await _transacaoService.ObterPorIdAsync(id);
+            var transacao = await _transacaoService.GetByIdAsync(id);
             return Ok(transacao);
         }
 
@@ -53,7 +53,7 @@ namespace ControleFinanceiro.API.Controllers
         public async Task<ActionResult<TransacaoConsultarDTO>> Post(
             [FromBody] TransacaoCriarDTO dto)
         {
-            var transacao = await _transacaoService.CriarAsync(dto);
+            var transacao = await _transacaoService.AddAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -71,7 +71,7 @@ namespace ControleFinanceiro.API.Controllers
             int id,
             [FromBody] TransacaoAtualizarDTO dto)
         {
-            var transacao = await _transacaoService.AtualizarAsync(id, dto);
+            var transacao = await _transacaoService.UpdateAsync(id, dto);
             return Ok(transacao);
         }
 
@@ -82,7 +82,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ExcluirTransacao")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _transacaoService.ExcluirAsync(id);
+            await _transacaoService.DeleteAsync(id);
             return NoContent();
         }
     }

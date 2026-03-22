@@ -17,57 +17,57 @@ namespace ControleFinanceiro.Application.Services
             _mapper = mapper;
         }
 
-        //  CONSULTAR TODAS
-        public async Task<IEnumerable<CategoriaConsultarDTO>> ConsultarAsync()
+
+        public async Task<IEnumerable<CategoriaConsultarDTO>> ListAsync()
         {
-            var categorias = await _categoriaRepository.ConsultarAsync();
+            var categorias = await _categoriaRepository.ListAsync();
             return _mapper.Map<IEnumerable<CategoriaConsultarDTO>>(categorias);
         }
 
-        //  CONSULTAR POR ID
-        public async Task<CategoriaConsultarDTO> ConsultarPorIdAsync(int id)
+        
+        public async Task<CategoriaConsultarDTO> GetByIdAsync(int id)
         {
-            var categoria = await _categoriaRepository.ConsultarPorIdAsync(id);
+            var categoria = await _categoriaRepository.GetByIdAsync(id);
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
             return _mapper.Map<CategoriaConsultarDTO>(categoria);
         }
 
-        //  CRIAR
-        public async Task<CategoriaConsultarDTO> CriarAsync(CategoriaIncluirDTO dto)
+        
+        public async Task<CategoriaConsultarDTO> AddAsync(CategoriaIncluirDTO dto)
         {
             var categoria = _mapper.Map<Categoria>(dto);
 
-            await _categoriaRepository.AdicionarAsync(categoria);
-            await _categoriaRepository.SalvarAsync();
+            await _categoriaRepository.AddAsync(categoria);
+            await _categoriaRepository.SaveAsync();
 
             return _mapper.Map<CategoriaConsultarDTO>(categoria);
         }
 
-        //  ALTERAR
-        public async Task<CategoriaConsultarDTO> AlterarAsync(int id, CategoriaAlterarDTO dto)
+        
+        public async Task<CategoriaConsultarDTO> UpdateAsync(int id, CategoriaAlterarDTO dto)
         {
-            var categoriaExistente = await _categoriaRepository.ConsultarPorIdAsync(id);
+            var categoriaExistente = await _categoriaRepository.GetByIdAsync(id);
             if (categoriaExistente == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
             categoriaExistente.Update(dto.Descricao, dto.Finalidade);
 
-            await _categoriaRepository.SalvarAsync();
+            await _categoriaRepository.SaveAsync();
 
             return _mapper.Map<CategoriaConsultarDTO>(categoriaExistente);
         }
 
-        //  EXCLUIR
-        public async Task ExcluirAsync(int id)
+        
+        public async Task DeleteAsync(int id)
         {
-            var categoria = await _categoriaRepository.ConsultarPorIdAsync(id);
+            var categoria = await _categoriaRepository.GetByIdAsync(id);
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
-            await _categoriaRepository.RemoverAsync(categoria);
-            await _categoriaRepository.SalvarAsync();
+            await _categoriaRepository.DeleteAsync(categoria);
+            await _categoriaRepository.SaveAsync();
         }
     }
 }

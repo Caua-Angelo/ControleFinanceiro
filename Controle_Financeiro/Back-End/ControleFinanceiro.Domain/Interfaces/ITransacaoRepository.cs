@@ -4,16 +4,16 @@ namespace ControleFinanceiro.Domain.Interfaces
 {
     public interface ITransacaoRepository
     {
-        Task<IEnumerable<Transacao>> ListarAsync();
-        Task<Transacao?> ObterPorIdAsync(int id);
+        Task<IEnumerable<Transacao>> ListAsync();
+        Task<Transacao?> GetByIdAsync(int id);
 
-        Task<IEnumerable<Transacao>> ListarPorUsuarioAsync(int usuarioId);
-        Task<IEnumerable<Transacao>> ListarPorCategoriaAsync(int categoriaId);
+        Task<IEnumerable<Transacao>> ListByUserAsync(int usuarioId);
+        Task<IEnumerable<Transacao>> ListByCategoryAsync(int categoriaId);
 
-        Task AdicionarAsync(Transacao transacao);
-        Task AtualizarAsync(Transacao transacao);
-        Task RemoverAsync(Transacao transacao);
+        Task AddAsync(Transacao transacao);
+        Task UpdateAsync(Transacao transacao);
+        Task DeleteAsync(Transacao transacao);
 
-        Task SalvarAsync();
+        Task SaveAsync();
     }
 }

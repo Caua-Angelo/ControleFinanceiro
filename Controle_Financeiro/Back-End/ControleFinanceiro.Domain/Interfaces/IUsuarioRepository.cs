@@ -4,13 +4,16 @@ namespace ControleFinanceiro.Domain.Interfaces
 {
     public interface IUsuarioRepository
     {
-        Task<IEnumerable<Usuario>> ListarAsync();
-        Task<Usuario?> ObterPorIdAsync(int id);
+        Task<IEnumerable<Usuario>> ListAsync();
+        Task<Usuario?> GetByIdAsync(int id);
 
-        Task AdicionarAsync(Usuario usuario);
-        Task AtualizarAsync(Usuario usuario);
-        Task RemoverAsync(Usuario usuario);
+        Task AddAsync(Usuario usuario);
+        Task UpdateAsync(Usuario usuario);
+        Task DeleteAsync(Usuario usuario);
 
-        Task SalvarAsync();
+        Task SaveAsync();
+
+        Task<Usuario?> GetByEmailAsync(string email);
+        
     }
 }

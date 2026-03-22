@@ -4,6 +4,7 @@ import type { UsuarioResponse } from "../Types/UsuarioResponse";
 import { Button } from "../Components/Button";
 export default function Usuario() {
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]);
   const [idade, setIdade] = useState<number | "">("");
   const [paginaAtual, setPaginaAtual] = useState(1);
@@ -11,6 +12,7 @@ export default function Usuario() {
 
   const [idadeEdit, setIdadeEdit] = useState<number | "">("");
   const [nomeEdit, setNomeEdit] = useState("");
+  //const [emailEdit, setEmailEdit] = useState("");
 
   const usuariosPorPagina = 4;
   const totalPaginas = Math.ceil(usuarios.length / usuariosPorPagina);
@@ -22,15 +24,17 @@ export default function Usuario() {
 
   async function CriarUsuario() {
     try {
-      if (!nome || idade === "") {
+      if (!nome || !idade || !email) {
         alert("Preencha todos os campos");
         return;
       }
       const payload = {
         nome,
         idade: Number(idade),
+        email,
       };
 
+      console.log("Payload enviado:", payload);
       const usuario = await criarUsuario(payload);
       console.log("Usuário criado com sucesso:", usuario);
       await listarUsuarios();
@@ -136,9 +140,21 @@ export default function Usuario() {
                   className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
                 />
               </div>
+              {/* Email */}
+              <div>
+                <label htmlFor="input-Email" className="text-xl text-[#2F4F4F] mb-2">
+                  Email
+                </label>
 
-              {/* Espaço vazio */}
-              <div></div>
+                <input
+                  id="input-Email"
+                  type="text"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded border border-[#9DB4AB] bg-white p-2 focus:outline-none focus:border-[#7A9D8F]"
+                />
+              </div>
 
               {/* Botão */}
               <div className="flex items-end">

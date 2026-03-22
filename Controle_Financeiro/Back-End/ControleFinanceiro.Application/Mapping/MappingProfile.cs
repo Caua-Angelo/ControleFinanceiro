@@ -5,7 +5,7 @@ using ControleFinanceiro.Application.DTO.Transacao;
 using ControleFinanceiro.Application.DTO.Usuario;
 using ControleFinanceiro.Domain.Models;
 
-namespace ControleFinanceiro.AutoMapper
+namespace ControleFinanceiro.Application.Mapping
 {
     public class MappingProfile : Profile
     {

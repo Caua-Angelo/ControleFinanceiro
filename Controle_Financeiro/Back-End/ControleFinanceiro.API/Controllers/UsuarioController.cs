@@ -1,10 +1,12 @@
 ﻿using ControleFinanceiro.Application.DTO.Usuario;
 using ControleFinanceiro.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ControleFinanceiro.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/usuarios")]
     public class UsuarioController : ControllerBase
@@ -23,7 +25,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ListarUsuarios")]
         public async Task<ActionResult<IEnumerable<UsuarioConsultarDTO>>> Get()
         {
-            var usuarios = await _usuarioService.ConsultarAsync();
+            var usuarios = await _usuarioService.ListAsync();
             return Ok(usuarios);
         }
 
@@ -34,7 +36,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ConsultarUsuarioPorId")]
         public async Task<ActionResult<UsuarioConsultarDTO>> GetById(int id)
         {
-            var usuario = await _usuarioService.ConsultarPorIdAsync(id);
+            var usuario = await _usuarioService.GetByIdAsync(id);
             return Ok(usuario);
         }
 
@@ -46,7 +48,7 @@ namespace ControleFinanceiro.API.Controllers
         public async Task<ActionResult<UsuarioConsultarDTO>> Post(
             [FromBody] UsuarioIncluirDTO dto)
         {
-            var usuario = await _usuarioService.CriarAsync(dto);
+            var usuario = await _usuarioService.AddAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -64,7 +66,7 @@ namespace ControleFinanceiro.API.Controllers
             int id,
             [FromBody] UsuarioAlterarDTO dto)
         {
-            var usuario = await _usuarioService.AlterarAsync(id, dto);
+            var usuario = await _usuarioService.UpdateAsync(id, dto);
             return Ok(usuario);
         }
 
@@ -75,7 +77,7 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ExcluirUsuario")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _usuarioService.ExcluirAsync(id);
+            await _usuarioService.DeleteAsync(id);
             return NoContent();
         }
     }
