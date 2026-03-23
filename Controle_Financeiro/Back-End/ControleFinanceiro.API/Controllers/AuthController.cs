@@ -25,7 +25,7 @@ namespace ControleFinanceiro.API.Controllers
             {
                 var result = await _authService.LoginAsync(dto);
                 return Ok(result);
-            }
+            }   
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new { mensagem = ex.Message });
