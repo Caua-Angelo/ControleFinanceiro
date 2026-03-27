@@ -1,3 +1,4 @@
+using ControleFinanceiro.API.Middlewares;
 using ControleFinanceiro.Application.Interface;
 using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Application.Mapping;
@@ -14,6 +15,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
@@ -114,6 +116,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())
 {
