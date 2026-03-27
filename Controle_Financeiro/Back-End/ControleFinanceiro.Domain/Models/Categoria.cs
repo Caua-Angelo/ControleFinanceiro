@@ -38,7 +38,7 @@ namespace ControleFinanceiro.Domain.Models
             DomainExceptionValidation.When(descricao.Length < 3 || descricao.Length > 60,
                 "A descrição da categoria deve ter entre 3 e 60 caracteres.");
 
-            DomainExceptionValidation.When(!Regex.IsMatch(descricao, @"^[\p{L}\p{N}\s]+$"),
+            DomainExceptionValidation.When(!Regex.IsMatch(descricao, @"^[\p{L}\p{N}\s\-\(\)]+$"),
                 "A descrição da categoria contém caracteres inválidos.");
 
             DomainExceptionValidation.When(!Enum.IsDefined(typeof(FinalidadeCategoria), finalidade),
