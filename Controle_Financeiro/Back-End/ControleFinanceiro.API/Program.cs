@@ -17,8 +17,6 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -32,7 +30,6 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<ITransacaoService, TransacaoService>();
-
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -71,11 +68,10 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,      // Http, não ApiKey
-        Scheme = "bearer",                   // lowercase por RFC 7235
+        Type = SecuritySchemeType.Http,      
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Digite apenas o token JWT (sem o prefixo 'Bearer')"
+        Description = "Digite apenas o token JWT"
     });
 
     c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
