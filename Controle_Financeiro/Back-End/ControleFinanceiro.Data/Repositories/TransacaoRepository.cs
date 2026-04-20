@@ -52,6 +52,11 @@ namespace ControleFinanceiro.Infra.Data.Repositories
 
         public async Task AddAsync(Transacao transacao)
         {
+            if (_context.Entry(transacao.Usuario).State == EntityState.Detached)
+                _context.Entry(transacao.Usuario).State = EntityState.Unchanged;
+
+            if (_context.Entry(transacao.Categoria).State == EntityState.Detached)
+                _context.Entry(transacao.Categoria).State = EntityState.Unchanged;
             await _context.Set<Transacao>().AddAsync(transacao);
         }
 
