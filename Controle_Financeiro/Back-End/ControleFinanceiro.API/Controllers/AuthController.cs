@@ -20,30 +20,15 @@ namespace ControleFinanceiro.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-
-            try
-            {
                 var result = await _authService.LoginAsync(dto);
                 return Ok(result);
-            }   
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { mensagem = ex.Message });
-            }
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UsuarioIncluirDTO dto)
         {
-            try
-            {
                 await _authService.RegisterAsync(dto);
                 return Created("", null);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { mensagem = ex.Message });
-            }
         }
     }
 }
