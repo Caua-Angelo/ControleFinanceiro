@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Controle_financeiro/Back-End
+        working-directory: Controle_Financeiro/Back-End
 
     steps:
       - name: Checkout do código
