@@ -1,6 +1,6 @@
 ﻿using ControleFinanceiro.Application.DTO.Auth;
 using ControleFinanceiro.Application.DTO.Usuario;
-using ControleFinanceiro.Application.Interface;
+using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Domain.Models;
 

@@ -1,10 +1,12 @@
 ﻿using ControleFinanceiro.Application.DTO.Categoria;
 using ControleFinanceiro.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ControleFinanceiro.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/categorias")]
     public class CategoriaController : ControllerBase

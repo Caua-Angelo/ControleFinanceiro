@@ -1,7 +1,7 @@
 ﻿using ControleFinanceiro.Application.DTO.Auth;
 using ControleFinanceiro.Application.DTO.Usuario;
 
-namespace ControleFinanceiro.Application.Interface
+namespace ControleFinanceiro.Application.Interfaces
 {
     public interface IAuthService
     {

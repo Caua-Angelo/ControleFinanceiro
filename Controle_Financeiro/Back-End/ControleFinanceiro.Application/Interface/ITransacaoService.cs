@@ -1,5 +1,6 @@
 ﻿using ControleFinanceiro.Application.DTO.Transacao;
 
+namespace ControleFinanceiro.Application.Interfaces;
 public interface ITransacaoService
 {
     Task<IEnumerable<TransacaoConsultarDTO>> ListAsync();

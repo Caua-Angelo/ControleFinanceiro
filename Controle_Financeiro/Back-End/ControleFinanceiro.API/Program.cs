@@ -1,5 +1,4 @@
 using ControleFinanceiro.API.Middlewares;
-using ControleFinanceiro.Application.Interface;
 using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Application.Mapping;
 using ControleFinanceiro.Application.Services;
@@ -10,10 +9,10 @@ using ControleFinanceiro.Infraestructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,7 +67,8 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,      
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "Digite apenas o token JWT"

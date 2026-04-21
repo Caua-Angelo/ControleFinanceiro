@@ -12,7 +12,13 @@ namespace ControleFinanceiro.Application.Mapping
         public MappingProfile()
         {
             CreateMap<Usuario, UsuarioConsultarDTO>();
-            CreateMap<UsuarioIncluirDTO, Usuario>();
+            CreateMap<UsuarioIncluirDTO, Usuario>()
+             .ConstructUsing(dto => new Usuario(
+                 dto.Nome,
+                 dto.Idade,
+                 dto.Email,
+                 BCrypt.Net.BCrypt.HashPassword(dto.Senha)
+             ));
             CreateMap<UsuarioAlterarDTO, Usuario>();
 
             CreateMap<Categoria, CategoriaConsultarDTO>();
@@ -24,7 +30,7 @@ namespace ControleFinanceiro.Application.Mapping
                     opt => opt.MapFrom(src => src.Usuario.Nome))
                 .ForMember(dest => dest.CategoriaDescricao,
                     opt => opt.MapFrom(src => src.Categoria.Descricao))
-                .ForMember(dest => dest.Data,  // ← ADICIONAR ESSA LINHA
+                .ForMember(dest => dest.Data,  
                     opt => opt.MapFrom(src => src.Data));
 
             CreateMap<TransacaoCriarDTO, Transacao>()

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ControleFinanceiro.Application.DTO.Transacao;
+using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Domain.Enums;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Domain.Models;

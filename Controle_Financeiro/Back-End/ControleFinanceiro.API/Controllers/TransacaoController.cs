@@ -1,10 +1,12 @@
 ﻿using ControleFinanceiro.Application.DTO.Transacao;
 using ControleFinanceiro.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ControleFinanceiro.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/transacoes")]
     public class TransacaoController : ControllerBase
