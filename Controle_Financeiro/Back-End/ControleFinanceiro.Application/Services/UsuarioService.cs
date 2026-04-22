@@ -37,6 +37,10 @@ namespace ControleFinanceiro.Application.Services
         
         public async Task<UsuarioConsultarDTO> AddAsync(UsuarioIncluirDTO dto)
         {
+            var existente = await _usuarioRepository.GetByEmailAsync(dto.Email);
+            if (existente != null)
+                throw new InvalidOperationException("Já existe um usuário cadastrado com este e-mail.");
+
             var usuario = _mapper.Map<Usuario>(dto);
 
             await _usuarioRepository.AddAsync(usuario);
