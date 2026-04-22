@@ -137,4 +137,91 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
+    [Fact]
+    public async Task GetById_TransacaoInexistente_DeveRetornar404()
+    {
+        // Arrange
+        var token = await CriarUsuarioEObterTokenAsync("transacao_getbyid404@teste.com");
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        var response = await _client.GetAsync("/api/transacoes/99999");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_TransacaoInexistente_DeveRetornar404()
+    {
+        // Arrange
+        var token = await CriarUsuarioEObterTokenAsync("transacao_delete404@teste.com");
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        var response = await _client.DeleteAsync("/api/transacoes/99999");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Post_CriarTransacao_ComDescricaoInvalida_DeveRetornar400()
+    {
+        // Arrange
+        var token = await CriarUsuarioEObterTokenAsync("transacao_400@teste.com");
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var categoria = await CriarCategoriaAsync("Salario", FinalidadeCategoria.Receita);
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+        var usuario = db.Usuario.First(u => u.Email == "transacao_400@teste.com");
+
+        var dto = new TransacaoCriarDTO
+        {
+            Descricao = "A", 
+            Valor = 100,
+            Tipo = TipoTransacao.Receita,
+            UsuarioId = usuario.Id,
+            CategoriaId = categoria.Id,
+            Data = DateTime.Now
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/transacoes", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Post_CriarTransacao_ComCategoriaIncompativel_DeveRetornar409()
+    {
+        // Arrange
+        var token = await CriarUsuarioEObterTokenAsync("transacao_incompativel@teste.com");
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var categoria = await CriarCategoriaAsync("Alimentacao", FinalidadeCategoria.Despesa);
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+        var usuario = db.Usuario.First(u => u.Email == "transacao_incompativel@teste.com");
+
+        var dto = new TransacaoCriarDTO
+        {
+            Descricao = "Salario",
+            Valor = 3000,
+            Tipo = TipoTransacao.Receita, 
+            UsuarioId = usuario.Id,
+            CategoriaId = categoria.Id,
+            Data = DateTime.Now
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/transacoes", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
 }
