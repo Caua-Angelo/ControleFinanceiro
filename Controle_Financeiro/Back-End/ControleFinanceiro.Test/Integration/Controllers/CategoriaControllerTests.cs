@@ -131,4 +131,67 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         var body = await response.Content.ReadFromJsonAsync<CategoriaConsultarDTO>();
         body!.Descricao.Should().Be("Lazer e Entretenimento");
     }
+    [Fact]
+    public async Task GetById_CategoriaInexistente_DeveRetornar404()
+    {
+        // Arrange
+        await AutorizarClienteAsync();
+
+        // Act
+        var response = await _client.GetAsync("/api/categorias/99999");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Put_CategoriaInexistente_DeveRetornar404()
+    {
+        // Arrange
+        await AutorizarClienteAsync();
+
+        var dto = new CategoriaAlterarDTO
+        {
+            Descricao = "Inexistente",
+            Finalidade = FinalidadeCategoria.Despesa
+        };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/categorias/99999", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_CategoriaInexistente_DeveRetornar404()
+    {
+        // Arrange
+        await AutorizarClienteAsync();
+
+        // Act
+        var response = await _client.DeleteAsync("/api/categorias/99999");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Post_CriarCategoria_ComDescricaoInvalida_DeveRetornar400()
+    {
+        // Arrange
+        await AutorizarClienteAsync();
+
+        var dto = new CategoriaIncluirDTO
+        {
+            Descricao = "A", 
+            Finalidade = FinalidadeCategoria.Despesa
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/categorias", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }
