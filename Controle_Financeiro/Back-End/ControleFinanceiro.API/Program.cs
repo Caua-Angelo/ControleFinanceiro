@@ -1,3 +1,4 @@
+using ControleFinanceiro.API.Logging;
 using ControleFinanceiro.API.Middlewares;
 using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Application.Mapping;
@@ -93,18 +94,26 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Host.UseSerilog();
-
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File(
-        @"C:\MeusLogs\controle-financeiro-log-.txt",
+    .MinimumLevel.Warning()
+    .MinimumLevel.Override("ControleFinanceiro", Serilog.Events.LogEventLevel.Information)
+    .WriteTo.Console(new Serilog.Formatting.Compact.CompactJsonFormatter())
+       .WriteTo.File(
+        new PrettyJsonFormatter(),
+        Path.Combine("..", "..", "logs", "controle-financeiro-log-.txt"),
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30)
     .CreateLogger();
 
+builder.Host.UseSerilog();
+
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())
@@ -128,17 +137,13 @@ using (var scope = app.Services.CreateScope())
     try
     {
         if (db.Database.CanConnect())
-        {
-            Console.WriteLine(" Conexão com o banco OK!");
-        }
+            Log.Information("Conexão com o banco de dados estabelecida com sucesso.");
         else
-        {
-            Console.WriteLine(" Não foi possível conectar ao banco.");
-        }
+            Log.Warning("Não foi possível conectar ao banco de dados.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($" Erro ao conectar: {ex.Message}");
+        Log.Error(ex, "Erro ao conectar ao banco de dados.");
     }
 }
 
