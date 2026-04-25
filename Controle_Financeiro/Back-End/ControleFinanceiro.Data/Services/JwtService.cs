@@ -23,8 +23,11 @@ namespace ControleFinanceiro.Infra.Data.Services
         {
             // transforma a chave secreta do appsettings em um objeto
             // que o JWT entende — sem ela ninguém consegue assinar um token válido
+            var keyValue = _config["Jwt:Key"]
+             ?? throw new Exception("JWT Key não configurada");
+
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+                Encoding.UTF8.GetBytes(keyValue));
 
             // combina a chave com o algoritmo HmacSha256
             // garante que o token não pode ser falsificado sem conhecer a chave
