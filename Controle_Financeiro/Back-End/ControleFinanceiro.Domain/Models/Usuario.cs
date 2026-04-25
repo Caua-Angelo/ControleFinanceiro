@@ -25,9 +25,9 @@ namespace ControleFinanceiro.Domain.Models
             HashSenha = senhaHash;
         }
 
-        public void Update(string nome, int idade,string email)
+        public void Update(string nome, int idade)
         {
-            ValidateDomain(nome, idade,email);
+            ValidateDomain(nome, idade,Email);
         }
         public void AlterarSenha(string novaSenhaHash)
         {

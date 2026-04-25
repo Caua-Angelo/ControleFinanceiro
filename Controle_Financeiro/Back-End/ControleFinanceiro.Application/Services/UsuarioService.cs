@@ -17,14 +17,6 @@ namespace ControleFinanceiro.Application.Services
             _mapper = mapper;
         }
 
-        
-        public async Task<IEnumerable<UsuarioConsultarDTO>> ListAsync()
-        {
-            var usuarios = await _usuarioRepository.ListAsync();
-            return _mapper.Map<IEnumerable<UsuarioConsultarDTO>>(usuarios);
-        }
-
-        
         public async Task<UsuarioConsultarDTO> GetByIdAsync(int id)
         {
             var usuario = await _usuarioRepository.GetByIdAsync(id);
@@ -56,7 +48,7 @@ namespace ControleFinanceiro.Application.Services
             if (usuario == null)
                 throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
 
-            usuario.Update(dto.Nome,dto.Idade,dto.Email); // ajuste conforme sua entidade
+            usuario.Update(dto.Nome,dto.Idade); 
 
             await _usuarioRepository.SaveAsync();
 
