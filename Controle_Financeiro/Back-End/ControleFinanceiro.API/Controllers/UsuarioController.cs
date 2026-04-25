@@ -18,66 +18,59 @@ namespace ControleFinanceiro.API.Controllers
             _usuarioService = usuarioService;
         }
 
-        // GET /api/usuarios
-        [HttpGet]
+        [HttpGet("me")]
         [SwaggerOperation(
-            Summary = "Lista todos os usuários cadastrados",
-            OperationId = "ListarUsuarios")]
-        public async Task<ActionResult<IEnumerable<UsuarioConsultarDTO>>> Get()
+        Summary = "Obtém os dados do usuário autenticado",
+        Description = "Retorna as informações do usuário atualmente logado com base no token JWT.",
+        OperationId = "ObterUsuarioLogado")]
+        public async Task<ActionResult<UsuarioConsultarDTO>> GetMe()
         {
-            var usuarios = await _usuarioService.ListAsync();
-            return Ok(usuarios);
-        }
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
 
-        // GET /api/usuarios/{id}
-        [HttpGet("{id:int}")]
-        [SwaggerOperation(
-            Summary = "Consulta um usuário por ID",
-            OperationId = "ConsultarUsuarioPorId")]
-        public async Task<ActionResult<UsuarioConsultarDTO>> GetById(int id)
-        {
-            var usuario = await _usuarioService.GetByIdAsync(id);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim.Value);
+
+            var usuario = await _usuarioService.GetByIdAsync(userId);
             return Ok(usuario);
         }
 
-        // POST /api/usuarios
-        [HttpPost]
-        [SwaggerOperation(
-            Summary = "Cria um novo usuário",
-            OperationId = "CriarUsuario")]
-        public async Task<ActionResult<UsuarioConsultarDTO>> Post(
-            [FromBody] UsuarioIncluirDTO dto)
-        {
-            var usuario = await _usuarioService.AddAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = usuario.Id },
-                usuario
-            );
-        }
-
-        // PUT /api/usuarios/{id}
-        [HttpPut("{id:int}")]
+        [HttpPut("me")]
         [SwaggerOperation(
-            Summary = "Altera um usuário existente",
-            OperationId = "AlterarUsuario")]
-        public async Task<ActionResult<UsuarioConsultarDTO>> Put(
-            int id,
-            [FromBody] UsuarioAlterarDTO dto)
+         Summary = "Atualiza os dados do usuário autenticado",
+         Description = "Permite atualizar nome e idade do usuário logado. O e-mail não é alterado por este endpoint.",
+         OperationId = "AtualizarUsuarioLogado")]
+        public async Task<ActionResult<UsuarioConsultarDTO>> UpdateMe(
+        [FromBody] UsuarioAlterarDTO dto)
         {
-            var usuario = await _usuarioService.UpdateAsync(id, dto);
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim.Value);
+
+            var usuario = await _usuarioService.UpdateAsync(userId, dto);
             return Ok(usuario);
         }
 
-        // DELETE /api/usuarios/{id}
-        [HttpDelete("{id:int}")]
+        [HttpDelete("me")]
         [SwaggerOperation(
-            Summary = "Exclui um usuário",
-            OperationId = "ExcluirUsuario")]
-        public async Task<IActionResult> Delete(int id)
+         Summary = "Exclui a conta do usuário autenticado",
+         Description = "Remove permanentemente o usuário logado e todos os dados associados.",
+         OperationId = "ExcluirUsuarioLogado")]
+        public async Task<IActionResult> DeleteMe()
         {
-            await _usuarioService.DeleteAsync(id);
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim.Value);
+
+            await _usuarioService.DeleteAsync(userId);
             return NoContent();
         }
     }
