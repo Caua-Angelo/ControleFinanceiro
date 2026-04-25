@@ -32,14 +32,14 @@ namespace ControleFinanceiro.Test.Unit.Domain
         public void Update_DadosValidos_NaoDeveLancarExcecao()
         {
             var usuario = new Usuario("Caua", 18, "caua@gmail.com", "hash");
-            Action act = () => usuario.Update("Caua Silva", 19, "novo@gmail.com");
+            Action act = () => usuario.Update("Caua Silva", 19);
             act.Should().NotThrow();
         }
         [Fact]
         public void Update_DadosInvalidos_DeveLancarExcecao()
         {
             var usuario = new Usuario("Caua", 18, "caua@gmail.com", "hash");
-            Action act = () => usuario.Update("", 19, "novo@gmail.com");
+            Action act = () => usuario.Update("", 19);
             act.Should().Throw<DomainExceptionValidation>()
                .WithMessage("O nome do usuário precisa ser preenchido.");
         }

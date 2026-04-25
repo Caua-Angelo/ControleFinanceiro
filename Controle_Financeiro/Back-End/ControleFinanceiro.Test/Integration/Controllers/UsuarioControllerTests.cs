@@ -34,18 +34,67 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task Get_SemToken_DeveRetornar401()
+    public async Task GetMe_SemToken_DeveRetornar401()
     {
-        var response = await _client.GetAsync("/api/usuarios");
+        var response = await _client.GetAsync("/api/usuarios/me");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task Post_CriarUsuario_DeveRetornar201()
+    public async Task GetMe_ComToken_DeveRetornar200()
     {
         // Arrange
         await AutorizarClienteAsync();
 
+        // Act
+        var response = await _client.GetAsync("/api/usuarios/me");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
+        body.Should().NotBeNull();
+        body!.Email.Should().Be("usuario_auth@teste.com");
+    }
+
+    [Fact]
+    public async Task PutMe_AtualizarUsuario_DeveRetornar200()
+    {
+        // Arrange
+        await AutorizarClienteAsync();
+
+        var atualizar = new UsuarioAlterarDTO
+        {
+            Nome = "Novo Nome",
+            Idade = 30
+        };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/usuarios/me", atualizar);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
+        body!.Nome.Should().Be("Novo Nome");
+    }
+
+    [Fact]
+    public async Task DeleteMe_DeveRetornar204()
+    {
+        // Arrange
+        await AutorizarClienteAsync();
+
+        // Act
+        var response = await _client.DeleteAsync("/api/usuarios/me");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task Register_CriarUsuario_DeveRetornar201()
+    {
         var dto = new UsuarioIncluirDTO
         {
             Nome = "João",
@@ -54,161 +103,14 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
             Senha = "senha123"
         };
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/usuarios", dto);
+        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
 
-        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-        var body = await response.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
-        body.Should().NotBeNull();
-        body!.Nome.Should().Be("João");
-        body.Email.Should().Be("joao@teste.com");
     }
 
     [Fact]
-    public async Task Get_ListarUsuarios_DeveRetornar200()
+    public async Task Register_EmailDuplicado_DeveRetornar409()
     {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        // Act
-        var response = await _client.GetAsync("/api/usuarios");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var body = await response.Content.ReadFromJsonAsync<IEnumerable<UsuarioConsultarDTO>>();
-        body.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task Put_AtualizarUsuario_DeveRetornar200()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        var criar = await _client.PostAsJsonAsync("/api/usuarios", new UsuarioIncluirDTO
-        {
-            Nome = "Maria",
-            Idade = 30,
-            Email = "maria@teste.com",
-            Senha = "senha123"
-        });
-        var usuarioCriado = await criar.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
-
-        var atualizar = new UsuarioAlterarDTO
-        {
-            Nome = "Maria Silva",
-            Idade = 31,
-            Email = "maria.silva@teste.com"
-        };
-
-        // Act
-        var response = await _client.PutAsJsonAsync($"/api/usuarios/{usuarioCriado!.Id}", atualizar);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var body = await response.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
-        body!.Nome.Should().Be("Maria Silva");
-        body.Email.Should().Be("maria.silva@teste.com");
-    }
-
-    [Fact]
-    public async Task Delete_UsuarioExistente_DeveRetornar204()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        var criar = await _client.PostAsJsonAsync("/api/usuarios", new UsuarioIncluirDTO
-        {
-            Nome = "Pedro",
-            Idade = 28,
-            Email = "pedro@teste.com",
-            Senha = "senha123"
-        });
-        var usuarioCriado = await criar.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
-
-        // Act
-        var response = await _client.DeleteAsync($"/api/usuarios/{usuarioCriado!.Id}");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-    }
-    [Fact]
-    public async Task GetById_UsuarioInexistente_DeveRetornar404()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        // Act
-        var response = await _client.GetAsync("/api/usuarios/99999");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task Put_UsuarioInexistente_DeveRetornar404()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        var dto = new UsuarioAlterarDTO
-        {
-            Nome = "Inexistente",
-            Idade = 25,
-            Email = "inexistente@teste.com"
-        };
-
-        // Act
-        var response = await _client.PutAsJsonAsync("/api/usuarios/99999", dto);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task Delete_UsuarioInexistente_DeveRetornar404()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        // Act
-        var response = await _client.DeleteAsync("/api/usuarios/99999");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task Post_CriarUsuario_ComNomeInvalido_DeveRetornar400()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
-        var dto = new UsuarioIncluirDTO
-        {
-            Nome = "A",
-            Idade = 25,
-            Email = "invalido@teste.com",
-            Senha = "senha123"
-        };
-
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/usuarios", dto);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task Post_CriarUsuario_ComEmailJaExistente_DeveRetornar409()
-    {
-        // Arrange
-        await AutorizarClienteAsync();
-
         var dto = new UsuarioIncluirDTO
         {
             Nome = "Duplicado",
@@ -217,12 +119,26 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
             Senha = "senha123"
         };
 
-        await _client.PostAsJsonAsync("/api/usuarios", dto);
+        await _client.PostAsJsonAsync("/api/auth/register", dto);
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/api/usuarios", dto);
+        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
 
-        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task Register_NomeInvalido_DeveRetornar400()
+    {
+        var dto = new UsuarioIncluirDTO
+        {
+            Nome = "A",
+            Idade = 25,
+            Email = "invalido@teste.com",
+            Senha = "senha123"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }
