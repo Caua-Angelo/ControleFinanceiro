@@ -68,6 +68,7 @@ pnpm-debug.log*
 ####################################
 appsettings.*.json
 !appsettings.Example.json
+!appsettings.Testing.json
 
 secrets.json
 
