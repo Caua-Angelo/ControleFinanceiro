@@ -64,10 +64,18 @@ pnpm-debug.log*
 *.pdb
 
 ####################################
-# Configurações locais
+# Configurações locais 
 ####################################
-appsettings.Development.json
-appsettings.Local.json
+appsettings.*.json
+!appsettings.Example.json
+
+secrets.json
+
+####################################
+# Banco local / arquivos temporários
+####################################
+*.db
+*.sqlite
 
 ####################################
 # Docker

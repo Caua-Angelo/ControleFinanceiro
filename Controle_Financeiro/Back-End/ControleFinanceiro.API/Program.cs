@@ -96,7 +96,7 @@ builder.Services.AddCors(options =>
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Warning()
-    .MinimumLevel.Override("ControleFinanceiro", Serilog.Events.LogEventLevel.Information)
+.MinimumLevel.Override("Startup.Database", Serilog.Events.LogEventLevel.Information)
     .WriteTo.Console(new Serilog.Formatting.Compact.CompactJsonFormatter())
        .WriteTo.File(
         new PrettyJsonFormatter(),
@@ -134,16 +134,18 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+    var logger = Log.ForContext("SourceContext", "Startup.Database");
+
     try
     {
         if (db.Database.CanConnect())
-            Log.Information("Conexão com o banco de dados estabelecida com sucesso.");
+            logger.Information("Conex o com o banco de dados estabelecida com sucesso.");
         else
-            Log.Warning("Não foi possível conectar ao banco de dados.");
+            logger.Warning("N o foi poss vel conectar ao banco de dados.");
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Erro ao conectar ao banco de dados.");
+        logger.Error(ex, "Erro ao conectar ao banco de dados.");
     }
 }
 
