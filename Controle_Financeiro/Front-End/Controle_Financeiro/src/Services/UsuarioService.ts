@@ -1,26 +1,20 @@
 import { api } from "./Apiservice";
 
-export interface UsuarioRequest {
+export interface UsuarioUpdateRequest {
   nome: string;
   idade: number;
-  email?: string;
 }
 
-export async function criarUsuario(data: UsuarioRequest) {
-  const response = await api.post("/usuarios", data);
+export async function getUsuarioLogado() {
+  const response = await api.get("/usuarios/me");
   return response.data;
 }
 
-export async function consultarUsuario() {
-  const response = await api.get("/usuarios");
+export async function atualizarUsuario(data: UsuarioUpdateRequest) {
+  const response = await api.put("/usuarios/me", data);
   return response.data;
 }
 
-export async function deletarUsuario(id: number) {
-  await api.delete(`/usuarios/${id}`);
-}
-
-export async function alterarUsuario(id: number, data: UsuarioRequest) {
-  const response = await api.put(`/usuarios/${id}`, data);
-  return response.data;
+export async function deletarConta() {
+  await api.delete("/usuarios/me");
 }
