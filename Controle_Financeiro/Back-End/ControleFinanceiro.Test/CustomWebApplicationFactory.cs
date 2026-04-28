@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
@@ -11,9 +12,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
 
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            config.AddJsonFile("appsettings.Testing.json", optional: false);
+        });
+
         builder.ConfigureServices(services =>
         {
-           
             var descriptors = services.Where(d =>
                 d.ServiceType == typeof(DbContextOptions<ApplicationDBContext>) ||
                 d.ServiceType == typeof(DbContextOptions) ||
