@@ -7,6 +7,10 @@ import transaction from "../assets/transaction.png";
 import logo from "../assets/logo.png";
 
 export default function Layout() {
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
   return (
     <div className="min-h-screen w-full flex   bg-[#9DB4AB]">
       {/* Menu lateral */}
@@ -27,16 +31,20 @@ export default function Layout() {
         </div>
         <div className="ml-4">
           <Link to="/categoria" className={`${menuLink} flex items-center`}>
-            <img src={category} alt="Logo" className="w-6 h-6 mr-2" />{" "}
-            Categorias
+            <img src={category} alt="Logo" className="w-6 h-6 mr-2" /> Categorias
           </Link>
         </div>
         <div className="ml-4">
           <Link to="/transacao" className={`${menuLink} flex items-center`}>
-            <img src={transaction} alt="Logo" className="w-6 h-6 mr-2" />{" "}
-            Transações
+            <img src={transaction} alt="Logo" className="w-6 h-6 mr-2" /> Transações
           </Link>
         </div>
+        <button
+          onClick={logout}
+          className=" mt-auto fundo [#7A9D8F] hover:bg-[#5A7067] px-3 py-2 rounded text-white text-2xl flex items-center justify-center"
+        >
+          Sair
+        </button>
       </aside>
 
       {/* Área principal */}
@@ -47,13 +55,10 @@ export default function Layout() {
         </main>
 
         {/* Footer */}
-        <footer className="h-10 text-white flex items-center justify-center text-sm backdrop-blur-sm">
-          Controle Financeiro
-        </footer>
+        <footer className="h-10 text-white flex items-center justify-center text-sm backdrop-blur-sm">Controle Financeiro</footer>
       </div>
     </div>
   );
 }
 
-const menuLink =
-  "mb-2 px-2 py-1 rounded hover:bg-gray-600 transition-colors text-2xl";
+const menuLink = "mb-2 px-2 py-1 rounded hover:bg-gray-600 transition-colors text-2xl";
