@@ -26,7 +26,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#9DB4AB]">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Entrar no Sistema</h2>
@@ -42,7 +42,7 @@ export function LoginPage() {
               placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9DB4AB]"
               required
             />
           </div>
@@ -55,7 +55,7 @@ export function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9DB4AB]"
               required
             />
           </div>
@@ -68,7 +68,7 @@ export function LoginPage() {
           )}
 
           {/* Botão */}
-          <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition" disabled={isLoading}>
+          <button type="submit" className="w-full bg-[#7A9D8F] text-white py-2 rounded hover:bg-[#5A7067] transition" disabled={isLoading}>
             {isLoading ? "Entrando..." : "Entrar"}
           </button>
         </form>
