@@ -1,5 +1,5 @@
 import type { Finalidade } from "../Types/Finalidade";
-import { api } from "./Apiservice";
+import { api } from "./ApiService";
 
 export interface CategoriaRequest {
   descricao: string;

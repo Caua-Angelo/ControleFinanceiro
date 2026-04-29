@@ -3,6 +3,7 @@ import { criarCategoria, consultarCategoria, deletarCategoria, alterarCategoria 
 import { Finalidade } from "../Types/Finalidade";
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
 import { Button } from "../Components/Button";
+import axios from "axios";
 
 export default function Categoria() {
   const [descricao, setDescricao] = useState("");
@@ -61,9 +62,14 @@ export default function Categoria() {
       try {
         const data = await consultarCategoria();
         setCategorias(data);
-      } catch (error) {
-        console.error(error);
-        alert("Erro ao carregar categorias");
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status !== 401) {
+            alert("Erro ao carregar categorias");
+          }
+        } else {
+          console.error(error);
+        }
       }
     };
 

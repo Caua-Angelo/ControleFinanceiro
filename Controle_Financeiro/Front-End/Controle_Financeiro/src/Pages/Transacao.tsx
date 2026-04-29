@@ -6,6 +6,7 @@ import type { UsuarioResponse } from "../Types/UsuarioResponse";
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
 import type { TransacaoResponse } from "../Types/TransacaoResponse";
 import { Button } from "../Components/Button";
+import axios from "axios";
 
 export default function Transacao() {
   const [descricao, setDescricao] = useState("");
@@ -98,9 +99,14 @@ export default function Transacao() {
       const transacoesData = await listarTransacoes();
       setTransacoes(transacoesData);
       console.log("Transações Existentes:", transacoesData);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao consultar a lista de transações");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status !== 401) {
+          alert("Erro ao consultar a lista de transações");
+        }
+      } else {
+        console.error(error);
+      }
     }
   }
 
@@ -109,9 +115,14 @@ export default function Transacao() {
       const usuariosData = await consultarUsuario();
       setUsuarios(usuariosData);
       console.log("Usuários Existentes:", usuariosData);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao consultar a lista de usuários");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status !== 401) {
+          alert("Erro ao consultar a lista de usuários");
+        }
+      } else {
+        console.error(error);
+      }
     }
   }
 
@@ -120,9 +131,14 @@ export default function Transacao() {
       const categoriasData = await consultarCategoria();
       setCategorias(categoriasData);
       console.log("Categorias Existentes:", categoriasData);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao consultar a lista de categorias");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status !== 401) {
+          alert("Erro ao consultar a lista de categorias");
+        }
+      } else {
+        console.error(error);
+      }
     }
   }
 

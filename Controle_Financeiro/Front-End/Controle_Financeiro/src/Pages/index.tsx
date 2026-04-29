@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listarTransacoes } from "../Services/TransacaoService";
 import { consultarUsuario } from "../Services/UsuarioService";
 import type { TransacaoResponse, UsuarioResponse, UsuarioResumoResponse } from "../Types/index";
+import axios from "axios";
 
 export default function RelatorioFinanceiro() {
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
@@ -11,23 +12,35 @@ export default function RelatorioFinanceiro() {
   const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
   const [tipoSelecionado, setTipoSelecionado] = useState<number | "todos">("todos");
   useEffect(() => {
-    async function CarregarDados() {
+    async function carregarDados() {
       try {
-        const listatransacoes = await listarTransacoes();
-        setTransacoes(listatransacoes);
-      } catch (error) {
-        console.error(error);
-        alert("Erro ao carregar transações");
+        const listaTransacoes = await listarTransacoes();
+        setTransacoes(listaTransacoes);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status !== 401) {
+            alert("Erro ao carregar transações");
+          }
+        } else {
+          console.error(error);
+        }
       }
+
       try {
         const usuariosData = await consultarUsuario();
         setUsuarios(usuariosData);
-      } catch (error) {
-        console.error(error);
-        alert("Erro ao carregar usuários");
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status !== 401) {
+            alert("Erro ao carregar usuários");
+          }
+        } else {
+          console.error(error);
+        }
       }
     }
-    CarregarDados();
+
+    carregarDados();
   }, []);
   const transacoesFiltradas = useMemo(() => {
     let resultados = [...transacoes];
@@ -178,7 +191,10 @@ export default function RelatorioFinanceiro() {
       {/* Cards individuais por usuário */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         {resumoPorUsuario.map((usuario) => (
-          <div key={usuario.usuarioId} className="bg-[#F5F7F6] rounded-lg p-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
+          <div
+            key={usuario.usuarioId}
+            className="bg-[#F5F7F6] rounded-lg p-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
+          >
             <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">{usuario.usuarioNome}</h2>
             <hr className="mb-4 border-[#9DB4AB]" />
 
@@ -197,7 +213,9 @@ export default function RelatorioFinanceiro() {
 
               <div className="flex justify-between items-center">
                 <span className="text-[#2F4F4F] font-semibold">Saldo Final:</span>
-                <span className={`font-bold text-xl ${usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(usuario.saldoFinal)}</span>
+                <span className={`font-bold text-xl ${usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"}`}>
+                  {formatarValor(usuario.saldoFinal)}
+                </span>
               </div>
             </div>
           </div>

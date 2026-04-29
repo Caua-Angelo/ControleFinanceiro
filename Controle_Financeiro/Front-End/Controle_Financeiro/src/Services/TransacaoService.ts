@@ -1,5 +1,5 @@
 import type { TransacaoResponse } from "../Types/TransacaoResponse";
-import { api } from "./Apiservice";
+import { api } from "./ApiService";
 
 export interface TransacaoRequest {
   descricao: string;
@@ -7,13 +7,10 @@ export interface TransacaoRequest {
   tipo: number;
   categoriaId: number;
   usuarioId: number;
-  data : string;
+  data: string;
 }
 
-export async function listarTransacoes(params?: {
-  usuarioId?: number;
-  categoriaId?: number;
-}) {
+export async function listarTransacoes(params?: { usuarioId?: number; categoriaId?: number }) {
   const response = await api.get("/transacoes", { params });
   return response.data as TransacaoResponse[];
 }
