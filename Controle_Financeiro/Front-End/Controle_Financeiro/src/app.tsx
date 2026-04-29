@@ -1,16 +1,26 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Inicial from './Pages/index.tsx';
-import Categoria from './Pages/Categoria.tsx';
-import Usuario from './Pages/Usuario.tsx';
-import Transacao from './Pages/Transacao.tsx';
-import Layout from './Components/layout.tsx'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Inicial from "./Pages/index.tsx";
+import Categoria from "./Pages/Categoria.tsx";
+import Usuario from "./Pages/Usuario.tsx";
+import Transacao from "./Pages/Transacao.tsx";
+import Layout from "./Components/layout.tsx";
+import { LoginPage } from "./Pages/LoginPage.tsx";
+import { PrivateRoute } from "./routes/PrivateRoute";
 
-function app() {
+function App() {
   return (
     <Router>
       <Routes>
-        {/* Layout que aparece tem todas  as outras telas */}
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Layout />
+            </PrivateRoute>
+          }
+        >
           <Route index element={<Inicial />} />
           <Route path="categoria" element={<Categoria />} />
           <Route path="transacao" element={<Transacao />} />
@@ -21,4 +31,4 @@ function app() {
   );
 }
 
-export default app;
+export default App;
