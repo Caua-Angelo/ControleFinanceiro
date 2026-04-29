@@ -4,7 +4,6 @@ namespace ControleFinanceiro.Application.Interfaces
 {
     public interface IUsuarioService
     {
-        Task<IEnumerable<UsuarioConsultarDTO>> ListAsync();
         Task<UsuarioConsultarDTO> GetByIdAsync(int id);
 
         Task<UsuarioConsultarDTO> AddAsync(UsuarioIncluirDTO dto);
