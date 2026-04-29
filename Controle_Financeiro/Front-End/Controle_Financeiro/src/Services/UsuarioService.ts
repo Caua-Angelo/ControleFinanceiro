@@ -1,4 +1,4 @@
-import { api } from "./Apiservice";
+import { api } from "./ApiService";
 
 export interface UsuarioRequest {
   nome: string;
