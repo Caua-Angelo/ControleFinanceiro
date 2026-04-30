@@ -27,47 +27,29 @@ namespace ControleFinanceiro.Application.Services
         }
 
 
-        public async Task<IEnumerable<TransacaoConsultarDTO>> ListAsync()
-        {
-            var transacoes = await _transacaoRepository.ListAsync();
-            return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
-        }
-
-
-        public async Task<TransacaoConsultarDTO> GetByIdAsync(int id)
+        public async Task<TransacaoConsultarDTO> GetByIdAsync(int id, int userId)
         {
             var transacao = await _transacaoRepository.GetByIdAsync(id);
 
             if (transacao == null)
-                throw new KeyNotFoundException($"Transação com ID {id} não encontrada.");
+                throw new KeyNotFoundException("Transação não encontrada.");
+
+            if (transacao.UsuarioId != userId)
+                throw new ForbiddenException("Acesso negado.");
 
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-  
-        public async Task<IEnumerable<TransacaoConsultarDTO>> ListByUserAsync(int usuarioId)
-        {
-            var usuario = await _usuarioRepository.GetByIdAsync(usuarioId);
-            if (usuario == null)
-                throw new KeyNotFoundException($"Usuário com ID {usuarioId} não encontrado.");
 
-            var transacoes = await _transacaoRepository.ListByUserAsync(usuarioId);
-            return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
-        }
-       public async Task<IEnumerable<TransacaoConsultarDTO>> ListByCategoryAsync(int categoriaId)
+        public async Task<IEnumerable<TransacaoConsultarDTO>> ListByUserAsync(int userId)
         {
-            var categoria = await _categoriaRepository.GetByIdAsync(categoriaId);
-            if (categoria == null)
-                throw new KeyNotFoundException($"Categoria com ID {categoriaId} não encontrada.");
-
-            var transacoes = await _transacaoRepository.ListByCategoryAsync(categoriaId);
+            var transacoes = await _transacaoRepository.ListByUserAsync(userId);
             return _mapper.Map<IEnumerable<TransacaoConsultarDTO>>(transacoes);
         }
 
-   
-        public async Task<TransacaoConsultarDTO> AddAsync(TransacaoCriarDTO dto)
+        public async Task<TransacaoConsultarDTO> AddAsync(TransacaoCriarDTO dto, int userId)
         {
-            var usuario = await _usuarioRepository.GetByIdAsync(dto.UsuarioId);
+            var usuario = await _usuarioRepository.GetByIdAsync(userId);
             if (usuario == null)
                 throw new InvalidOperationException("Usuário não encontrado.");
 
@@ -91,12 +73,15 @@ namespace ControleFinanceiro.Application.Services
                 throw new InvalidOperationException(
                     "Categoria de despesa não pode ser usada em receitas.");
 
+            if (dto.Valor <= 0)
+                throw new InvalidOperationException("Valor deve ser maior que zero.");
+
             var transacao = new Transacao(
                 dto.Descricao,
                 dto.Valor,
                 dto.Tipo,
                 categoria,
-                usuario,
+                usuario, 
                 dto.Data
             );
 
@@ -106,15 +91,21 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        public async Task<TransacaoConsultarDTO> UpdateAsync(int id, TransacaoAtualizarDTO dto)
+        public async Task<TransacaoConsultarDTO> UpdateAsync(int id, TransacaoAtualizarDTO dto, int userId)
         {
             var transacao = await _transacaoRepository.GetByIdAsync(id);
             if (transacao == null)
                 throw new KeyNotFoundException("Transação não encontrada.");
 
+            if (transacao.UsuarioId != userId)
+                throw new ForbiddenException("Acesso negado.");
+
             var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
+
+            if (dto.Valor <= 0)
+                throw new InvalidOperationException("Valor deve ser maior que zero.");
 
             transacao.Update(
                 dto.Descricao,
@@ -130,11 +121,14 @@ namespace ControleFinanceiro.Application.Services
             return _mapper.Map<TransacaoConsultarDTO>(transacao);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int userId)
         {
             var transacao = await _transacaoRepository.GetByIdAsync(id);
             if (transacao == null)
                 throw new KeyNotFoundException("Transação não encontrada.");
+
+            if (transacao.UsuarioId != userId)
+                throw new ForbiddenException("Acesso negado.");
 
             await _transacaoRepository.DeleteAsync(transacao);
             await _transacaoRepository.SaveAsync();

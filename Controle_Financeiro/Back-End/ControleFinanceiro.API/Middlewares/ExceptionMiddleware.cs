@@ -53,6 +53,19 @@ namespace ControleFinanceiro.API.Middlewares
                 });
                 await HandleExceptionAsync(context, HttpStatusCode.NotFound, ex.Message);
             }
+            catch (ForbiddenException ex)
+            {
+                _logger.LogWarning("Acesso proibido {@Log}", new
+                {
+                    tipo = "Forbidden",
+                    rota = $"{context.Request.Method} {context.Request.Path}",
+                    body = DeserializarBody(body),
+                    erro = ex.Message,
+                    timestamp = DateTime.UtcNow
+                });
+
+                await HandleExceptionAsync(context, HttpStatusCode.Forbidden, ex.Message);
+            }
             catch (UnauthorizedAccessException ex)
             {
                 _logger.LogWarning("Acesso não autorizado {@Log}", new
