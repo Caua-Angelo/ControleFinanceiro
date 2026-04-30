@@ -64,14 +64,12 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-        var usuario = db.Usuario.First(u => u.Email == "transacao_criar@teste.com");
 
         var dto = new TransacaoCriarDTO
         {
             Descricao = "Salario",
             Valor = 3000,
             Tipo = TipoTransacao.Receita,
-            UsuarioId = usuario.Id,
             CategoriaId = categoria.Id,
             Data = DateTime.Now
         };
@@ -116,14 +114,12 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-        var usuario = db.Usuario.First(u => u.Email == "transacao_deletar@teste.com");
 
         var dto = new TransacaoCriarDTO
         {
             Descricao = "Almoco",
             Valor = 50,
             Tipo = TipoTransacao.Despesa,
-            UsuarioId = usuario.Id,
             CategoriaId = categoria.Id,
             Data = DateTime.Now
         };
@@ -176,14 +172,12 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-        var usuario = db.Usuario.First(u => u.Email == "transacao_400@teste.com");
 
         var dto = new TransacaoCriarDTO
         {
             Descricao = "A", 
             Valor = 100,
             Tipo = TipoTransacao.Receita,
-            UsuarioId = usuario.Id,
             CategoriaId = categoria.Id,
             Data = DateTime.Now
         };
@@ -206,14 +200,12 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-        var usuario = db.Usuario.First(u => u.Email == "transacao_incompativel@teste.com");
 
         var dto = new TransacaoCriarDTO
         {
             Descricao = "Salario",
             Valor = 3000,
             Tipo = TipoTransacao.Receita, 
-            UsuarioId = usuario.Id,
             CategoriaId = categoria.Id,
             Data = DateTime.Now
         };
@@ -223,5 +215,38 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+    [Fact]
+    public async Task GetById_TransacaoDeOutroUsuario_DeveRetornar403()
+    {
+        // usuário 1
+        var token1 = await CriarUsuarioEObterTokenAsync("user1@teste.com");
+
+        // usuário 2
+        var token2 = await CriarUsuarioEObterTokenAsync("user2@teste.com");
+
+        var categoria = await CriarCategoriaAsync("Alimentacao", FinalidadeCategoria.Despesa);
+
+        // cria transação com user1
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token1);
+
+        var dto = new TransacaoCriarDTO
+        {
+            Descricao = "Almoco",
+            Valor = 50,
+            Tipo = TipoTransacao.Despesa,
+            CategoriaId = categoria.Id,
+            Data = DateTime.Now
+        };
+
+        var criar = await _client.PostAsJsonAsync("/api/transacoes", dto);
+        var transacao = await criar.Content.ReadFromJsonAsync<TransacaoConsultarDTO>();
+
+        // tenta acessar com user2
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token2);
+
+        var response = await _client.GetAsync($"/api/transacoes/{transacao!.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
