@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { listarTransacoes } from "../Services/TransacaoService";
-import { consultarUsuario } from "../Services/UsuarioService";
+import { getUsuarioLogado } from "../Services/UsuarioService";
 import type { TransacaoResponse, UsuarioResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
 
@@ -27,7 +27,7 @@ export default function RelatorioFinanceiro() {
       }
 
       try {
-        const usuariosData = await consultarUsuario();
+        const usuariosData = await getUsuarioLogado();
         setUsuarios(usuariosData);
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
