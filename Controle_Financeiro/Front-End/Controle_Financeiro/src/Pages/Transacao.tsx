@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { criarTransacao, listarTransacoes, deletarTransacao, alterarTransacao, type TransacaoRequest } from "../Services/TransacaoService";
-import { consultarUsuario } from "../Services/UsuarioService";
+import { getUsuarioLogado } from "../Services/UsuarioService";
 import { consultarCategoria } from "../Services/CategoriaService";
 import type { UsuarioResponse } from "../Types/UsuarioResponse";
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
@@ -112,7 +112,7 @@ export default function Transacao() {
 
   async function listarUsuarios() {
     try {
-      const usuariosData = await consultarUsuario();
+      const usuariosData = await getUsuarioLogado();
       setUsuarios(usuariosData);
       console.log("Usuários Existentes:", usuariosData);
     } catch (error: unknown) {
