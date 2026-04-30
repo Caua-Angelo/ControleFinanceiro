@@ -1,15 +1,16 @@
 ﻿using ControleFinanceiro.Application.DTO.Transacao;
 
 namespace ControleFinanceiro.Application.Interfaces;
+
 public interface ITransacaoService
 {
-    Task<IEnumerable<TransacaoConsultarDTO>> ListAsync();
-    Task<TransacaoConsultarDTO> GetByIdAsync(int id);
+    Task<IEnumerable<TransacaoConsultarDTO>> ListByUserAsync(int userId);
 
-    Task<IEnumerable<TransacaoConsultarDTO>> ListByUserAsync(int usuarioId);
-    Task<IEnumerable<TransacaoConsultarDTO>> ListByCategoryAsync(int categoriaId);
+    Task<TransacaoConsultarDTO> GetByIdAsync(int id, int userId);
 
-    Task<TransacaoConsultarDTO> AddAsync(TransacaoCriarDTO dto);
-    Task<TransacaoConsultarDTO> UpdateAsync(int id, TransacaoAtualizarDTO dto);
-    Task DeleteAsync(int id);
+    Task<TransacaoConsultarDTO> AddAsync(TransacaoCriarDTO dto, int userId);
+
+    Task<TransacaoConsultarDTO> UpdateAsync(int id, TransacaoAtualizarDTO dto, int userId);
+
+    Task DeleteAsync(int id, int userId);
 }
