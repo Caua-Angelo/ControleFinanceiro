@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Controle_Financeiro/Front-End
+        working-directory: Controle_Financeiro/Front-End/Controle_Financeiro
 
     steps:
       - name: Checkout do código
@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('Controle_Financeiro/Front-End/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('Controle_Financeiro/Front-End/Controle_Financeiro/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
