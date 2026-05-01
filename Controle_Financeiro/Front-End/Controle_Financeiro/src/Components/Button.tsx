@@ -9,9 +9,10 @@ interface ButtonProps {
   totalPaginas?: number;
   paginaAtual?: number;
   setPaginaAtual?: (pagina: number) => void;
+  disabled?: boolean;
 }
 
-export function Button({ label, onClick, className = "", variant = "primary", totalPaginas, paginaAtual, setPaginaAtual }: ButtonProps) {
+export function Button({ label, onClick, className = "", variant = "primary", totalPaginas, paginaAtual, setPaginaAtual, disabled }: ButtonProps) {
   const variantClass =
     {
       primary: "bg-[#7A9D8F] hover:bg-[#5A7067] w-full h-11",
@@ -53,7 +54,13 @@ export function Button({ label, onClick, className = "", variant = "primary", to
   }
   //retorno normal para os outros tipos de botão
   return (
-    <button onClick={onClick} className={`flex items-center justify-center gap-1 text-white rounded transition ${variantClass} ${className}`}>
+    <button
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`flex items-center justify-center gap-1 text-white rounded transition ${variantClass} ${className} ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
+    >
       {variantIcon && <img src={variantIcon} alt={label} className="w-5 h-5" />}
       {label}
     </button>
