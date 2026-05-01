@@ -26,6 +26,10 @@ export default function Transacao() {
   const [categoriaIdEdit, setCategoriaIdEdit] = useState<number | "">("");
   const [dataEdit, setDataEdit] = useState<string>("");
 
+  const [loadingCriar, setLoadingCriar] = useState(false);
+  const [loadingEditar, setLoadingEditar] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const isMenorDeIdade = usuario ? usuario.idade < 18 : false;
 
   useEffect(() => {
@@ -68,6 +72,7 @@ export default function Transacao() {
         alert("Valor inválido");
         return;
       }
+      setLoadingCriar(true);
 
       const payload: TransacaoRequest = {
         descricao,
@@ -86,9 +91,13 @@ export default function Transacao() {
       setTipo("");
       setCategoriaId("");
       setData("");
+
+      alert("Transação criada com sucesso ✅");
     } catch (error) {
       console.error(error);
       alert("Erro ao criar transação");
+    } finally {
+      setLoadingCriar(false);
     }
   }
 
@@ -100,8 +109,19 @@ export default function Transacao() {
   async function DeletarTransacao(id: number) {
     if (!window.confirm("Tem certeza que deseja excluir?")) return;
 
-    await deletarTransacao(id);
-    await listarTodasTransacoes();
+    try {
+      setDeletingId(id);
+
+      await deletarTransacao(id);
+      await listarTodasTransacoes();
+
+      alert("Transação excluída com sucesso ✅");
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao excluir transação ❌");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   function abrirModalEditar(transacao: TransacaoResponse) {
@@ -117,19 +137,31 @@ export default function Transacao() {
   async function editarTransacao() {
     if (!transacaoSelecionada) return;
 
-    const valorNumerico = Number(valorEdit.replace(",", "."));
+    try {
+      setLoadingEditar(true);
 
-    await alterarTransacao(transacaoSelecionada.id, {
-      descricao: descricaoEdit,
-      valor: valorNumerico,
-      tipo: Number(tipoEdit),
-      categoriaId: Number(categoriaIdEdit),
-      data: dataEdit,
-      usuarioId: 0, // TEMPORÁRIO
-    });
+      const valorNumerico = Number(valorEdit.replace(",", "."));
 
-    await listarTodasTransacoes();
-    setShowModal(false);
+      await alterarTransacao(transacaoSelecionada.id, {
+        descricao: descricaoEdit,
+        valor: valorNumerico,
+        tipo: Number(tipoEdit),
+        categoriaId: Number(categoriaIdEdit),
+        data: dataEdit,
+        usuarioId: 0,
+      });
+
+      await listarTodasTransacoes();
+
+      alert("Transação atualizada com sucesso ✅");
+
+      setShowModal(false);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao atualizar transação ❌");
+    } finally {
+      setLoadingEditar(false);
+    }
   }
 
   function formatarValor(valor: number, tipo: number) {
@@ -228,7 +260,7 @@ export default function Transacao() {
           </div>
 
           <div className="col-span-2">
-            <Button onClick={CriarTransacao} label="Criar Transação" variant="primary" />
+            <Button onClick={CriarTransacao} label={loadingCriar ? "Salvando..." : "Criar Transação"} variant="primary" disabled={loadingCriar} />
           </div>
         </div>
       </div>
@@ -262,8 +294,13 @@ export default function Transacao() {
             <div>{formatarData(t.data)}</div>
             <div>{t.tipo === 1 ? "Receita" : "Despesa"}</div>
             <div className="flex justify-start gap-2 pl-4">
-              <Button onClick={() => abrirModalEditar(t)} label="Editar" variant="edit" />
-              <Button onClick={() => DeletarTransacao(t.id)} label="Excluir" variant="delete" />
+              <Button onClick={() => abrirModalEditar(t)} label="Editar" variant="edit" disabled={loadingEditar} />
+              <Button
+                onClick={() => DeletarTransacao(t.id)}
+                label={deletingId === t.id ? "Excluindo..." : "Excluir"}
+                variant="delete"
+                disabled={deletingId === t.id}
+              />
             </div>
           </div>
         ))}
@@ -313,7 +350,7 @@ export default function Transacao() {
             </div>
 
             <div className="flex justify-center gap-2">
-              <Button onClick={editarTransacao} label="Salvar" variant="saveModal"></Button>
+              <Button onClick={editarTransacao} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
               <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
             </div>
           </div>
