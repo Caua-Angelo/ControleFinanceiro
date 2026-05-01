@@ -5,6 +5,7 @@ import Transacao from "./Pages/Transacao.tsx";
 import Layout from "./Components/layout.tsx";
 import { LoginPage } from "./Pages/LoginPage.tsx";
 import { PrivateRoute } from "./routes/PrivateRoute";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -25,6 +26,12 @@ function App() {
           <Route path="transacao" element={<Transacao />} />
         </Route>
       </Routes>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+        }}
+      />
     </Router>
   );
 }

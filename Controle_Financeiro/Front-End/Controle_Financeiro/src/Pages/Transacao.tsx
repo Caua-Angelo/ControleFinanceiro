@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { criarTransacao, listarTransacoes, deletarTransacao, alterarTransacao, type TransacaoRequest } from "../Services/TransacaoService";
 import { consultarCategoria } from "../Services/CategoriaService";
 import { getUsuarioLogado } from "../Services/UsuarioService";
@@ -42,7 +43,7 @@ export default function Transacao() {
         setUsuario(usuarioData);
       } catch (error) {
         console.error(error);
-        alert("Erro ao carregar dados");
+        toast.error("Erro ao carregar dados");
       }
     }
 
@@ -62,14 +63,14 @@ export default function Transacao() {
   async function CriarTransacao() {
     try {
       if (!descricao || valor === "" || tipo === "" || categoriaId === "" || !data) {
-        alert("Preencha todos os campos");
+        toast.error("Preencha todos os campos");
         return;
       }
 
       const valorNumerico = Number(valor.replace(",", "."));
 
       if (valorNumerico <= 0) {
-        alert("Valor inválido");
+        toast.error("Valor inválido");
         return;
       }
       setLoadingCriar(true);
@@ -92,10 +93,10 @@ export default function Transacao() {
       setCategoriaId("");
       setData("");
 
-      alert("Transação criada com sucesso ✅");
+      toast.success("Transação criada com sucesso ✅");
     } catch (error) {
       console.error(error);
-      alert("Erro ao criar transação");
+      toast.error("Erro ao criar transação");
     } finally {
       setLoadingCriar(false);
     }
@@ -115,10 +116,10 @@ export default function Transacao() {
       await deletarTransacao(id);
       await listarTodasTransacoes();
 
-      alert("Transação excluída com sucesso ✅");
+      toast.success("Transação excluída com sucesso ✅");
     } catch (error) {
       console.error(error);
-      alert("Erro ao excluir transação ❌");
+      toast.error("Erro ao excluir transação ❌");
     } finally {
       setDeletingId(null);
     }
@@ -153,12 +154,12 @@ export default function Transacao() {
 
       await listarTodasTransacoes();
 
-      alert("Transação atualizada com sucesso ✅");
+      toast.success("Transação atualizada com sucesso ✅");
 
       setShowModal(false);
     } catch (error) {
       console.error(error);
-      alert("Erro ao atualizar transação ❌");
+      toast.error("Erro ao atualizar transação ❌");
     } finally {
       setLoadingEditar(false);
     }
