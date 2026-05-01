@@ -1,16 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { listarTransacoes } from "../Services/TransacaoService";
-import { consultarUsuario } from "../Services/UsuarioService";
-import type { TransacaoResponse, UsuarioResponse, UsuarioResumoResponse } from "../Types/index";
+import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
 
 export default function RelatorioFinanceiro() {
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
-  const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]);
-  // Filtros
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState<number | "todos">("todos");
+
   const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
   const [tipoSelecionado, setTipoSelecionado] = useState<number | "todos">("todos");
+
   useEffect(() => {
     async function carregarDados() {
       try {
@@ -25,48 +23,32 @@ export default function RelatorioFinanceiro() {
           console.error(error);
         }
       }
-
-      try {
-        const usuariosData = await consultarUsuario();
-        setUsuarios(usuariosData);
-      } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status !== 401) {
-            alert("Erro ao carregar usuários");
-          }
-        } else {
-          console.error(error);
-        }
-      }
     }
 
     carregarDados();
   }, []);
+
   const transacoesFiltradas = useMemo(() => {
     let resultados = [...transacoes];
 
-    // Filtrar por usuário
-    if (usuarioSelecionado !== "todos") {
-      resultados = resultados.filter((t) => t.usuarioId === usuarioSelecionado);
-    }
-    // Filtrar por mês
+    // Filtro por mês
     if (mesSelecionado !== "todos") {
       resultados = resultados.filter((t) => {
-        const dataTransacao = new Date(t.data);
-        const mesAno = `${dataTransacao.getFullYear()}-${String(dataTransacao.getMonth() + 1).padStart(2, "0")}`;
+        const data = new Date(t.data);
+        const mesAno = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`;
         return mesAno === mesSelecionado;
       });
     }
-    // Filtrar por categoria
+
+    // Filtro por tipo
     if (tipoSelecionado !== "todos") {
       resultados = resultados.filter((t) => t.tipo === Number(tipoSelecionado));
     }
 
     return resultados;
-  }, [usuarioSelecionado, mesSelecionado, tipoSelecionado, transacoes]);
+  }, [mesSelecionado, tipoSelecionado, transacoes]);
 
-  const calcularResumos = useMemo(() => {
-    // Agrupar por usuário
+  const resumoPorUsuario = useMemo(() => {
     const usuariosMap = new Map<number, UsuarioResumoResponse>();
 
     transacoesFiltradas.forEach((transacao) => {
@@ -84,19 +66,22 @@ export default function RelatorioFinanceiro() {
 
       if (transacao.tipo === 1) {
         usuario.totalReceitas += transacao.valor;
-      } else if (transacao.tipo === 2) {
+      } else {
         usuario.totalDespesas += transacao.valor;
       }
+
       usuario.saldoFinal = usuario.totalReceitas - usuario.totalDespesas;
     });
+
     return Array.from(usuariosMap.values());
   }, [transacoesFiltradas]);
-  const resumoPorUsuario = calcularResumos;
 
   const totalGeralReceitas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalReceitas, 0), [resumoPorUsuario]);
+
   const totalGeralDespesas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalDespesas, 0), [resumoPorUsuario]);
+
   const saldoGeralFinal = useMemo(() => totalGeralReceitas - totalGeralDespesas, [totalGeralReceitas, totalGeralDespesas]);
-  // Gerar lista de meses
+
   function gerarMeses() {
     const meses = [];
     const hoje = new Date();
@@ -108,12 +93,14 @@ export default function RelatorioFinanceiro() {
         month: "long",
         year: "numeric",
       });
+
       meses.push({ valor, label });
     }
+
     return meses;
   }
 
-  function formatarValor(valor: number): string {
+  function formatarValor(valor: number) {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
@@ -121,42 +108,22 @@ export default function RelatorioFinanceiro() {
   }
 
   return (
-    <div className="p-6">
+    <div>
       <h1 className="text-4xl font-bold mb-6 text-[#2F4F4F]">Relatório Financeiro</h1>
 
-      {/* Filtros */}
-      <div className="bg-[#F5F7F6] rounded-lg  p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+      {/* FILTROS */}
+      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
         <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Filtros</h2>
         <hr className="mb-4 border-[#9DB4AB]" />
 
         <div className="grid grid-cols-2 gap-4">
-          {/* Filtro de Usuário */}
+          {/* MÊS */}
           <div>
-            <label htmlFor="select-usuario" className="text-xl text-[#2F4F4F] mb-2">
-              Usuário
-            </label>
-            <select
-              id="select-usuario"
-              value={usuarioSelecionado}
-              onChange={(e) => setUsuarioSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-              className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
-            >
-              <option value="todos">Todos os usuários</option>
-              {usuarios.map((usuario) => (
-                <option key={usuario.id} value={usuario.id}>
-                  {usuario.nome}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filtro de Mês */}
-          <div>
-            <label htmlFor="select-mes" className="text-xl text-[#2F4F4F] mb-2">
+            <label htmlFor="mes-selecionado" className="text-xl text-[#2F4F4F] mb-2 block">
               Mês
             </label>
             <select
-              id="select-mes"
+              id="mes-selecionado"
               value={mesSelecionado}
               onChange={(e) => setMesSelecionado(e.target.value)}
               className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
@@ -169,13 +136,14 @@ export default function RelatorioFinanceiro() {
               ))}
             </select>
           </div>
-          {/* Filtro de Tipo */}
+
+          {/* TIPO */}
           <div>
-            <label htmlFor="select-TipoSelecionado" className="text-xl text-[#2F4F4F] mb-2">
+            <label htmlFor="tipo-selecionado" className="text-xl text-[#2F4F4F] mb-2 block">
               Categoria
             </label>
             <select
-              id="select-TipoSelecionado"
+              id="tipo-selecionado"
               value={tipoSelecionado}
               onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
               className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
@@ -188,7 +156,7 @@ export default function RelatorioFinanceiro() {
         </div>
       </div>
 
-      {/* Cards individuais por usuário */}
+      {/* CARDS POR USUÁRIO */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         {resumoPorUsuario.map((usuario) => (
           <div
@@ -196,24 +164,25 @@ export default function RelatorioFinanceiro() {
             className="bg-[#F5F7F6] rounded-lg p-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
           >
             <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">{usuario.usuarioNome}</h2>
+
             <hr className="mb-4 border-[#9DB4AB]" />
 
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-[#5A7067]">Total de Receitas:</span>
-                <span className="text-green-600 font-semibold text-lg">{formatarValor(usuario.totalReceitas)}</span>
+              <div className="flex justify-between">
+                <span className="text-[#5A7067]">Receitas:</span>
+                <span className="text-green-600 font-semibold">{formatarValor(usuario.totalReceitas)}</span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-[#5A7067]">Total de Despesas:</span>
-                <span className="text-red-600 font-semibold text-lg">{formatarValor(usuario.totalDespesas)}</span>
+              <div className="flex justify-between">
+                <span className="text-[#5A7067]">Despesas:</span>
+                <span className="text-red-600 font-semibold">{formatarValor(usuario.totalDespesas)}</span>
               </div>
 
               <hr className="border-[#C8D6D1]" />
 
-              <div className="flex justify-between items-center">
-                <span className="text-[#2F4F4F] font-semibold">Saldo Final:</span>
-                <span className={`font-bold text-xl ${usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"}`}>
+              <div className="flex justify-between">
+                <span className="font-semibold text-[#2F4F4F]">Saldo Final:</span>
+                <span className={`font-bold ${usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"}`}>
                   {formatarValor(usuario.saldoFinal)}
                 </span>
               </div>
@@ -222,30 +191,31 @@ export default function RelatorioFinanceiro() {
         ))}
       </div>
 
-      {/* Card de Resumo Geral */}
-      <div className="bg-[#F5F7F6] rounded-lg p-8 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
+      {/* RESUMO GERAL */}
+      <div className="bg-[#F5F7F6] rounded-lg p-8 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
         <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Resumo Geral</h2>
+
         <hr className="mb-6 border-[#9DB4AB]" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
-            <p className="text-[#5A7067] mb-2 text-lg">Total de Receitas</p>
-            <p className="text-green-600 font-bold text-3xl">{formatarValor(totalGeralReceitas)}</p>
+            <p className="text-[#5A7067] mb-2">Receitas</p>
+            <p className="text-green-600 font-bold text-2xl">{formatarValor(totalGeralReceitas)}</p>
           </div>
 
           <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
-            <p className="text-[#5A7067] mb-2 text-lg">Total de Despesas</p>
-            <p className="text-red-600 font-bold text-3xl">{formatarValor(totalGeralDespesas)}</p>
+            <p className="text-[#5A7067] mb-2">Despesas</p>
+            <p className="text-red-600 font-bold text-2xl">{formatarValor(totalGeralDespesas)}</p>
           </div>
 
           <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
-            <p className="text-[#2F4F4F] mb-2 text-lg font-semibold">Saldo Geral Final</p>
-            <p className={`font-bold text-4xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(saldoGeralFinal)}</p>
+            <p className="text-[#2F4F4F] mb-2 font-semibold">Saldo Final</p>
+            <p className={`font-bold text-3xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(saldoGeralFinal)}</p>
           </div>
         </div>
       </div>
 
-      {resumoPorUsuario.length === 0 && <p className="text-center text-[#2F4F4F] mt-8">Nenhuma transação encontrada para gerar o relatório</p>}
+      {resumoPorUsuario.length === 0 && <p className="text-center text-[#2F4F4F] mt-8">Nenhuma transação encontrada</p>}
     </div>
   );
 }

@@ -113,11 +113,9 @@ export default function Categoria() {
 
   return (
     <div className="">
-      <div className="flex justify-center gap-4 p-6 backdrop-blur-md rounded-lg"></div>
-
       <div className="flex flex-col">
         {/* Card de Criar Categoria */}
-        <div className="mt-6 bg-[#F5F7F6] rounded-lg p-6 w-290 mx-auto shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
+        <div className=" bg-[#F5F7F6] rounded-lg p-6 max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
           <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Adicionar Nova Categoria</h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
@@ -168,29 +166,38 @@ export default function Categoria() {
         </div>
 
         {/* Card de Listar Categorias */}
-        <div className="mt-6 bg-[#F5F7F6] p-6 rounded-xl mx-auto w-290 h-130 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-shadow duration-200 ease-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
+        <div className="mt-6 bg-[#F5F7F6] p-6 rounded-xl max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition-shadow duration-200 ease-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
           <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Lista de Categorias</h2>
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
-          <div className="ml-3 mb-2 grid grid-cols-3 gap-22 w-250">
+          <div className="grid grid-cols-[1fr_1fr_180px] gap-4 mb-2 px-4">
             <h3 className="text-xl text-[#2F4F4F]">Descrição</h3>
             <h3 className="text-xl text-[#2F4F4F]">Finalidade</h3>
-            <h3 className="text-xl ml-50 text-[#2F4F4F]">Ações</h3>
+            <h3 className="text-xl text-left pl-10 text-[#2F4F4F]">Ações</h3>
           </div>
 
           {categorias.length > 0 ? (
-            <div className="space-y-3 h-80">
-              {categoriasPaginadas.map((categoria) => (
+            <div className="space-y-2 h-80">
+              {categoriasPaginadas.map((categoria, index) => (
                 <div
                   key={categoria.id}
-                  className="grid grid-cols-3 gap-4 items-center p-4 border border-[#C8D6D1] rounded-lg bg-white hover:bg-[#E8EFED] transition"
+                  className={`
+                  grid grid-cols-[1fr_1fr_180px] items-center px-4 py-3 rounded-lg border border-[#C8D6D1]
+                  transition
+                  ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
+                  hover:bg-[#E8EFED]
+                `}
                 >
-                  <p className="font-medium text-[#2F4F4F]">{categoria.descricao}</p>
-                  <p className="text-[#5A7067]">{Finalidade[categoria.finalidade]}</p>
+                  {/* DESCRIÇÃO */}
+                  <div className="font-medium text-[#2F4F4F]">{categoria.descricao}</div>
 
-                  <div className="flex gap-2 ml-35">
-                    <Button onClick={() => abrirModalEditar(categoria)} label="Editar" variant="edit"></Button>
-                    <Button onClick={() => DeletarCategoria(categoria.id)} label="Excluir" variant="delete"></Button>
+                  {/* FINALIDADE */}
+                  <div className="text-[#5A7067]">{Finalidade[categoria.finalidade]}</div>
+
+                  {/* AÇÕES */}
+                  <div className="flex justify-end gap-2 pr-2">
+                    <Button onClick={() => abrirModalEditar(categoria)} label="Editar" variant="edit" />
+                    <Button onClick={() => DeletarCategoria(categoria.id)} label="Excluir" variant="delete" />
                   </div>
                 </div>
               ))}
