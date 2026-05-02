@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { criarCategoria, consultarCategoria, deletarCategoria, alterarCategoria } from "../Services/CategoriaService";
 import { Finalidade } from "../Types/Finalidade";
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
@@ -20,12 +21,17 @@ export default function Categoria() {
   const indiceFinal = indiceInicial + categoriasPorPagina;
   const categoriasPaginadas = categorias.slice(indiceInicial, indiceFinal);
 
+  const [loadingCriar, setLoadingCriar] = useState(false);
+  const [loadingEditar, setLoadingEditar] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   async function CriarCategoria() {
     try {
       if (!descricao || finalidade === "") {
-        alert("Preencha todos os campos");
+        toast.error("Preencha todos os campos");
         return;
       }
+      setLoadingCriar(true);
 
       const payload = {
         descricao,
@@ -34,26 +40,33 @@ export default function Categoria() {
 
       const categoriaNova = await criarCategoria(payload);
       setCategorias((prev) => [...prev, categoriaNova]);
-      alert("Categoria criada com sucesso!");
+      toast.success("Categoria criada com sucesso!");
       setDescricao("");
       setFinalidade("");
     } catch (error) {
       console.error(error);
-      alert("Erro ao criar categoria");
+      toast.error("Erro ao criar categoria");
+    } finally {
+      setLoadingCriar(false);
     }
   }
 
   async function DeletarCategoria(id: number) {
-    const confirmar = window.confirm("Tem certeza que deseja excluir?");
-    if (!confirmar) return;
+    if (!window.confirm("Tem certeza que deseja excluir?")) return;
 
     try {
+      setDeletingId(id);
+
       await deletarCategoria(id);
+
       setCategorias((prev) => prev.filter((c) => c.id !== id));
-      alert("Categoria excluída com sucesso!");
+
+      toast.success("Categoria excluída com sucesso!");
     } catch (error) {
       console.error(error);
-      alert("Erro ao excluir categoria");
+      toast.error("Erro ao excluir categoria");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -65,7 +78,7 @@ export default function Categoria() {
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           if (error.response?.status !== 401) {
-            alert("Erro ao carregar categorias");
+            toast.error("Erro ao carregar categorias");
           }
         } else {
           console.error(error);
@@ -78,11 +91,12 @@ export default function Categoria() {
 
   async function editarCategoria() {
     if (!editandoId || !descricaoEdit || finalidadeEdit === "") {
-      alert("Preencha todos os campos");
+      toast.error("Preencha todos os campos");
       return;
     }
 
     try {
+      setLoadingEditar(true);
       const payload = {
         descricao: descricaoEdit,
         finalidade: Number(finalidadeEdit),
@@ -97,10 +111,12 @@ export default function Categoria() {
       setDescricaoEdit("");
       setFinalidadeEdit("");
 
-      alert("Categoria alterada com sucesso!");
+      toast.success("Categoria alterada com sucesso!");
     } catch (error) {
       console.error(error);
-      alert("Erro ao alterar categoria");
+      toast.error("Erro ao alterar categoria");
+    } finally {
+      setLoadingEditar(false);
     }
   }
 
@@ -159,7 +175,7 @@ export default function Categoria() {
 
               {/* Botão */}
               <div className="flex items-end">
-                <Button onClick={CriarCategoria} label="Criar Categoria"></Button>
+                <Button onClick={CriarCategoria} label={loadingCriar ? "Salvando..." : "Criar Categoria"} disabled={loadingCriar} />
               </div>
             </div>
           </div>
@@ -197,7 +213,12 @@ export default function Categoria() {
                   {/* AÇÕES */}
                   <div className="flex justify-end gap-2 pr-2">
                     <Button onClick={() => abrirModalEditar(categoria)} label="Editar" variant="edit" />
-                    <Button onClick={() => DeletarCategoria(categoria.id)} label="Excluir" variant="delete" />
+                    <Button
+                      onClick={() => DeletarCategoria(categoria.id)}
+                      label={deletingId === categoria.id ? "Excluindo..." : "Excluir"}
+                      variant="delete"
+                      disabled={deletingId === categoria.id}
+                    />
                   </div>
                 </div>
               ))}
@@ -256,7 +277,7 @@ export default function Categoria() {
             </div>
 
             <div className="flex justify-center gap-2">
-              <Button onClick={editarCategoria} label="Salvar" variant="saveModal"></Button>
+              <Button onClick={editarCategoria} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
               <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
             </div>
           </div>
