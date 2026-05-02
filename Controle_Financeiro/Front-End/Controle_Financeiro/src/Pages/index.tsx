@@ -88,6 +88,10 @@ export default function RelatorioFinanceiro() {
 
   const saldoGeralFinal = useMemo(() => totalGeralReceitas - totalGeralDespesas, [totalGeralReceitas, totalGeralDespesas]);
 
+  const ultimasTransacoes = useMemo(() => {
+    return [...transacoesFiltradas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()).slice(0, 5);
+  }, [transacoesFiltradas]);
+
   function gerarMeses() {
     const meses = [];
     const hoje = new Date();
@@ -190,6 +194,31 @@ export default function RelatorioFinanceiro() {
             </select>
           </div>
         </div>
+      </div>
+      {/* ÚLTIMAS TRANSAÇÕES */}
+      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+        <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Últimas Transações</h2>
+
+        <hr className="mb-4 border-[#9DB4AB]" />
+
+        {ultimasTransacoes.length === 0 ? (
+          <p className="text-[#5A7067]">Nenhuma transação recente</p>
+        ) : (
+          <div className="space-y-3">
+            {ultimasTransacoes.map((t) => (
+              <div key={t.id} className="flex justify-between items-center bg-white p-4 rounded border border-[#C8D6D1]">
+                <div>
+                  <p className="font-semibold text-[#2F4F4F]">{t.descricao}</p>
+                  <p className="text-sm text-[#5A7067]">{new Date(t.data).toLocaleDateString("pt-BR")}</p>
+                </div>
+
+                <p className={`font-bold ${t.tipo === 1 ? "text-green-600" : "text-red-600"}`}>
+                  {t.tipo === 1 ? "+" : "-"} {formatarValor(t.valor)}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {!loading && resumoPorUsuario.length === 0 && (
