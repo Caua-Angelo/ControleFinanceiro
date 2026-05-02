@@ -123,6 +123,29 @@ export default function RelatorioFinanceiro() {
   return (
     <div>
       <h1 className="text-4xl font-bold mb-6 text-[#2F4F4F]">Relatório Financeiro</h1>
+      {/* RESUMO GERAL */}
+      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+        <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Resumo Geral</h2>
+
+        <hr className="mb-6 border-[#9DB4AB]" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
+            <p className="text-[#5A7067] mb-2">Receitas</p>
+            <p className="text-green-600 font-bold text-2xl">{formatarValor(totalGeralReceitas)}</p>
+          </div>
+
+          <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
+            <p className="text-[#5A7067] mb-2">Despesas</p>
+            <p className="text-red-600 font-bold text-2xl">{formatarValor(totalGeralDespesas)}</p>
+          </div>
+
+          <div className="text-center p-6 bg-white rounded-lg border-2 border-[#C8D6D1]">
+            <p className="text-[#2F4F4F] mb-2 font-semibold">Saldo Final</p>
+            <p className={`font-bold text-4xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(saldoGeralFinal)}</p>
+          </div>
+        </div>
+      </div>
 
       {/* FILTROS */}
       <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
@@ -153,7 +176,7 @@ export default function RelatorioFinanceiro() {
           {/* TIPO */}
           <div>
             <label htmlFor="tipo-selecionado" className="text-xl text-[#2F4F4F] mb-2 block">
-              Categoria
+              Tipo
             </label>
             <select
               id="tipo-selecionado"
@@ -169,66 +192,9 @@ export default function RelatorioFinanceiro() {
         </div>
       </div>
 
-      {/* CARDS POR USUÁRIO */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        {resumoPorUsuario.map((usuario) => (
-          <div
-            key={usuario.usuarioId}
-            className="bg-[#F5F7F6] rounded-lg p-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
-          >
-            <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">{usuario.usuarioNome}</h2>
-
-            <hr className="mb-4 border-[#9DB4AB]" />
-
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-[#5A7067]">Receitas:</span>
-                <span className="text-green-600 font-semibold">{formatarValor(usuario.totalReceitas)}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-[#5A7067]">Despesas:</span>
-                <span className="text-red-600 font-semibold">{formatarValor(usuario.totalDespesas)}</span>
-              </div>
-
-              <hr className="border-[#C8D6D1]" />
-
-              <div className="flex justify-between">
-                <span className="font-semibold text-[#2F4F4F]">Saldo Final:</span>
-                <span className={`font-bold ${usuario.saldoFinal >= 0 ? "text-green-700" : "text-red-700"}`}>
-                  {formatarValor(usuario.saldoFinal)}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* RESUMO GERAL */}
-      <div className="bg-[#F5F7F6] rounded-lg p-8 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-        <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Resumo Geral</h2>
-
-        <hr className="mb-6 border-[#9DB4AB]" />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
-            <p className="text-[#5A7067] mb-2">Receitas</p>
-            <p className="text-green-600 font-bold text-2xl">{formatarValor(totalGeralReceitas)}</p>
-          </div>
-
-          <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
-            <p className="text-[#5A7067] mb-2">Despesas</p>
-            <p className="text-red-600 font-bold text-2xl">{formatarValor(totalGeralDespesas)}</p>
-          </div>
-
-          <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
-            <p className="text-[#2F4F4F] mb-2 font-semibold">Saldo Final</p>
-            <p className={`font-bold text-3xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(saldoGeralFinal)}</p>
-          </div>
-        </div>
-      </div>
-
-      {!loading && resumoPorUsuario.length === 0 && <p className="text-center text-[#2F4F4F] mt-8">Nenhuma transação encontrada</p>}
+      {!loading && resumoPorUsuario.length === 0 && (
+        <p className="text-center text-[#2F4F4F] mt-8">Nenhuma transação encontrada para os filtros selecionados</p>
+      )}
     </div>
   );
 }
