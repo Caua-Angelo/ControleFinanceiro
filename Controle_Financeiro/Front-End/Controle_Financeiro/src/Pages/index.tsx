@@ -94,6 +94,12 @@ export default function RelatorioFinanceiro() {
     return [...transacoesFiltradas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()).slice(0, 5);
   }, [transacoesFiltradas]);
 
+  const maiorTransacaoId = useMemo(() => {
+    if (ultimasTransacoes.length === 0) return null;
+
+    return ultimasTransacoes.reduce((maior, atual) => (Math.abs(atual.valor) > Math.abs(maior.valor) ? atual : maior)).id;
+  }, [ultimasTransacoes]);
+
   function gerarMeses() {
     const meses = [];
     const hoje = new Date();
@@ -214,9 +220,17 @@ export default function RelatorioFinanceiro() {
         ) : (
           <div className="space-y-3">
             {ultimasTransacoes.map((t) => (
-              <div key={t.id} className="flex justify-between items-center bg-white p-4 rounded border border-[#C8D6D1]">
+              <div
+                key={t.id}
+                className={`flex justify-between items-center p-4 rounded border transition ${
+                  t.id === maiorTransacaoId ? "bg-[#EEF5F2] border-[#7A9D8F] shadow-md" : "bg-white border-[#C8D6D1]"
+                }`}
+              >
                 <div>
-                  <p className="font-semibold text-[#2F4F4F]">{t.descricao}</p>
+                  <p className="font-semibold text-[#2F4F4F] flex items-center gap-2">
+                    <span className="text-lg">{t.tipo === 1 ? "💰" : "💸"}</span>
+                    {t.descricao}
+                  </p>
                   <p className="text-sm text-[#5A7067]">{new Date(t.data).toLocaleDateString("pt-BR")}</p>
                 </div>
 
