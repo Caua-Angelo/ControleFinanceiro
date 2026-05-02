@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
@@ -9,19 +10,24 @@ export default function RelatorioFinanceiro() {
   const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
   const [tipoSelecionado, setTipoSelecionado] = useState<number | "todos">("todos");
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     async function carregarDados() {
       try {
+        setLoading(true);
         const listaTransacoes = await listarTransacoes();
         setTransacoes(listaTransacoes);
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           if (error.response?.status !== 401) {
-            alert("Erro ao carregar transações");
+            toast.error("Erro ao carregar transações");
           }
         } else {
           console.error(error);
         }
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -107,6 +113,13 @@ export default function RelatorioFinanceiro() {
     });
   }
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <p className="text-[#2F4F4F] text-xl">Carregando...</p>
+      </div>
+    );
+  }
   return (
     <div>
       <h1 className="text-4xl font-bold mb-6 text-[#2F4F4F]">Relatório Financeiro</h1>
@@ -215,7 +228,7 @@ export default function RelatorioFinanceiro() {
         </div>
       </div>
 
-      {resumoPorUsuario.length === 0 && <p className="text-center text-[#2F4F4F] mt-8">Nenhuma transação encontrada</p>}
+      {!loading && resumoPorUsuario.length === 0 && <p className="text-center text-[#2F4F4F] mt-8">Nenhuma transação encontrada</p>}
     </div>
   );
 }
