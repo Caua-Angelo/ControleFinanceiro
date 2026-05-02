@@ -62,8 +62,16 @@ export default function Categoria() {
       setCategorias((prev) => prev.filter((c) => c.id !== id));
 
       toast.success("Categoria excluída com sucesso!");
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const mensagem = error.response?.data?.mensagem;
+
+        if (mensagem) {
+          toast.error(mensagem);
+          return;
+        }
+      }
+
       toast.error("Erro ao excluir categoria");
     } finally {
       setDeletingId(null);

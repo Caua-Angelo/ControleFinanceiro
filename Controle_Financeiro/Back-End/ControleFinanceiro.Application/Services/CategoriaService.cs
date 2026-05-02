@@ -66,6 +66,11 @@ namespace ControleFinanceiro.Application.Services
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
+            if (categoria.Transacoes.Any())
+            {
+                throw new InvalidOperationException("Categoria possui transações vinculadas");
+            }
+
             await _categoriaRepository.DeleteAsync(categoria);
             await _categoriaRepository.SaveAsync();
         }
