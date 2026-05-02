@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
 
 export default function RelatorioFinanceiro() {
+  const navigate = useNavigate();
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
 
   const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
@@ -197,7 +199,13 @@ export default function RelatorioFinanceiro() {
       </div>
       {/* ÚLTIMAS TRANSAÇÕES */}
       <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-        <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Últimas Transações</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-[#2F4F4F]">Últimas Transações</h2>
+
+          <button onClick={() => navigate("/transacao")} className="text-sm text-[#2F4F4F] hover:underline">
+            Ver todas
+          </button>
+        </div>
 
         <hr className="mb-4 border-[#9DB4AB]" />
 
