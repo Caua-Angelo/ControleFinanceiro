@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
 
 export default function RelatorioFinanceiro() {
+  const navigate = useNavigate();
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
 
   const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
@@ -87,6 +89,16 @@ export default function RelatorioFinanceiro() {
   const totalGeralDespesas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalDespesas, 0), [resumoPorUsuario]);
 
   const saldoGeralFinal = useMemo(() => totalGeralReceitas - totalGeralDespesas, [totalGeralReceitas, totalGeralDespesas]);
+
+  const ultimasTransacoes = useMemo(() => {
+    return [...transacoesFiltradas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()).slice(0, 5);
+  }, [transacoesFiltradas]);
+
+  const maiorTransacaoId = useMemo(() => {
+    if (ultimasTransacoes.length === 0) return null;
+
+    return ultimasTransacoes.reduce((maior, atual) => (Math.abs(atual.valor) > Math.abs(maior.valor) ? atual : maior)).id;
+  }, [ultimasTransacoes]);
 
   function gerarMeses() {
     const meses = [];
@@ -190,6 +202,45 @@ export default function RelatorioFinanceiro() {
             </select>
           </div>
         </div>
+      </div>
+      {/* ÚLTIMAS TRANSAÇÕES */}
+      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-[#2F4F4F]">Últimas Transações</h2>
+
+          <button onClick={() => navigate("/transacao")} className="text-sm text-[#2F4F4F] hover:underline">
+            Ver todas
+          </button>
+        </div>
+
+        <hr className="mb-4 border-[#9DB4AB]" />
+
+        {ultimasTransacoes.length === 0 ? (
+          <p className="text-[#5A7067]">Nenhuma transação recente</p>
+        ) : (
+          <div className="space-y-3">
+            {ultimasTransacoes.map((t) => (
+              <div
+                key={t.id}
+                className={`flex justify-between items-center p-4 rounded border transition ${
+                  t.id === maiorTransacaoId ? "bg-[#EEF5F2] border-[#7A9D8F] shadow-md" : "bg-white border-[#C8D6D1]"
+                }`}
+              >
+                <div>
+                  <p className="font-semibold text-[#2F4F4F] flex items-center gap-2">
+                    <span className="text-lg">{t.tipo === 1 ? "💰" : "💸"}</span>
+                    {t.descricao}
+                  </p>
+                  <p className="text-sm text-[#5A7067]">{new Date(t.data).toLocaleDateString("pt-BR")}</p>
+                </div>
+
+                <p className={`font-bold ${t.tipo === 1 ? "text-green-600" : "text-red-600"}`}>
+                  {t.tipo === 1 ? "+" : "-"} {formatarValor(t.valor)}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {!loading && resumoPorUsuario.length === 0 && (
