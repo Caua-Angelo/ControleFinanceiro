@@ -84,6 +84,13 @@ export default function RelatorioFinanceiro() {
     return Array.from(usuariosMap.values());
   }, [transacoesFiltradas]);
 
+  const filtrosAtivos = mesSelecionado !== "todos" || tipoSelecionado !== "todos";
+
+  const limparFiltros = () => {
+    setMesSelecionado("todos");
+    setTipoSelecionado("todos");
+  };
+
   const totalGeralReceitas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalReceitas, 0), [resumoPorUsuario]);
 
   const totalGeralDespesas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalDespesas, 0), [resumoPorUsuario]);
@@ -145,8 +152,11 @@ export default function RelatorioFinanceiro() {
             <div className="flex flex-wrap items-end gap-4">
               {/* MÊS */}
               <div className="flex flex-col">
-                <label  className="text-xs text-[#5A7067] mb-1">Mês</label>
+                <label htmlFor="select-mês" className="text-xs text-[#5A7067] mb-1">
+                  Mês
+                </label>
                 <select
+                  id="select-mês"
                   value={mesSelecionado}
                   onChange={(e) => setMesSelecionado(e.target.value)}
                   className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
@@ -162,8 +172,11 @@ export default function RelatorioFinanceiro() {
 
               {/* TIPO */}
               <div className="flex flex-col">
-                <label className="text-xs text-[#5A7067] mb-1">Tipo</label>
+                <label htmlFor="select-tipo" className="text-xs text-[#5A7067] mb-1">
+                  Tipo
+                </label>
                 <select
+                  id="select-tipo"
                   value={tipoSelecionado}
                   onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
                   className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
@@ -173,6 +186,13 @@ export default function RelatorioFinanceiro() {
                   <option value={2}>Despesa</option>
                 </select>
               </div>
+              <button
+                onClick={limparFiltros}
+                disabled={!filtrosAtivos}
+                className={` mb-2 transition ${filtrosAtivos ? "text-[#2F4F4F] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
+              >
+                Limpar
+              </button>
             </div>
           </div>
         </div>
