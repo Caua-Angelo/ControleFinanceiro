@@ -157,13 +157,6 @@ export default function RelatorioFinanceiro() {
     });
   }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <p className="text-[#2F4F4F] text-xl">Carregando...</p>
-      </div>
-    );
-  }
   return (
     <div>
       <div className="flex-row md:flex items-center justify-between ">
@@ -258,10 +251,19 @@ export default function RelatorioFinanceiro() {
 
         <hr className="mb-4 border-[#9DB4AB]" />
 
-        {ultimasTransacoes.length === 0 ? (
+        {loading ? (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-white p-4 rounded border border-[#C8D6D1]">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+              </div>
+            ))}
+          </div>
+        ) : ultimasTransacoes.length === 0 ? (
           <p className="text-[#5A7067]">Nenhuma transação recente</p>
         ) : (
-          <div className={`space-y-3 transition-all duration-200 ${animando ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
+          <div className={`space-y-3 ${animando ? "opacity-0 translate-y-2 transition-all duration-200" : "opacity-100"}`}>
             {ultimasTransacoes.map((t) => (
               <div
                 key={t.id}
