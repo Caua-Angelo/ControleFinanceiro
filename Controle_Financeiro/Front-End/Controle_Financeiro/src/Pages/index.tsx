@@ -17,6 +17,8 @@ export default function RelatorioFinanceiro() {
 
   const [loading, setLoading] = useState(true);
 
+  const [animando, setAnimando] = useState(false);
+
   useEffect(() => {
     async function carregarDados() {
       try {
@@ -58,6 +60,16 @@ export default function RelatorioFinanceiro() {
 
     return resultados;
   }, [mesSelecionado, tipoSelecionado, transacoes]);
+
+  useEffect(() => {
+    setAnimando(true);
+
+    const timeout = setTimeout(() => {
+      setAnimando(false);
+    }, 200);
+
+    return () => clearTimeout(timeout);
+  }, [mesSelecionado, tipoSelecionado]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -249,7 +261,7 @@ export default function RelatorioFinanceiro() {
         {ultimasTransacoes.length === 0 ? (
           <p className="text-[#5A7067]">Nenhuma transação recente</p>
         ) : (
-          <div className="space-y-3">
+          <div className={`space-y-3 transition-all duration-200 ${animando ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
             {ultimasTransacoes.map((t) => (
               <div
                 key={t.id}
