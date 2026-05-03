@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
+import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function RelatorioFinanceiro() {
   const navigate = useNavigate();
@@ -150,6 +151,33 @@ export default function RelatorioFinanceiro() {
     return meses;
   }
 
+  const dadosPorMes = useMemo(() => {
+    const mapa = new Map<string, { receita: number; despesa: number }>();
+
+    transacoesFiltradas.forEach((t) => {
+      const data = new Date(t.data);
+      const chave = `${String(data.getMonth() + 1).padStart(2, "0")}/${String(data.getFullYear()).slice(2)}`;
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, { receita: 0, despesa: 0 });
+      }
+
+      const item = mapa.get(chave)!;
+
+      if (t.tipo === 1) {
+        item.receita += t.valor;
+      } else {
+        item.despesa += t.valor;
+      }
+    });
+
+    return Array.from(mapa.entries()).map(([mes, valores]) => ({
+      mes,
+      receita: valores.receita,
+      despesa: valores.despesa,
+    }));
+  }, [transacoesFiltradas]);
+
   function formatarValor(valor: number) {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
@@ -236,6 +264,34 @@ export default function RelatorioFinanceiro() {
             <p className="text-[#2F4F4F] mb-2 font-semibold">Saldo Final</p>
             <p className={`font-bold text-4xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(saldoGeralFinal)}</p>
           </div>
+        </div>
+      </div>
+      {/* GRÁFICO EVOLUÇÃO */}
+      <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow">
+        <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Evolução do Patrimônio</h2>
+
+        <div className="w-full h-[250px]">
+          <ResponsiveContainer>
+            <BarChart data={dadosPorMes} barGap={8}>
+              <XAxis dataKey="mes" />
+              <YAxis tickFormatter={(valor) => `R$ ${valor}`} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#fff",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                }}
+                formatter={(value) => (typeof value === "number" ? formatarValor(value) : value)}
+                labelFormatter={(label) => `Mês: ${label}`}
+              />
+              <Legend />
+              {/* RECEITAS */}
+              <Bar dataKey="receita" name="Receitas" fill="#16a34a" radius={[4, 4, 0, 0]} />
+
+              {/* DESPESAS */}
+              <Bar dataKey="despesa" name="Despesas" fill="#dc2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
