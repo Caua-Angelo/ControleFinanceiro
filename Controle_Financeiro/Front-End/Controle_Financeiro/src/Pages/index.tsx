@@ -9,8 +9,11 @@ export default function RelatorioFinanceiro() {
   const navigate = useNavigate();
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
 
-  const [mesSelecionado, setMesSelecionado] = useState<string>("todos");
-  const [tipoSelecionado, setTipoSelecionado] = useState<number | "todos">("todos");
+  const filtrosSalvos = JSON.parse(localStorage.getItem("filtros-dashboard") || "{}");
+
+  const [mesSelecionado, setMesSelecionado] = useState<string>(filtrosSalvos.mes || "todos");
+
+  const [tipoSelecionado, setTipoSelecionado] = useState<number | "todos">(filtrosSalvos.tipo ?? "todos");
 
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +58,16 @@ export default function RelatorioFinanceiro() {
 
     return resultados;
   }, [mesSelecionado, tipoSelecionado, transacoes]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "filtros-dashboard",
+      JSON.stringify({
+        mes: mesSelecionado,
+        tipo: tipoSelecionado,
+      }),
+    );
+  }, [mesSelecionado, tipoSelecionado]);
 
   const resumoPorUsuario = useMemo(() => {
     const usuariosMap = new Map<number, UsuarioResumoResponse>();
