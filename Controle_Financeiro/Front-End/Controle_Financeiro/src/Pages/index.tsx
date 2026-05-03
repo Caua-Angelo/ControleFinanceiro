@@ -134,12 +134,54 @@ export default function RelatorioFinanceiro() {
   }
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-6 text-[#2F4F4F]">Relatório Financeiro</h1>
+      <div className="flex-row md:flex items-center justify-between ">
+        <h1 className="text-4xl font-bold mb-4 text-[#2F4F4F]">Relatório Financeiro</h1>
+        <div className="flex-row md:flex items-center gap-4">
+          {/* FILTROS */}
+          <div>
+            <h1 className="text-2xl font-bold mb-4 text-[#2F4F4F]">Filtros</h1>
+          </div>
+          <div className="bg-white  border border-[#C8D6D1] rounded-lg shadow-sm px-4 py-3 mb-4 max-w-xl">
+            <div className="flex flex-wrap items-end gap-4">
+              {/* MÊS */}
+              <div className="flex flex-col">
+                <label  className="text-xs text-[#5A7067] mb-1">Mês</label>
+                <select
+                  value={mesSelecionado}
+                  onChange={(e) => setMesSelecionado(e.target.value)}
+                  className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
+                >
+                  <option value="todos">Todos</option>
+                  {gerarMeses().map((mes) => (
+                    <option key={mes.valor} value={mes.valor}>
+                      {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* TIPO */}
+              <div className="flex flex-col">
+                <label className="text-xs text-[#5A7067] mb-1">Tipo</label>
+                <select
+                  value={tipoSelecionado}
+                  onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
+                  className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
+                >
+                  <option value="todos">Todos</option>
+                  <option value={1}>Receita</option>
+                  <option value={2}>Despesa</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* RESUMO GERAL */}
-      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+      <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
         <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Resumo Geral</h2>
 
-        <hr className="mb-6 border-[#9DB4AB]" />
+        <hr className="mb-4 border-[#9DB4AB]" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
@@ -159,52 +201,8 @@ export default function RelatorioFinanceiro() {
         </div>
       </div>
 
-      {/* FILTROS */}
-      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-        <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Filtros</h2>
-        <hr className="mb-4 border-[#9DB4AB]" />
-
-        <div className="grid grid-cols-2 gap-4">
-          {/* MÊS */}
-          <div>
-            <label htmlFor="mes-selecionado" className="text-xl text-[#2F4F4F] mb-2 block">
-              Mês
-            </label>
-            <select
-              id="mes-selecionado"
-              value={mesSelecionado}
-              onChange={(e) => setMesSelecionado(e.target.value)}
-              className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
-            >
-              <option value="todos">Todos os meses</option>
-              {gerarMeses().map((mes) => (
-                <option key={mes.valor} value={mes.valor}>
-                  {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* TIPO */}
-          <div>
-            <label htmlFor="tipo-selecionado" className="text-xl text-[#2F4F4F] mb-2 block">
-              Tipo
-            </label>
-            <select
-              id="tipo-selecionado"
-              value={tipoSelecionado}
-              onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-              className="w-full border p-2 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
-            >
-              <option value="todos">Todos</option>
-              <option value={1}>Receita</option>
-              <option value={2}>Despesa</option>
-            </select>
-          </div>
-        </div>
-      </div>
       {/* ÚLTIMAS TRANSAÇÕES */}
-      <div className="bg-[#F5F7F6] rounded-lg p-6 mb-6 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+      <div className="bg-[#F5F7F6] rounded-lg p-3 mb-4 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-[#2F4F4F]">Últimas Transações</h2>
 
