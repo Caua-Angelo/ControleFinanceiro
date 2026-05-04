@@ -20,6 +20,8 @@ export default function RelatorioFinanceiro() {
 
   const [animando, setAnimando] = useState(false);
 
+  const [period, setPeriod] = useState<3 | 6 | 12>(6);
+
   useEffect(() => {
     async function carregarDados() {
       try {
@@ -268,7 +270,23 @@ export default function RelatorioFinanceiro() {
       </div>
       {/* GRÁFICO EVOLUÇÃO */}
       <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow">
-        <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Evolução do Patrimônio</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold text-[#2F4F4F]">Evolução do Patrimônio</h2>
+
+          {/* FILTRO DE PERÍODO */}
+          <div className="flex gap-2">
+            {[3, 6, 12].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p as 3 | 6 | 12)}
+                className={`px-3 py-1 rounded-md text-sm transition 
+            ${period === p ? "bg-blue-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-[#2F4F4F]"}`}
+              >
+                {p}m
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="w-full h-[250px]">
           <ResponsiveContainer>
@@ -285,6 +303,7 @@ export default function RelatorioFinanceiro() {
                 labelFormatter={(label) => `Mês: ${label}`}
               />
               <Legend />
+
               {/* RECEITAS */}
               <Bar dataKey="receita" name="Receitas" fill="#16a34a" radius={[4, 4, 0, 0]} />
 
