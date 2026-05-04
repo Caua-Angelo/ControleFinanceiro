@@ -6,6 +6,8 @@ import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
 import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer, Line } from "recharts";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
 export default function RelatorioFinanceiro() {
   const navigate = useNavigate();
@@ -66,8 +68,8 @@ export default function RelatorioFinanceiro() {
   }, [mesSelecionado, tipoSelecionado, transacoes]);
 
   const transacoesPeriodo = useMemo(() => {
-    return filterByPeriod(transacoesFiltradas, period);
-  }, [transacoesFiltradas, period]);
+    return filterByPeriod(tipoSelecionado === "todos" ? transacoes : transacoes.filter((t) => t.tipo === Number(tipoSelecionado)), period);
+  }, [transacoes, tipoSelecionado, period]);
 
   useEffect(() => {
     setAnimando(true);
@@ -162,8 +164,9 @@ export default function RelatorioFinanceiro() {
     const mapa = new Map<string, { receita: number; despesa: number }>();
 
     transacoesPeriodo.forEach((t) => {
-      const data = new Date(t.data);
-      const chave = `${String(data.getMonth() + 1).padStart(2, "0")}/${String(data.getFullYear()).slice(2)}`;
+      const data = dayjs(t.data, ["YYYY-MM-DD", "DD/MM/YYYY"]);
+
+      const chave = `${String(data.month() + 1).padStart(2, "0")}/${String(data.year()).slice(2)}`;
 
       if (!mapa.has(chave)) {
         mapa.set(chave, { receita: 0, despesa: 0 });
@@ -217,8 +220,9 @@ export default function RelatorioFinanceiro() {
     const startDate = now.subtract(months - 1, "month").startOf("month");
 
     return transactions.filter((t) => {
-      const data = dayjs(t.data);
-      return data.isSame(startDate, "day") || data.isAfter(startDate);
+      const data = dayjs(t.data).startOf("day");
+
+      return data.isSame(startDate, "month") || data.isAfter(startDate, "month");
     });
   }
 
