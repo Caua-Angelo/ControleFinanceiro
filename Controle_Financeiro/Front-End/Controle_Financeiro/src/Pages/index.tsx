@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
-import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer, Line } from "recharts";
 import dayjs from "dayjs";
 
 export default function RelatorioFinanceiro() {
@@ -178,7 +178,7 @@ export default function RelatorioFinanceiro() {
       }
     });
 
-    return Array.from({ length: period })
+    const dadosOrdenados = Array.from({ length: period })
       .map((_, i) => {
         const data = new Date();
         data.setMonth(data.getMonth() - (period - 1 - i));
@@ -199,6 +199,17 @@ export default function RelatorioFinanceiro() {
 
         return new Date(`20${anoA}-${mesA}-01`).getTime() - new Date(`20${anoB}-${mesB}-01`).getTime();
       });
+
+    let saldo = 0;
+
+    return dadosOrdenados.map((item) => {
+      saldo += item.receita - item.despesa;
+
+      return {
+        ...item,
+        saldoAcumulado: saldo,
+      };
+    });
   }, [transacoesPeriodo, period]);
 
   function filterByPeriod(transactions: TransacaoResponse[], months: number) {
@@ -340,6 +351,7 @@ export default function RelatorioFinanceiro() {
 
               {/* DESPESAS */}
               <Bar dataKey="despesa" name="Despesas" fill="#dc2626" radius={[4, 4, 0, 0]} />
+              <Line type="monotone" dataKey="saldoAcumulado" name="Saldo acumulado" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
