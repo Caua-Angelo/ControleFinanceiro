@@ -5,6 +5,7 @@ import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
 import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import dayjs from "dayjs";
 
 export default function RelatorioFinanceiro() {
   const navigate = useNavigate();
@@ -63,6 +64,10 @@ export default function RelatorioFinanceiro() {
 
     return resultados;
   }, [mesSelecionado, tipoSelecionado, transacoes]);
+
+  const transacoesPeriodo = useMemo(() => {
+    return filterByPeriod(transacoesFiltradas, period);
+  }, [transacoesFiltradas, period]);
 
   useEffect(() => {
     setAnimando(true);
@@ -156,7 +161,7 @@ export default function RelatorioFinanceiro() {
   const dadosPorMes = useMemo(() => {
     const mapa = new Map<string, { receita: number; despesa: number }>();
 
-    transacoesFiltradas.forEach((t) => {
+    transacoesPeriodo.forEach((t) => {
       const data = new Date(t.data);
       const chave = `${String(data.getMonth() + 1).padStart(2, "0")}/${String(data.getFullYear()).slice(2)}`;
 
@@ -173,12 +178,38 @@ export default function RelatorioFinanceiro() {
       }
     });
 
-    return Array.from(mapa.entries()).map(([mes, valores]) => ({
-      mes,
-      receita: valores.receita,
-      despesa: valores.despesa,
-    }));
-  }, [transacoesFiltradas]);
+    return Array.from({ length: period })
+      .map((_, i) => {
+        const data = new Date();
+        data.setMonth(data.getMonth() - (period - 1 - i));
+
+        const chave = `${String(data.getMonth() + 1).padStart(2, "0")}/${String(data.getFullYear()).slice(2)}`;
+
+        const valores = mapa.get(chave) || { receita: 0, despesa: 0 };
+
+        return {
+          mes: chave,
+          receita: valores.receita,
+          despesa: valores.despesa,
+        };
+      })
+      .sort((a, b) => {
+        const [mesA, anoA] = a.mes.split("/");
+        const [mesB, anoB] = b.mes.split("/");
+
+        return new Date(`20${anoA}-${mesA}-01`).getTime() - new Date(`20${anoB}-${mesB}-01`).getTime();
+      });
+  }, [transacoesPeriodo, period]);
+
+  function filterByPeriod(transactions: TransacaoResponse[], months: number) {
+    const now = dayjs();
+    const startDate = now.subtract(months - 1, "month").startOf("month");
+
+    return transactions.filter((t) => {
+      const data = dayjs(t.data);
+      return data.isSame(startDate, "day") || data.isAfter(startDate);
+    });
+  }
 
   function formatarValor(valor: number) {
     return valor.toLocaleString("pt-BR", {
