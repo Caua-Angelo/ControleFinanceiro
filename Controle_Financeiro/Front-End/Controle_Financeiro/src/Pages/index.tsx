@@ -206,7 +206,10 @@ export default function RelatorioFinanceiro() {
     let saldo = 0;
 
     return dadosOrdenados.map((item) => {
-      saldo += item.receita - item.despesa;
+      const receita = item.receita ?? 0;
+      const despesa = item.despesa ?? 0;
+
+      saldo += receita - despesa;
 
       return {
         ...item,
@@ -214,6 +217,8 @@ export default function RelatorioFinanceiro() {
       };
     });
   }, [transacoesPeriodo, period]);
+
+  console.log(dadosPorMes);
 
   function filterByPeriod(transactions: TransacaoResponse[], months: number) {
     const now = dayjs();
@@ -355,7 +360,7 @@ export default function RelatorioFinanceiro() {
 
               {/* DESPESAS */}
               <Bar dataKey="despesa" name="Despesas" fill="#dc2626" radius={[4, 4, 0, 0]} />
-              <Line type="monotone" dataKey="saldoAcumulado" name="Saldo acumulado" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />
+              <Line type="linear" dataKey="saldoAcumulado" name="Saldo acumulado" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
