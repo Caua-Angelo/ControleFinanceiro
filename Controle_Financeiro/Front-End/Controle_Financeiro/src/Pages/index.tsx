@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { listarTransacoes } from "../Services/TransacaoService";
 import type { TransacaoResponse, UsuarioResumoResponse } from "../Types/index";
 import axios from "axios";
-import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer, Line } from "recharts";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
 export default function RelatorioFinanceiro() {
   const navigate = useNavigate();
@@ -19,6 +22,8 @@ export default function RelatorioFinanceiro() {
   const [loading, setLoading] = useState(true);
 
   const [animando, setAnimando] = useState(false);
+
+  const [period, setPeriod] = useState<3 | 6 | 12>(6);
 
   useEffect(() => {
     async function carregarDados() {
@@ -61,6 +66,10 @@ export default function RelatorioFinanceiro() {
 
     return resultados;
   }, [mesSelecionado, tipoSelecionado, transacoes]);
+
+  const transacoesPeriodo = useMemo(() => {
+    return filterByPeriod(tipoSelecionado === "todos" ? transacoes : transacoes.filter((t) => t.tipo === Number(tipoSelecionado)), period);
+  }, [transacoes, tipoSelecionado, period]);
 
   useEffect(() => {
     setAnimando(true);
@@ -154,9 +163,10 @@ export default function RelatorioFinanceiro() {
   const dadosPorMes = useMemo(() => {
     const mapa = new Map<string, { receita: number; despesa: number }>();
 
-    transacoesFiltradas.forEach((t) => {
-      const data = new Date(t.data);
-      const chave = `${String(data.getMonth() + 1).padStart(2, "0")}/${String(data.getFullYear()).slice(2)}`;
+    transacoesPeriodo.forEach((t) => {
+      const data = dayjs(t.data, ["YYYY-MM-DD", "DD/MM/YYYY"]);
+
+      const chave = `${String(data.month() + 1).padStart(2, "0")}/${String(data.year()).slice(2)}`;
 
       if (!mapa.has(chave)) {
         mapa.set(chave, { receita: 0, despesa: 0 });
@@ -171,12 +181,55 @@ export default function RelatorioFinanceiro() {
       }
     });
 
-    return Array.from(mapa.entries()).map(([mes, valores]) => ({
-      mes,
-      receita: valores.receita,
-      despesa: valores.despesa,
-    }));
-  }, [transacoesFiltradas]);
+    const dadosOrdenados = Array.from({ length: period })
+      .map((_, i) => {
+        const data = new Date();
+        data.setMonth(data.getMonth() - (period - 1 - i));
+
+        const chave = `${String(data.getMonth() + 1).padStart(2, "0")}/${String(data.getFullYear()).slice(2)}`;
+
+        const valores = mapa.get(chave) || { receita: 0, despesa: 0 };
+
+        return {
+          mes: chave,
+          receita: valores.receita,
+          despesa: valores.despesa,
+        };
+      })
+      .sort((a, b) => {
+        const [mesA, anoA] = a.mes.split("/");
+        const [mesB, anoB] = b.mes.split("/");
+
+        return new Date(`20${anoA}-${mesA}-01`).getTime() - new Date(`20${anoB}-${mesB}-01`).getTime();
+      });
+
+    let saldo = 0;
+
+    return dadosOrdenados.map((item) => {
+      const receita = item.receita ?? 0;
+      const despesa = item.despesa ?? 0;
+
+      saldo += receita - despesa;
+
+      return {
+        ...item,
+        saldoAcumulado: saldo,
+      };
+    });
+  }, [transacoesPeriodo, period]);
+
+  console.log(dadosPorMes);
+
+  function filterByPeriod(transactions: TransacaoResponse[], months: number) {
+    const now = dayjs();
+    const startDate = now.subtract(months - 1, "month").startOf("month");
+
+    return transactions.filter((t) => {
+      const data = dayjs(t.data).startOf("day");
+
+      return data.isSame(startDate, "month") || data.isAfter(startDate, "month");
+    });
+  }
 
   function formatarValor(valor: number) {
     return valor.toLocaleString("pt-BR", {
@@ -268,7 +321,23 @@ export default function RelatorioFinanceiro() {
       </div>
       {/* GRÁFICO EVOLUÇÃO */}
       <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow">
-        <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Evolução do Patrimônio</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold text-[#2F4F4F]">Evolução do Patrimônio</h2>
+
+          {/* FILTRO DE PERÍODO */}
+          <div className="flex gap-2">
+            {[3, 6, 12].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p as 3 | 6 | 12)}
+                className={`px-3 py-1 rounded-md text-sm transition 
+            ${period === p ? "bg-blue-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-[#2F4F4F]"}`}
+              >
+                {p}m
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="w-full h-[250px]">
           <ResponsiveContainer>
@@ -285,11 +354,13 @@ export default function RelatorioFinanceiro() {
                 labelFormatter={(label) => `Mês: ${label}`}
               />
               <Legend />
+
               {/* RECEITAS */}
               <Bar dataKey="receita" name="Receitas" fill="#16a34a" radius={[4, 4, 0, 0]} />
 
               {/* DESPESAS */}
               <Bar dataKey="despesa" name="Despesas" fill="#dc2626" radius={[4, 4, 0, 0]} />
+              <Line type="linear" dataKey="saldoAcumulado" name="Saldo acumulado" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
