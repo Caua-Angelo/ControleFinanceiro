@@ -308,9 +308,11 @@ export default function RelatorioFinanceiro() {
             <p className="text-red-600 font-bold text-2xl">{formatarValor(totalGeralDespesas)}</p>
           </div>
 
-          <div className="text-center p-6 bg-white rounded-lg border-2 border-[#C8D6D1]">
+          <div className="text-center p-6 bg-white rounded-lg border-2 border-[#C8D6D1] overflow-hidden">
             <p className="text-[#2F4F4F] mb-2 font-semibold">Saldo Final</p>
-            <p className={`font-bold text-4xl ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>{formatarValor(saldoGeralFinal)}</p>
+            <p className={`font-bold text-2xl md:text-3xl lg:text-4xl whitespace-nowrap ${saldoGeralFinal >= 0 ? "text-green-700" : "text-red-700"}`}>
+              {formatarValor(saldoGeralFinal)}
+            </p>
           </div>
         </div>
       </div>
