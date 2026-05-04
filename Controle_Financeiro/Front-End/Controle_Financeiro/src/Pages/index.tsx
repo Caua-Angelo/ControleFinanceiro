@@ -240,65 +240,60 @@ export default function RelatorioFinanceiro() {
 
   return (
     <div>
-      <div className="flex-row md:flex items-center justify-between ">
-        <h1 className="text-4xl font-bold mb-4 text-[#2F4F4F]">Relatório Financeiro</h1>
-        <div className="flex-row md:flex items-center gap-4">
-          {/* FILTROS */}
-          <div>
-            <h1 className="text-2xl font-bold mb-4 text-[#2F4F4F]">Filtros</h1>
-          </div>
-          <div className="bg-white  border border-[#C8D6D1] rounded-lg shadow-sm px-4 py-3 mb-4 max-w-xl">
-            <div className="flex flex-wrap items-end gap-4">
-              {/* MÊS */}
-              <div className="flex flex-col">
-                <label htmlFor="select-mês" className="text-xs text-[#5A7067] mb-1">
-                  Mês
-                </label>
-                <select
-                  id="select-mês"
-                  value={mesSelecionado}
-                  onChange={(e) => setMesSelecionado(e.target.value)}
-                  className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
-                >
-                  <option value="todos">Todos</option>
-                  {gerarMeses().map((mes) => (
-                    <option key={mes.valor} value={mes.valor}>
-                      {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* TIPO */}
-              <div className="flex flex-col">
-                <label htmlFor="select-tipo" className="text-xs text-[#5A7067] mb-1">
-                  Tipo
-                </label>
-                <select
-                  id="select-tipo"
-                  value={tipoSelecionado}
-                  onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-                  className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
-                >
-                  <option value="todos">Todos</option>
-                  <option value={1}>Receita</option>
-                  <option value={2}>Despesa</option>
-                </select>
-              </div>
-              <button
-                onClick={limparFiltros}
-                disabled={!filtrosAtivos}
-                className={` mb-2 transition ${filtrosAtivos ? "text-[#2F4F4F] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
-              >
-                Limpar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
       {/* RESUMO GERAL */}
       <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-        <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Resumo Geral</h2>
+        <div className="flex items-center justify-between mb-4 gap-6">
+          <h2 className="text-3xl font-semibold text-[#2F4F4F]">Resumo Geral</h2>
+
+          {/* FILTROS */}
+          <div className="flex items-end gap-4">
+            {/* MÊS */}
+            <div className="flex flex-col">
+              <label htmlFor="select-mes" className="text-xs text-[#5A7067] mb-1">
+                Mês
+              </label>
+              <select
+                id="select-mes"
+                value={mesSelecionado}
+                onChange={(e) => setMesSelecionado(e.target.value)}
+                className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
+              >
+                <option value="todos">Todos</option>
+                {gerarMeses().map((mes) => (
+                  <option key={mes.valor} value={mes.valor}>
+                    {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* TIPO */}
+            <div className="flex flex-col">
+              <label htmlFor="select-tipo" className="text-xs text-[#5A7067] mb-1">
+                Tipo
+              </label>
+              <select
+                id="select-tipo"
+                value={tipoSelecionado}
+                onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
+                className="border px-2 py-1.5 rounded border-[#9DB4AB] bg-white focus:outline-none focus:border-[#7A9D8F]"
+              >
+                <option value="todos">Todos</option>
+                <option value={1}>Receita</option>
+                <option value={2}>Despesa</option>
+              </select>
+            </div>
+
+            {/* BOTÃO */}
+            <button
+              onClick={limparFiltros}
+              disabled={!filtrosAtivos}
+              className={`text-sm font-medium ${filtrosAtivos ? "text-[#2F4F4F] hover:underline" : "text-gray-400 cursor-not-allowed mb-2"}`}
+            >
+              Limpar
+            </button>
+          </div>
+        </div>
 
         <hr className="mb-4 border-[#9DB4AB]" />
 
