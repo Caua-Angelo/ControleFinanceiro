@@ -218,8 +218,6 @@ export default function RelatorioFinanceiro() {
     });
   }, [transacoesPeriodo, period]);
 
-  console.log(dadosPorMes);
-
   function filterByPeriod(transactions: TransacaoResponse[], months: number) {
     const now = dayjs();
     const startDate = now.subtract(months - 1, "month").startOf("month");
