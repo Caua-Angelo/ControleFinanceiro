@@ -8,6 +8,7 @@ import { BarChart, XAxis, Bar, Legend, YAxis, Tooltip, ResponsiveContainer, Line
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
+import { CustomTooltip } from "../Components/CustomTooltip";
 
 export default function RelatorioFinanceiro() {
   const navigate = useNavigate();
@@ -218,8 +219,6 @@ export default function RelatorioFinanceiro() {
     });
   }, [transacoesPeriodo, period]);
 
-  console.log(dadosPorMes);
-
   function filterByPeriod(transactions: TransacaoResponse[], months: number) {
     const now = dayjs();
     const startDate = now.subtract(months - 1, "month").startOf("month");
@@ -341,15 +340,7 @@ export default function RelatorioFinanceiro() {
             <BarChart data={dadosPorMes} barGap={8}>
               <XAxis dataKey="mes" />
               <YAxis tickFormatter={(valor) => `R$ ${valor}`} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                }}
-                formatter={(value) => (typeof value === "number" ? formatarValor(value) : value)}
-                labelFormatter={(label) => `Mês: ${label}`}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
 
               {/* RECEITAS */}
