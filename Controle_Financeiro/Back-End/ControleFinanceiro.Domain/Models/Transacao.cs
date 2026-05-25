@@ -66,7 +66,7 @@ namespace ControleFinanceiro.Domain.Models
             DomainExceptionValidation.When(descricao.Length < 3 || descricao.Length > 100,
                 "A descrição deve ter entre 3 e 100 caracteres.");
 
-            DomainExceptionValidation.When(!Regex.IsMatch(descricao, @"^[\p{L}\p{N}\s]+$"),
+            DomainExceptionValidation.When(!Regex.IsMatch(descricao, @"^[\p{L}\p{N}\s.,()\-]+$"),
                 "A descrição contém caracteres inválidos.");
 
             DomainExceptionValidation.When(valor <= 0,
@@ -86,8 +86,17 @@ namespace ControleFinanceiro.Domain.Models
                 "A data da transação é obrigatória.");
 
             // Menor de idade só pode registrar despesa
+            var idade = DateTime.Today.Year - usuario.DataNascimento.Year;
+
+            if (usuario.DataNascimento.Date > DateTime.Today.AddYears(-idade))
+            {
+                idade--;
+            }
+
+            // Regra de negócio:
+            // usuários menores de idade não podem registrar receitas
             DomainExceptionValidation.When(
-                usuario.Idade < 18 && tipo != TipoTransacao.Despesa,
+                idade < 18 && tipo != TipoTransacao.Despesa,
                 "Usuários menores de 18 anos podem registrar apenas despesas."
             );
 

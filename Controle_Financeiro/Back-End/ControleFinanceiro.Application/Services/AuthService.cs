@@ -36,7 +36,7 @@ namespace ControleFinanceiro.Application.Services
                 throw new InvalidOperationException("E-mail já cadastrado.");
 
             var senhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha);
-            var usuario = new Usuario(dto.Nome, dto.Idade, dto.Email, senhaHash);
+            var usuario = new Usuario(dto.Nome, dto.DataNascimento, dto.Email, senhaHash);
 
             await _usuarioRepository.AddAsync(usuario);
             await _usuarioRepository.SaveAsync();
