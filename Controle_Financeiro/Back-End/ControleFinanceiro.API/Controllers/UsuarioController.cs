@@ -40,7 +40,7 @@ namespace ControleFinanceiro.API.Controllers
         [HttpPut("me")]
         [SwaggerOperation(
          Summary = "Atualiza os dados do usuário autenticado",
-         Description = "Permite atualizar nome e idade do usuário logado. O e-mail não é alterado por este endpoint.",
+         Description = "Permite atualizar nome e data de nascimento do usuário logado. O e-mail não é alterado por este endpoint.",
          OperationId = "AtualizarUsuarioLogado")]
         public async Task<ActionResult<UsuarioConsultarDTO>> UpdateMe(
         [FromBody] UsuarioAlterarDTO dto)
