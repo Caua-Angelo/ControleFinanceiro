@@ -56,25 +56,7 @@ namespace ControleFinanceiro.Application.Services
             var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
-
-            // menor de idade só pode despesa
-            if (usuario.Idade < 18 && dto.Tipo != TipoTransacao.Despesa)
-                throw new InvalidOperationException(
-                    "Usuários menores de 18 anos podem registrar apenas despesas.");
-
-            // categoria compatível com tipo
-            if (dto.Tipo == TipoTransacao.Despesa &&
-                categoria.Finalidade == FinalidadeCategoria.Receita)
-                throw new InvalidOperationException(
-                    "Categoria de receita não pode ser usada em despesas.");
-
-            if (dto.Tipo == TipoTransacao.Receita &&
-                categoria.Finalidade == FinalidadeCategoria.Despesa)
-                throw new InvalidOperationException(
-                    "Categoria de despesa não pode ser usada em receitas.");
-
-            if (dto.Valor <= 0)
-                throw new InvalidOperationException("Valor deve ser maior que zero.");
+           
 
             var transacao = new Transacao(
                 dto.Descricao,
