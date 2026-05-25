@@ -29,7 +29,7 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
 
         db.Usuario.Add(new Usuario(
             "Cauã",
-            new DateTime(2000, 1, 1),
+            new DateOnly(2000, 1, 1),
             "categoria_user@teste.com",
             BCrypt.Net.BCrypt.HashPassword("senha123")
         ));

@@ -28,7 +28,7 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
 
         db.Usuario.Add(new Usuario(
             "Cauã",
-            new DateTime(2000, 1, 1),
+            new DateOnly(2000, 1, 1),
             "usuario_auth@teste.com",
             BCrypt.Net.BCrypt.HashPassword("senha123")
         ));
@@ -81,7 +81,7 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var atualizar = new UsuarioAlterarDTO
         {
             Nome = "Novo Nome",
-            DataNascimento = new DateTime(1995, 1, 1)
+            DataNascimento = new DateOnly(1995, 1, 1)
         };
 
         // Act
@@ -118,7 +118,7 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "João",
-            DataNascimento = new DateTime(1998, 1, 1),
+            DataNascimento = new DateOnly(1998, 1, 1),
             Email = "joao@teste.com",
             Senha = "senha123"
         };
@@ -137,7 +137,7 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "Duplicado",
-            DataNascimento = new DateTime(1998, 1, 1),
+            DataNascimento = new DateOnly(1998, 1, 1),
             Email = "duplicado@teste.com",
             Senha = "senha123"
         };
@@ -161,7 +161,7 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "A",
-            DataNascimento = new DateTime(1998, 1, 1),
+            DataNascimento = new DateOnly(1998, 1, 1),
             Email = "invalido@teste.com",
             Senha = "senha123"
         };

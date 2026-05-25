@@ -11,11 +11,14 @@ namespace ControleFinanceiro.Test.Unit.Domain
         private readonly Categoria _categoriaDeValida;
         private readonly Categoria _categoriaReValida;
 
+        private readonly DateOnly _hoje =
+            DateOnly.FromDateTime(DateTime.Today);
+
         public TransacaoTests()
         {
             _usuarioValido = new Usuario(
                 "Caua",
-                new DateTime(2000, 1, 1),
+                new DateOnly(2000, 1, 1),
                 "caua@gmail.com",
                 "hash"
             );
@@ -40,7 +43,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should().NotThrow();
@@ -51,7 +54,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         {
             var menorDeIdade = new Usuario(
                 "Caua",
-                DateTime.Today.AddYears(-17),
+                DateOnly.FromDateTime(DateTime.Today.AddYears(-17)),
                 "caua@gmail.com",
                 "hash"
             );
@@ -62,7 +65,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 menorDeIdade,
-                DateTime.Now
+                _hoje
             );
 
             act.Should().NotThrow();
@@ -86,7 +89,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -103,7 +106,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 null,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -120,7 +123,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 null,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -137,7 +140,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                default
+                default(DateOnly)
             );
 
             act.Should()
@@ -154,7 +157,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 (TipoTransacao)99,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -167,7 +170,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         {
             var menorDeIdade = new Usuario(
                 "Caua",
-                DateTime.Today.AddYears(-17),
+                DateOnly.FromDateTime(DateTime.Today.AddYears(-17)),
                 "caua@gmail.com",
                 "hash"
             );
@@ -178,7 +181,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Receita,
                 _categoriaReValida,
                 menorDeIdade,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -195,7 +198,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaReValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -212,7 +215,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Receita,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()
@@ -229,7 +232,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             Action act = () => transacao.Update(
@@ -238,7 +241,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should().NotThrow();
@@ -253,7 +256,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             Action act = () => transacao.Update(
@@ -262,7 +265,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 TipoTransacao.Despesa,
                 _categoriaDeValida,
                 _usuarioValido,
-                DateTime.Now
+                _hoje
             );
 
             act.Should()

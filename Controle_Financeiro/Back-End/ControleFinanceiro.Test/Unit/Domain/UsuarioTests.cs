@@ -12,7 +12,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action action = () =>
                 new Usuario(
                     "José do Pastel",
-                    new DateTime(1995, 1, 1),
+                    new DateOnly(1995, 1, 1),
                     "email@teste.com",
                     "hash"
                 );
@@ -26,7 +26,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action action = () =>
                 new Usuario(
                     "",
-                    new DateTime(1995, 1, 1),
+                    new DateOnly(1995, 1, 1),
                     "email@teste.com",
                     "hash"
                 );
@@ -42,7 +42,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action action = () =>
                 new Usuario(
                     "Caua123",
-                    new DateTime(1995, 1, 1),
+                    new DateOnly(1995, 1, 1),
                     "email@teste.com",
                     "hash"
                 );
@@ -58,7 +58,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action action = () =>
                 new Usuario(
                     "Ca",
-                    new DateTime(1995, 1, 1),
+                    new DateOnly(1995, 1, 1),
                     "email@teste.com",
                     "hash"
                 );
@@ -74,7 +74,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action action = () =>
                 new Usuario(
                     "Caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    new DateTime(1995, 1, 1),
+                    new DateOnly(1995, 1, 1),
                     "email@teste.com",
                     "hash"
                 );
@@ -87,7 +87,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         [Fact]
         public void InstanciarUsuario_DataNascimentoFutura_DeveRetornarExcecao()
         {
-            var dataFutura = DateTime.Today.AddDays(1);
+            var dataFutura = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
 
             Action action = () =>
                 new Usuario(
@@ -108,7 +108,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action action = () =>
                 new Usuario(
                     "Caua",
-                    new DateTime(1995, 1, 1),
+                    new DateOnly(1995, 1, 1),
                     "email@teste.",
                     "hash"
                 );
@@ -123,7 +123,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         {
             var usuario = new Usuario(
                 "Caua",
-                new DateTime(1995, 1, 1),
+                new DateOnly(1995, 1, 1),
                 "caua@gmail.com",
                 "hash"
             );
@@ -131,7 +131,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action act = () =>
                 usuario.Update(
                     "Caua Silva",
-                    new DateTime(1990, 1, 1)
+                    new DateOnly(1990, 1, 1)
                 );
 
             act.Should().NotThrow();
@@ -142,7 +142,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         {
             var usuario = new Usuario(
                 "Caua",
-                new DateTime(1995, 1, 1),
+                new DateOnly(1995, 1, 1),
                 "caua@gmail.com",
                 "hash"
             );
@@ -150,7 +150,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
             Action act = () =>
                 usuario.Update(
                     "",
-                    new DateTime(1990, 1, 1)
+                    new DateOnly(1990, 1, 1)
                 );
 
             act.Should()
@@ -163,7 +163,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         {
             var usuario = new Usuario(
                 "Caua",
-                new DateTime(1995, 1, 1),
+                new DateOnly(1995, 1, 1),
                 "caua@gmail.com",
                 "hash"
             );
@@ -178,7 +178,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         {
             var usuario = new Usuario(
                 "Caua",
-                new DateTime(1995, 1, 1),
+                new DateOnly(1995, 1, 1),
                 "caua@gmail.com",
                 "hash"
             );

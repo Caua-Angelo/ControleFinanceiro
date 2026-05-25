@@ -15,7 +15,7 @@ namespace ControleFinanceiro.Domain.Models
 
         public TipoTransacao Tipo { get; private set; }
 
-        public DateTime Data { get; private set; }
+        public DateOnly Data { get; private set; }
 
         //  Relacionamento com Categoria
         public int CategoriaId { get; private set; }
@@ -33,7 +33,7 @@ namespace ControleFinanceiro.Domain.Models
             TipoTransacao tipo,
             Categoria categoria,
             Usuario usuario,
-             DateTime data)
+             DateOnly data)
         {
             ValidateDomain(descricao, valor, tipo, categoria, usuario, data);
         }
@@ -44,7 +44,7 @@ namespace ControleFinanceiro.Domain.Models
             TipoTransacao tipo,
             Categoria categoria,
             Usuario usuario,
-            DateTime data)
+            DateOnly data)
         {
             ValidateDomain(descricao, valor, tipo, categoria, usuario, data);
         }
@@ -55,7 +55,7 @@ namespace ControleFinanceiro.Domain.Models
             TipoTransacao tipo,
             Categoria categoria,
             Usuario usuario,
-               DateTime data)
+               DateOnly data)
         {
             descricao = descricao?.Trim() ?? string.Empty;
 
@@ -86,9 +86,11 @@ namespace ControleFinanceiro.Domain.Models
                 "A data da transação é obrigatória.");
 
             // Menor de idade só pode registrar despesa
-            var idade = DateTime.Today.Year - usuario.DataNascimento.Year;
+            var hoje = DateOnly.FromDateTime(DateTime.Today);
 
-            if (usuario.DataNascimento.Date > DateTime.Today.AddYears(-idade))
+            var idade = hoje.Year - usuario.DataNascimento.Year;
+
+            if (usuario.DataNascimento > hoje.AddYears(-idade))
             {
                 idade--;
             }

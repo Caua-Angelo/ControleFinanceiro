@@ -9,7 +9,7 @@ namespace ControleFinanceiro.Domain.Models
 
         public string Nome { get; private set; } = null!;
 
-        public DateTime DataNascimento { get; private set; }
+        public DateOnly DataNascimento { get; private set; }
 
         public ICollection<Transacao> Transacao { get; private set; } = new List<Transacao>();
 
@@ -19,13 +19,13 @@ namespace ControleFinanceiro.Domain.Models
 
         protected Usuario() { }
 
-        public Usuario(string nome, DateTime dataNascimento, string email, string senhaHash)
+        public Usuario(string nome, DateOnly dataNascimento, string email, string senhaHash)
         {
             ValidateDomain(nome, dataNascimento, email);
             HashSenha = senhaHash;
         }
 
-        public void Update(string nome, DateTime dataNascimento)
+        public void Update(string nome, DateOnly dataNascimento)
         {
             ValidateDomain(nome, dataNascimento, Email);
         }
@@ -38,7 +38,7 @@ namespace ControleFinanceiro.Domain.Models
         }
 
 
-        private void ValidateDomain(string nome, DateTime dataNascimento, string email)
+        private void ValidateDomain(string nome, DateOnly dataNascimento, string email)
         {
             nome = nome?.Trim() ?? string.Empty;
 
@@ -51,7 +51,7 @@ namespace ControleFinanceiro.Domain.Models
             DomainExceptionValidation.When(!Regex.IsMatch(nome, @"^[\p{L}\s'-]+$"),
                 "O nome do usuário contém caracteres inválidos.");
 
-            DomainExceptionValidation.When(dataNascimento.Date >= DateTime.Today,
+            DomainExceptionValidation.When(dataNascimento >= DateOnly.FromDateTime(DateTime.Today),
                 "A data de nascimento não pode ser uma data futura.");
 
             email = email?.Trim() ?? string.Empty;

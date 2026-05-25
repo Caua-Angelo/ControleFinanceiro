@@ -29,7 +29,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
 
         db.Usuario.Add(new Usuario(
             "Cauã",
-            new DateTime(2000, 1, 1),
+            new DateOnly(2000, 1, 1),
             email,
             BCrypt.Net.BCrypt.HashPassword("senha123")
         ));
@@ -89,7 +89,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 3000,
             Tipo = TipoTransacao.Receita,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Now)
         };
 
         // Act
@@ -154,7 +154,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 50,
             Tipo = TipoTransacao.Despesa,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Now)
         };
 
         var criar = await _client.PostAsJsonAsync(
@@ -232,7 +232,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 100,
             Tipo = TipoTransacao.Receita,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Today)
         };
 
         // Act
@@ -267,7 +267,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 3000,
             Tipo = TipoTransacao.Receita,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Today)
         };
 
         // Act
@@ -308,7 +308,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 50,
             Tipo = TipoTransacao.Despesa,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Now)
         };
 
         var criar = await _client.PostAsJsonAsync(
