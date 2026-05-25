@@ -20,7 +20,6 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     {
         _factory = factory;
         _client = factory.CreateClient();
-       
     }
 
     private async Task<string> CriarUsuarioEObterTokenAsync(string email)
@@ -28,19 +27,33 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
-        db.Usuario.Add(new Usuario("Cauã", 22, email, BCrypt.Net.BCrypt.HashPassword("senha123")));
+        db.Usuario.Add(new Usuario(
+            "Cauã",
+            new DateOnly(2000, 1, 1),
+            email,
+            BCrypt.Net.BCrypt.HashPassword("senha123")
+        ));
+
         await db.SaveChangesAsync();
 
-        return await AuthHelper.ObterTokenAsync(_client, email, "senha123");
+        return await AuthHelper.ObterTokenAsync(
+            _client,
+            email,
+            "senha123"
+        );
     }
 
-    private async Task<Categoria> CriarCategoriaAsync(string descricao, FinalidadeCategoria finalidade)
+    private async Task<Categoria> CriarCategoriaAsync(
+        string descricao,
+        FinalidadeCategoria finalidade)
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
         var categoria = new Categoria(descricao, finalidade);
+
         db.Categoria.Add(categoria);
+
         await db.SaveChangesAsync();
 
         return categoria;
@@ -50,6 +63,7 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Get_SemToken_DeveRetornar401()
     {
         var response = await _client.GetAsync("/api/transacoes");
+
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -57,13 +71,17 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Post_CriarTransacao_DeveRetornar201()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_criar@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_criar@teste.com"
+        );
 
-        var categoria = await CriarCategoriaAsync("Salario", FinalidadeCategoria.Receita);
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+        var categoria = await CriarCategoriaAsync(
+            "Salario",
+            FinalidadeCategoria.Receita
+        );
 
         var dto = new TransacaoCriarDTO
         {
@@ -71,16 +89,21 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 3000,
             Tipo = TipoTransacao.Receita,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Now)
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/transacoes", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/transacoes",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var body = await response.Content.ReadFromJsonAsync<TransacaoConsultarDTO>();
+        var body = await response.Content
+            .ReadFromJsonAsync<TransacaoConsultarDTO>();
+
         body.Should().NotBeNull();
         body!.Descricao.Should().Be("Salario");
         body.Valor.Should().Be(3000);
@@ -90,8 +113,12 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Get_ListarTransacoes_DeveRetornar200()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_listar@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_listar@teste.com"
+        );
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
         // Act
         var response = await _client.GetAsync("/api/transacoes");
@@ -99,7 +126,9 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<IEnumerable<TransacaoConsultarDTO>>();
+        var body = await response.Content
+            .ReadFromJsonAsync<IEnumerable<TransacaoConsultarDTO>>();
+
         body.Should().NotBeNull();
     }
 
@@ -107,13 +136,17 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Delete_TransacaoExistente_DeveRetornar204()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_deletar@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_deletar@teste.com"
+        );
 
-        var categoria = await CriarCategoriaAsync("Alimentacao", FinalidadeCategoria.Despesa);
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+        var categoria = await CriarCategoriaAsync(
+            "Alimentacao",
+            FinalidadeCategoria.Despesa
+        );
 
         var dto = new TransacaoCriarDTO
         {
@@ -121,24 +154,36 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 50,
             Tipo = TipoTransacao.Despesa,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Now)
         };
 
-        var criar = await _client.PostAsJsonAsync("/api/transacoes", dto);
-        var transacaoCriada = await criar.Content.ReadFromJsonAsync<TransacaoConsultarDTO>();
+        var criar = await _client.PostAsJsonAsync(
+            "/api/transacoes",
+            dto
+        );
+
+        var transacaoCriada = await criar.Content
+            .ReadFromJsonAsync<TransacaoConsultarDTO>();
 
         // Act
-        var response = await _client.DeleteAsync($"/api/transacoes/{transacaoCriada!.Id}");
+        var response = await _client.DeleteAsync(
+            $"/api/transacoes/{transacaoCriada!.Id}"
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
+
     [Fact]
     public async Task GetById_TransacaoInexistente_DeveRetornar404()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_getbyid404@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_getbyid404@teste.com"
+        );
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
         // Act
         var response = await _client.GetAsync("/api/transacoes/99999");
@@ -151,8 +196,12 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Delete_TransacaoInexistente_DeveRetornar404()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_delete404@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_delete404@teste.com"
+        );
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
         // Act
         var response = await _client.DeleteAsync("/api/transacoes/99999");
@@ -165,25 +214,32 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Post_CriarTransacao_ComDescricaoInvalida_DeveRetornar400()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_400@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_400@teste.com"
+        );
 
-        var categoria = await CriarCategoriaAsync("Salario", FinalidadeCategoria.Receita);
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+        var categoria = await CriarCategoriaAsync(
+            "Salario",
+            FinalidadeCategoria.Receita
+        );
 
         var dto = new TransacaoCriarDTO
         {
-            Descricao = "A", 
+            Descricao = "A",
             Valor = 100,
             Tipo = TipoTransacao.Receita,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Today)
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/transacoes", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/transacoes",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -193,42 +249,58 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task Post_CriarTransacao_ComCategoriaIncompativel_DeveRetornar409()
     {
         // Arrange
-        var token = await CriarUsuarioEObterTokenAsync("transacao_incompativel@teste.com");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await CriarUsuarioEObterTokenAsync(
+            "transacao_incompativel@teste.com"
+        );
 
-        var categoria = await CriarCategoriaAsync("Alimentacao", FinalidadeCategoria.Despesa);
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+        var categoria = await CriarCategoriaAsync(
+            "Alimentacao",
+            FinalidadeCategoria.Despesa
+        );
 
         var dto = new TransacaoCriarDTO
         {
             Descricao = "Salario",
             Valor = 3000,
-            Tipo = TipoTransacao.Receita, 
+            Tipo = TipoTransacao.Receita,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Today)
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/transacoes", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/transacoes",
+            dto
+        );
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
     [Fact]
     public async Task GetById_TransacaoDeOutroUsuario_DeveRetornar403()
     {
         // usuário 1
-        var token1 = await CriarUsuarioEObterTokenAsync("user1@teste.com");
+        var token1 = await CriarUsuarioEObterTokenAsync(
+            "user1@teste.com"
+        );
 
         // usuário 2
-        var token2 = await CriarUsuarioEObterTokenAsync("user2@teste.com");
+        var token2 = await CriarUsuarioEObterTokenAsync(
+            "user2@teste.com"
+        );
 
-        var categoria = await CriarCategoriaAsync("Alimentacao", FinalidadeCategoria.Despesa);
+        var categoria = await CriarCategoriaAsync(
+            "Alimentacao",
+            FinalidadeCategoria.Despesa
+        );
 
         // cria transação com user1
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token1);
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token1);
 
         var dto = new TransacaoCriarDTO
         {
@@ -236,16 +308,24 @@ public class TransacaoControllerTests : IClassFixture<CustomWebApplicationFactor
             Valor = 50,
             Tipo = TipoTransacao.Despesa,
             CategoriaId = categoria.Id,
-            Data = DateTime.Now
+            Data = DateOnly.FromDateTime(DateTime.Now)
         };
 
-        var criar = await _client.PostAsJsonAsync("/api/transacoes", dto);
-        var transacao = await criar.Content.ReadFromJsonAsync<TransacaoConsultarDTO>();
+        var criar = await _client.PostAsJsonAsync(
+            "/api/transacoes",
+            dto
+        );
+
+        var transacao = await criar.Content
+            .ReadFromJsonAsync<TransacaoConsultarDTO>();
 
         // tenta acessar com user2
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token2);
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token2);
 
-        var response = await _client.GetAsync($"/api/transacoes/{transacao!.Id}");
+        var response = await _client.GetAsync(
+            $"/api/transacoes/{transacao!.Id}"
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

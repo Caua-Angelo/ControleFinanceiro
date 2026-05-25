@@ -14,6 +14,6 @@ namespace ControleFinanceiro.Application.DTO.Transacao
 
         public int CategoriaId { get; set; }
         public string CategoriaDescricao { get; set; } = string.Empty;
-        public DateTime Data { get; set; }
+        public  DateOnly Data { get; set; }
     }
 }

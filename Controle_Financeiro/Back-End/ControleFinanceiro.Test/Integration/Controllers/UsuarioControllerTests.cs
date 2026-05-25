@@ -26,17 +26,30 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
-        db.Usuario.Add(new Usuario("Cauã", 22, "usuario_auth@teste.com", BCrypt.Net.BCrypt.HashPassword("senha123")));
+        db.Usuario.Add(new Usuario(
+            "Cauã",
+            new DateOnly(2000, 1, 1),
+            "usuario_auth@teste.com",
+            BCrypt.Net.BCrypt.HashPassword("senha123")
+        ));
+
         await db.SaveChangesAsync();
 
-        var token = await AuthHelper.ObterTokenAsync(_client, "usuario_auth@teste.com", "senha123");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await AuthHelper.ObterTokenAsync(
+            _client,
+            "usuario_auth@teste.com",
+            "senha123"
+        );
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
     }
 
     [Fact]
     public async Task GetMe_SemToken_DeveRetornar401()
     {
         var response = await _client.GetAsync("/api/usuarios/me");
+
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -52,7 +65,9 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
+        var body = await response.Content
+            .ReadFromJsonAsync<UsuarioConsultarDTO>();
+
         body.Should().NotBeNull();
         body!.Email.Should().Be("usuario_auth@teste.com");
     }
@@ -66,16 +81,21 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var atualizar = new UsuarioAlterarDTO
         {
             Nome = "Novo Nome",
-            Idade = 30
+            DataNascimento = new DateOnly(1995, 1, 1)
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/usuarios/me", atualizar);
+        var response = await _client.PutAsJsonAsync(
+            "/api/usuarios/me",
+            atualizar
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<UsuarioConsultarDTO>();
+        var body = await response.Content
+            .ReadFromJsonAsync<UsuarioConsultarDTO>();
+
         body!.Nome.Should().Be("Novo Nome");
     }
 
@@ -98,12 +118,15 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "João",
-            Idade = 25,
+            DataNascimento = new DateOnly(1998, 1, 1),
             Email = "joao@teste.com",
             Senha = "senha123"
         };
 
-        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
     }
@@ -114,14 +137,20 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "Duplicado",
-            Idade = 25,
+            DataNascimento = new DateOnly(1998, 1, 1),
             Email = "duplicado@teste.com",
             Senha = "senha123"
         };
 
-        await _client.PostAsJsonAsync("/api/auth/register", dto);
+        await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
-        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -132,12 +161,15 @@ public class UsuarioControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "A",
-            Idade = 25,
+            DataNascimento = new DateOnly(1998, 1, 1),
             Email = "invalido@teste.com",
             Senha = "senha123"
         };
 
-        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

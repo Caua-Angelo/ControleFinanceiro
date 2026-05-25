@@ -7,56 +7,187 @@ namespace ControleFinanceiro.Test.Unit.Domain
     public class UsuarioTests
     {
         [Fact]
-        public void IntanciarUsuario_Dadosvalidos_NãoDeveRetornarDomainExceptionValidation()
+        public void InstanciarUsuario_DadosValidos_NaoDeveRetornarDomainExceptionValidation()
         {
-            Action action = () => new Usuario("josé do pastel", 30, "email@teste.com", "hash");
+            Action action = () =>
+                new Usuario(
+                    "José do Pastel",
+                    new DateOnly(1995, 1, 1),
+                    "email@teste.com",
+                    "hash"
+                );
 
             action.Should().NotThrow();
         }
-        [Theory]
-        [InlineData("", 18, "Caua@gmail.com", "AASSHG2G2HASH", "O nome do usuário precisa ser preenchido.")]
-        [InlineData("Caua123", 18, "Caua@gmail.com", "AASSHG2G2HASH", "O nome do usuário deve conter apenas letras.")]
-        [InlineData("Caua@", 18, "Caua@gmail.com", "AASSHG2G2HASH", "O nome do usuário deve conter apenas letras.")]
-        [InlineData("Ca", 18, "Caua@gmail.com", "AASSHG2G2HASH", "O nome do usuário deve ter entre 3 e 60 caracteres.")]
-        [InlineData("Caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 18, "Caua@gmail.com", "AASSHG2G2HASH", "O nome do usuário deve ter entre 3 e 60 caracteres.")]
-        [InlineData("Caua", 0, "Caua@gmail.com", "AASSHG2G2HASH", "A idade deve ser um número inteiro positivo.")]
-        [InlineData("Caua", -1, "Caua@gmail.com", "AASSHG2G2HASH", "A idade deve ser um número inteiro positivo.")]
-        [InlineData("Caua", 18, "Caua@gmail.", "AASSHG2G2HASH", "O e-mail informado não é válido.")]
-        public void IntanciarUsuario_DadosInvalidos_DeveRetornarDomainExceptionValidation(string nome, int idade, string email, string senhaHash, string mensagemEsperada)
+
+        [Fact]
+        public void InstanciarUsuario_NomeVazio_DeveRetornarExcecao()
         {
-            Action action = () => new Usuario(nome, idade, email, senhaHash);
-            action.Should().Throw<DomainExceptionValidation>()
-                .WithMessage(mensagemEsperada);
+            Action action = () =>
+                new Usuario(
+                    "",
+                    new DateOnly(1995, 1, 1),
+                    "email@teste.com",
+                    "hash"
+                );
+
+            action.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("O nome do usuário precisa ser preenchido.");
         }
+
+        [Fact]
+        public void InstanciarUsuario_NomeComCaracteresInvalidos_DeveRetornarExcecao()
+        {
+            Action action = () =>
+                new Usuario(
+                    "Caua123",
+                    new DateOnly(1995, 1, 1),
+                    "email@teste.com",
+                    "hash"
+                );
+
+            action.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("O nome do usuário contém caracteres inválidos.");
+        }
+
+        [Fact]
+        public void InstanciarUsuario_NomeMuitoCurto_DeveRetornarExcecao()
+        {
+            Action action = () =>
+                new Usuario(
+                    "Ca",
+                    new DateOnly(1995, 1, 1),
+                    "email@teste.com",
+                    "hash"
+                );
+
+            action.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("O nome do usuário deve ter entre 3 e 60 caracteres.");
+        }
+
+        [Fact]
+        public void InstanciarUsuario_NomeMuitoGrande_DeveRetornarExcecao()
+        {
+            Action action = () =>
+                new Usuario(
+                    "Caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    new DateOnly(1995, 1, 1),
+                    "email@teste.com",
+                    "hash"
+                );
+
+            action.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("O nome do usuário deve ter entre 3 e 60 caracteres.");
+        }
+
+        [Fact]
+        public void InstanciarUsuario_DataNascimentoFutura_DeveRetornarExcecao()
+        {
+            var dataFutura = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
+            Action action = () =>
+                new Usuario(
+                    "Caua",
+                    dataFutura,
+                    "email@teste.com",
+                    "hash"
+                );
+
+            action.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("A data de nascimento não pode ser uma data futura.");
+        }
+
+        [Fact]
+        public void InstanciarUsuario_EmailInvalido_DeveRetornarExcecao()
+        {
+            Action action = () =>
+                new Usuario(
+                    "Caua",
+                    new DateOnly(1995, 1, 1),
+                    "email@teste.",
+                    "hash"
+                );
+
+            action.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("O e-mail informado não é válido.");
+        }
+
         [Fact]
         public void Update_DadosValidos_NaoDeveLancarExcecao()
         {
-            var usuario = new Usuario("Caua", 18, "caua@gmail.com", "hash");
-            Action act = () => usuario.Update("Caua Silva", 19);
+            var usuario = new Usuario(
+                "Caua",
+                new DateOnly(1995, 1, 1),
+                "caua@gmail.com",
+                "hash"
+            );
+
+            Action act = () =>
+                usuario.Update(
+                    "Caua Silva",
+                    new DateOnly(1990, 1, 1)
+                );
+
             act.Should().NotThrow();
         }
+
         [Fact]
         public void Update_DadosInvalidos_DeveLancarExcecao()
         {
-            var usuario = new Usuario("Caua", 18, "caua@gmail.com", "hash");
-            Action act = () => usuario.Update("", 19);
-            act.Should().Throw<DomainExceptionValidation>()
-               .WithMessage("O nome do usuário precisa ser preenchido.");
+            var usuario = new Usuario(
+                "Caua",
+                new DateOnly(1995, 1, 1),
+                "caua@gmail.com",
+                "hash"
+            );
+
+            Action act = () =>
+                usuario.Update(
+                    "",
+                    new DateOnly(1990, 1, 1)
+                );
+
+            act.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("O nome do usuário precisa ser preenchido.");
         }
+
         [Fact]
         public void AlterarSenha_SenhaValida_NaoDeveLancarExcecao()
         {
-            var usuario = new Usuario("Caua", 18, "caua@gmail.com", "hash");
+            var usuario = new Usuario(
+                "Caua",
+                new DateOnly(1995, 1, 1),
+                "caua@gmail.com",
+                "hash"
+            );
+
             Action act = () => usuario.AlterarSenha("novoHash");
+
             act.Should().NotThrow();
         }
+
         [Fact]
         public void AlterarSenha_SenhaVazia_DeveLancarExcecao()
         {
-            var usuario = new Usuario("Caua", 18, "caua@gmail.com", "hash");
+            var usuario = new Usuario(
+                "Caua",
+                new DateOnly(1995, 1, 1),
+                "caua@gmail.com",
+                "hash"
+            );
+
             Action act = () => usuario.AlterarSenha("");
-            act.Should().Throw<DomainExceptionValidation>()
-               .WithMessage("A senha não pode ser vazia.");
+
+            act.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("A senha não pode ser vazia.");
         }
     }
 }

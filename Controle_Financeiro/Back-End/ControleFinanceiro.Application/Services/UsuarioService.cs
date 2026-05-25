@@ -48,7 +48,7 @@ namespace ControleFinanceiro.Application.Services
             if (usuario == null)
                 throw new KeyNotFoundException($"Usuário com ID {id} não encontrado.");
 
-            usuario.Update(dto.Nome,dto.Idade); 
+            usuario.Update(dto.Nome,dto.DataNascimento); 
 
             await _usuarioRepository.SaveAsync();
 

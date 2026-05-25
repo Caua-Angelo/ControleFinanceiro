@@ -3,6 +3,7 @@ using System;
 using ControleFinanceiro.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleFinanceiro.Infra.Data.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260525101114_changeagetobirthDate")]
+    partial class changeagetobirthDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,8 +58,8 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                     b.Property<int>("CategoriaId")
                         .HasColumnType("integer");
 
-                    b.Property<DateOnly>("Data")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
@@ -89,8 +92,8 @@ namespace ControleFinanceiro.Infra.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("DataNascimento")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DataNascimento")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()

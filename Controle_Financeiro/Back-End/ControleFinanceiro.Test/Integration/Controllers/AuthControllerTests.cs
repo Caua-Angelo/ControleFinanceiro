@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 namespace ControleFinanceiro.Test.Integration.Controllers;
+
 public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
@@ -26,20 +27,29 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
         db.Usuario.Add(new Usuario(
-             "Cauã",
-             22,
-             "caua@teste.com",
-             BCrypt.Net.BCrypt.HashPassword("senha123")
-            ));
+            "Cauã",
+            new DateOnly(2000, 1, 1),
+            "caua@teste.com",
+            BCrypt.Net.BCrypt.HashPassword("senha123")
+        ));
+
         await db.SaveChangesAsync();
 
-        var dto = new LoginRequestDto("caua@teste.com", "senha123");
+        var dto = new LoginRequestDto(
+            "caua@teste.com",
+            "senha123"
+        );
 
-        var response = await _client.PostAsJsonAsync("/api/auth/login", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/login",
+            dto
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        var body = await response.Content
+            .ReadFromJsonAsync<Dictionary<string, string>>();
+
         body.Should().NotBeNull();
         body!.Should().ContainKey("token");
         body["token"].Should().NotBeNullOrEmpty();
@@ -52,19 +62,27 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
         db.Usuario.Add(new Usuario(
-         "Cauã",
-         22,
-         "caua2@teste.com",
-         BCrypt.Net.BCrypt.HashPassword("senha123")
- ));
+            "Cauã",
+            new DateOnly(2000, 1, 1),
+            "caua2@teste.com",
+            BCrypt.Net.BCrypt.HashPassword("senha123")
+        ));
+
         await db.SaveChangesAsync();
 
-        var dto = new LoginRequestDto("caua2@teste.com", "senhaerrada");
+        var dto = new LoginRequestDto(
+            "caua2@teste.com",
+            "senhaerrada"
+        );
 
-        var response = await _client.PostAsJsonAsync("/api/auth/login", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/login",
+            dto
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
     [Fact]
     public async Task Register_ComDadosValidos_DeveRetornar201()
     {
@@ -72,13 +90,16 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "Carlos",
-            Idade = 28,
+            DataNascimento = new DateOnly(1996, 1, 1),
             Email = "carlos@teste.com",
             Senha = "senha123"
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -91,15 +112,21 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var dto = new UsuarioIncluirDTO
         {
             Nome = "Ana",
-            Idade = 25,
+            DataNascimento = new DateOnly(1999, 1, 1),
             Email = "ana@teste.com",
             Senha = "senha123"
         };
 
-        await _client.PostAsJsonAsync("/api/auth/register", dto);
+        await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
-        // Act - 
-        var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+        // Act
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -112,22 +139,33 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var registerDto = new UsuarioIncluirDTO
         {
             Nome = "Lucas",
-            Idade = 30,
+            DataNascimento = new DateOnly(1994, 1, 1),
             Email = "lucas@teste.com",
             Senha = "senha123"
         };
 
-        await _client.PostAsJsonAsync("/api/auth/register", registerDto);
+        await _client.PostAsJsonAsync(
+            "/api/auth/register",
+            registerDto
+        );
 
-        var loginDto = new LoginRequestDto("lucas@teste.com", "senha123");
+        var loginDto = new LoginRequestDto(
+            "lucas@teste.com",
+            "senha123"
+        );
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/auth/login", loginDto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/auth/login",
+            loginDto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        var body = await response.Content
+            .ReadFromJsonAsync<Dictionary<string, string>>();
+
         body.Should().NotBeNull();
         body!.Should().ContainKey("token");
         body["token"].Should().NotBeNullOrEmpty();

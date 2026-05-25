@@ -27,17 +27,30 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
-        db.Usuario.Add(new Usuario("Cauã", 22, "categoria_user@teste.com", BCrypt.Net.BCrypt.HashPassword("senha123")));
+        db.Usuario.Add(new Usuario(
+            "Cauã",
+            new DateOnly(2000, 1, 1),
+            "categoria_user@teste.com",
+            BCrypt.Net.BCrypt.HashPassword("senha123")
+        ));
+
         await db.SaveChangesAsync();
 
-        var token = await AuthHelper.ObterTokenAsync(_client, "categoria_user@teste.com", "senha123");
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await AuthHelper.ObterTokenAsync(
+            _client,
+            "categoria_user@teste.com",
+            "senha123"
+        );
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
     }
 
     [Fact]
     public async Task Get_SemToken_DeveRetornar401()
     {
         var response = await _client.GetAsync("/api/categorias");
+
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -54,12 +67,17 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/categorias", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/categorias",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var body = await response.Content.ReadFromJsonAsync<CategoriaConsultarDTO>();
+        var body = await response.Content
+            .ReadFromJsonAsync<CategoriaConsultarDTO>();
+
         body.Should().NotBeNull();
         body!.Descricao.Should().Be("Alimentacao");
         body.Finalidade.Should().Be(FinalidadeCategoria.Despesa);
@@ -77,7 +95,9 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<IEnumerable<CategoriaConsultarDTO>>();
+        var body = await response.Content
+            .ReadFromJsonAsync<IEnumerable<CategoriaConsultarDTO>>();
+
         body.Should().NotBeNull();
     }
 
@@ -93,11 +113,18 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
             Finalidade = FinalidadeCategoria.Despesa
         };
 
-        var criar = await _client.PostAsJsonAsync("/api/categorias", dto);
-        var categoriaCriada = await criar.Content.ReadFromJsonAsync<CategoriaConsultarDTO>();
+        var criar = await _client.PostAsJsonAsync(
+            "/api/categorias",
+            dto
+        );
+
+        var categoriaCriada = await criar.Content
+            .ReadFromJsonAsync<CategoriaConsultarDTO>();
 
         // Act
-        var response = await _client.DeleteAsync($"/api/categorias/{categoriaCriada!.Id}");
+        var response = await _client.DeleteAsync(
+            $"/api/categorias/{categoriaCriada!.Id}"
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -109,12 +136,17 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         // Arrange
         await AutorizarClienteAsync();
 
-        var criar = await _client.PostAsJsonAsync("/api/categorias", new CategoriaIncluirDTO
-        {
-            Descricao = "Lazer",
-            Finalidade = FinalidadeCategoria.Despesa
-        });
-        var categoriaCriada = await criar.Content.ReadFromJsonAsync<CategoriaConsultarDTO>();
+        var criar = await _client.PostAsJsonAsync(
+            "/api/categorias",
+            new CategoriaIncluirDTO
+            {
+                Descricao = "Lazer",
+                Finalidade = FinalidadeCategoria.Despesa
+            }
+        );
+
+        var categoriaCriada = await criar.Content
+            .ReadFromJsonAsync<CategoriaConsultarDTO>();
 
         var atualizar = new CategoriaAlterarDTO
         {
@@ -123,14 +155,20 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync($"/api/categorias/{categoriaCriada!.Id}", atualizar);
+        var response = await _client.PutAsJsonAsync(
+            $"/api/categorias/{categoriaCriada!.Id}",
+            atualizar
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var body = await response.Content.ReadFromJsonAsync<CategoriaConsultarDTO>();
+        var body = await response.Content
+            .ReadFromJsonAsync<CategoriaConsultarDTO>();
+
         body!.Descricao.Should().Be("Lazer e Entretenimento");
     }
+
     [Fact]
     public async Task GetById_CategoriaInexistente_DeveRetornar404()
     {
@@ -157,7 +195,10 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/categorias/99999", dto);
+        var response = await _client.PutAsJsonAsync(
+            "/api/categorias/99999",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -184,12 +225,15 @@ public class CategoriaControllerTests : IClassFixture<CustomWebApplicationFactor
 
         var dto = new CategoriaIncluirDTO
         {
-            Descricao = "A", 
+            Descricao = "A",
             Finalidade = FinalidadeCategoria.Despesa
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/categorias", dto);
+        var response = await _client.PostAsJsonAsync(
+            "/api/categorias",
+            dto
+        );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

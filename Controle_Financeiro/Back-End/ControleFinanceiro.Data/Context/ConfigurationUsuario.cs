@@ -17,7 +17,7 @@ namespace ControleFinanceiro.Infraestructure.Data
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.Property(u => u.Idade)
+            builder.Property(u => u.DataNascimento)
                    .IsRequired();
 
             //  Relacionamento 1 -> N (Usuário tem várias Transações)
