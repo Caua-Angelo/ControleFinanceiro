@@ -9,7 +9,7 @@ namespace ControleFinanceiro.Domain.Models
 
         public string Nome { get; private set; } = null!;
 
-        public int Idade { get; private set; }
+        public DateTime DataNascimento { get; private set; }
 
         public ICollection<Transacao> Transacao { get; private set; } = new List<Transacao>();
 
@@ -19,15 +19,15 @@ namespace ControleFinanceiro.Domain.Models
 
         protected Usuario() { }
 
-        public Usuario(string nome, int idade, string email,string senhaHash)
+        public Usuario(string nome, DateTime dataNascimento, string email, string senhaHash)
         {
-            ValidateDomain(nome, idade,email);
+            ValidateDomain(nome, dataNascimento, email);
             HashSenha = senhaHash;
         }
 
-        public void Update(string nome, int idade)
+        public void Update(string nome, DateTime dataNascimento)
         {
-            ValidateDomain(nome, idade,Email);
+            ValidateDomain(nome, dataNascimento, Email);
         }
         public void AlterarSenha(string novaSenhaHash)
         {
@@ -38,7 +38,7 @@ namespace ControleFinanceiro.Domain.Models
         }
 
 
-        private void ValidateDomain(string nome, int idade,string email)
+        private void ValidateDomain(string nome, DateTime dataNascimento, string email)
         {
             nome = nome?.Trim() ?? string.Empty;
 
@@ -48,11 +48,11 @@ namespace ControleFinanceiro.Domain.Models
             DomainExceptionValidation.When(nome.Length < 3 || nome.Length > 60,
                 "O nome do usuário deve ter entre 3 e 60 caracteres.");
 
-            DomainExceptionValidation.When(!Regex.IsMatch(nome, @"^[\p{L}\s]+$"),
+            DomainExceptionValidation.When(!Regex.IsMatch(nome, @"^[\p{L}\s'-]+$"),
                 "O nome do usuário deve conter apenas letras.");
 
-            DomainExceptionValidation.When(idade <= 0,
-                "A idade deve ser um número inteiro positivo.");
+            DomainExceptionValidation.When(dataNascimento.Date >= DateTime.Today,
+                "A data de nascimento não pode ser uma data futura.");
 
             email = email?.Trim() ?? string.Empty;
 
@@ -63,8 +63,8 @@ namespace ControleFinanceiro.Domain.Models
                 "O e-mail informado não é válido.");
 
             Nome = nome;
-            Idade = idade;
-            Email = email;
+            DataNascimento = dataNascimento;
+            Email = email.ToLower();
         }
     }
 }
