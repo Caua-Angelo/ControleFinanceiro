@@ -15,7 +15,7 @@ namespace ControleFinanceiro.Application.Mapping
             CreateMap<UsuarioIncluirDTO, Usuario>()
              .ConstructUsing(dto => new Usuario(
                  dto.Nome,
-                 dto.Idade,
+                 dto.DataNascimento,
                  dto.Email,
                  BCrypt.Net.BCrypt.HashPassword(dto.Senha)
              ));
