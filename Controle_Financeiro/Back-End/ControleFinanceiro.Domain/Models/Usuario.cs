@@ -49,7 +49,7 @@ namespace ControleFinanceiro.Domain.Models
                 "O nome do usuário deve ter entre 3 e 60 caracteres.");
 
             DomainExceptionValidation.When(!Regex.IsMatch(nome, @"^[\p{L}\s'-]+$"),
-                "O nome do usuário deve conter apenas letras.");
+                "O nome do usuário contém caracteres inválidos.");
 
             DomainExceptionValidation.When(dataNascimento.Date >= DateTime.Today,
                 "A data de nascimento não pode ser uma data futura.");
