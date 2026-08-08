@@ -38,7 +38,7 @@ export function LoginPage() {
             <label className="block text-sm text-gray-700 mb-1">Email</label>
             <input
               type="email"
-              placeholder="seu@email.com"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9DB4AB]"
@@ -63,6 +63,17 @@ export function LoginPage() {
           <button type="submit" className="w-full bg-[#7A9D8F] text-white py-2 rounded hover:bg-[#5A7067] transition" disabled={isLoading}>
             {isLoading ? "Entrando..." : "Entrar"}
           </button>
+          <div>
+            {/* Botão de entrar */}
+            <button
+              type="button"
+              className="w-full bg-[#7A9D8F] text-white py-2 rounded hover:bg-[#5A7067] transition"
+              onClick={() => navigate("/register")}
+              disabled={isLoading}
+            >
+              {"Registrar-se"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

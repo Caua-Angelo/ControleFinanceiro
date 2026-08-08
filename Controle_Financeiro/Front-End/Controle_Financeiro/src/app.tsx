@@ -6,12 +6,14 @@ import Layout from "./Components/layout.tsx";
 import { LoginPage } from "./Pages/LoginPage.tsx";
 import { PrivateRoute } from "./routes/PrivateRoute";
 import { Toaster } from "react-hot-toast";
+import { RegisterPage } from "./Pages/RegisterPage.tsx";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route
           path="/"
