@@ -12,6 +12,16 @@ export async function login(email: string, senha: string) {
 
   return token;
 }
+export async function Register(nome: string, dataNascimento: string, email: string, senha: string) {
+  const response = await api.post("/auth/register", {
+    nome,
+    dataNascimento,
+    email,
+    senha,
+  });
+  console.log("resposta", response);
+  return response;
+}
 
 export function logout() {
   localStorage.removeItem("token");
