@@ -19,7 +19,6 @@ export async function Register(nome: string, dataNascimento: string, email: stri
     email,
     senha,
   });
-  console.log("resposta", response);
   return response;
 }
 
