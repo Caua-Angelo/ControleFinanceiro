@@ -4,10 +4,16 @@ export interface UsuarioUpdateRequest {
   nome: string;
   idade: number;
 }
+export interface UsuarioLogadoResponse {
+  id: number;
+  nome: string;
+  idade: number;
+  email: string;
+}
 
 export async function getUsuarioLogado() {
   const response = await api.get("/usuarios/me");
-  return response.data;
+  return response.data as UsuarioLogadoResponse;
 }
 
 export async function atualizarUsuario(data: UsuarioUpdateRequest) {

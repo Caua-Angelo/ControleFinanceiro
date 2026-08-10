@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { criarTransacao, listarTransacoes, deletarTransacao, alterarTransacao, type TransacaoRequest } from "../Services/TransacaoService";
 import { consultarCategoria } from "../Services/CategoriaService";
-import { getUsuarioLogado } from "../Services/UsuarioService";
+import { getUsuarioLogado, type UsuarioLogadoResponse } from "../Services/UsuarioService";
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
 import type { TransacaoResponse } from "../Types/TransacaoResponse";
 import { Button } from "../Components/Button";
+import dayjs from "dayjs";
 
 export default function Transacao() {
   const [descricao, setDescricao] = useState("");
@@ -16,7 +17,7 @@ export default function Transacao() {
 
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
   const [categorias, setCategorias] = useState<CategoriaResponse[]>([]);
-  const [usuario, setUsuario] = useState<{ idade: number } | null>(null);
+  const [usuario, setUsuario] = useState<UsuarioLogadoResponse | null>(null);
 
   const [showModal, setShowModal] = useState(false);
   const [transacaoSelecionada, setTransacaoSelecionada] = useState<TransacaoResponse | null>(null);
@@ -66,9 +67,13 @@ export default function Transacao() {
         toast.error("Preencha todos os campos");
         return;
       }
+      if (!usuario?.id) {
+        toast.error("Usuário não encontrado");
+        return;
+      }
 
       const valorNumerico = Number(valor.replace(",", "."));
-
+      const dataFormatada = dayjs(data).format("YYYY-MM-DD");
       if (valorNumerico <= 0) {
         toast.error("Valor inválido");
         return;
@@ -80,8 +85,8 @@ export default function Transacao() {
         valor: valorNumerico,
         tipo: Number(tipo),
         categoriaId: Number(categoriaId),
-        data: new Date(data).toISOString(),
-        usuarioId: 0, // TEMPORÁRIO
+        data: dataFormatada,
+        usuarioId: usuario.id,
       };
 
       await criarTransacao(payload);
@@ -137,19 +142,23 @@ export default function Transacao() {
 
   async function editarTransacao() {
     if (!transacaoSelecionada) return;
-
+    if (!usuario?.id) {
+      toast.error("Usuário não encontrado");
+      return;
+    }
     try {
       setLoadingEditar(true);
 
       const valorNumerico = Number(valorEdit.replace(",", "."));
+      const dataFormatada = dayjs(dataEdit).format("YYYY-MM-DD");
 
       await alterarTransacao(transacaoSelecionada.id, {
         descricao: descricaoEdit,
         valor: valorNumerico,
         tipo: Number(tipoEdit),
         categoriaId: Number(categoriaIdEdit),
-        data: dataEdit,
-        usuarioId: 0,
+        data: dataFormatada,
+        usuarioId: usuario.id,
       });
 
       await listarTodasTransacoes();
