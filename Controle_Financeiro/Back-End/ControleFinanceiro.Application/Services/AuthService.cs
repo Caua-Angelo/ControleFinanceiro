@@ -35,6 +35,10 @@ namespace ControleFinanceiro.Application.Services
             if (existente is not null)
                 throw new InvalidOperationException("E-mail já cadastrado.");
 
+            if(dto.Senha.Length < 8)
+            {
+                throw new InvalidOperationException("A senha precisar ter no mínimo 8 caracteres.");
+            }
             var senhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha);
             var usuario = new Usuario(dto.Nome, dto.DataNascimento, dto.Email, senhaHash);
 
