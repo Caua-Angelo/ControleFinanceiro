@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { criarTransacao, listarTransacoes, deletarTransacao, alterarTransacao, type TransacaoRequest } from "../Services/TransacaoService";
 import { consultarCategoria } from "../Services/CategoriaService";
@@ -196,7 +196,7 @@ export default function Transacao() {
       <div className=" bg-[#F5F7F6] rounded-lg p-6 max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
         <h2 className="text-3xl font-semibold mb-6 text-[#2F4F4F]">Adicionar Nova Transação</h2>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="descricao" className="text-xl text-[#2F4F4F] mb-2">
               Descrição
@@ -250,7 +250,7 @@ export default function Transacao() {
             </select>
           </div>
 
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <label htmlFor="categoria" className="text-xl text-[#2F4F4F] mb-2">
               Categoria
             </label>
@@ -269,63 +269,127 @@ export default function Transacao() {
             </select>
           </div>
 
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <Button onClick={CriarTransacao} label={loadingCriar ? "Salvando..." : "Criar Transação"} variant="primary" disabled={loadingCriar} />
           </div>
         </div>
       </div>
 
-      {/* LISTA */}
-      <div className="mt-6 bg-[#F5F7F6] p-6 rounded-xl max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-        <h2 className="text-3xl mb-4 text-[#2F4F4F]">Lista de Transações</h2>
+      {/* LISTA DE TRANSAÇÕES */}
+      <div className="mt-6 bg-[#F5F7F6] rounded-lg p-6 max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5">
+        <h2 className="text-3xl font-semibold mb-6 text-[#2F4F4F]">Lista de Transações</h2>
 
-        {/* HEADER */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_180px] font-semibold text-[#2F4F4F] mb-2 px-4">
+        {/* CABEÇALHO DESKTOP */}
+        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_180px] font-semibold text-[#2F4F4F] mb-2 px-4">
           <div>Descrição</div>
           <div>Valor</div>
           <div>Data</div>
           <div>Tipo</div>
-          <div className="text-left pl-14">Ações</div>
+          <div className="text-left pl-4">Ações</div>
         </div>
 
         {/* LINHAS */}
         {transacoes.map((t, index) => (
-          <div
-            key={t.id}
-            className={`
-        grid grid-cols-[2fr_1fr_1fr_1fr_180px] items-center px-4 py-3 mb-2 rounded border border-[#C8D6D1]
-        ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
-        hover:bg-[#E8EFED]
-      `}
-          >
-            {/* DESCRIÇÃO */}
-            <div className="font-medium text-[#2F4F4F]">{t.descricao}</div>
-            <div>{formatarValor(t.valor, t.tipo)}</div>
-            <div>{formatarData(t.data)}</div>
-            <div>{t.tipo === 1 ? "Receita" : "Despesa"}</div>
-            <div className="flex justify-start gap-2 pl-4">
-              <Button onClick={() => abrirModalEditar(t)} label="Editar" variant="edit" disabled={loadingEditar} />
-              <Button
-                onClick={() => DeletarTransacao(t.id)}
-                label={deletingId === t.id ? "Excluindo..." : "Excluir"}
-                variant="delete"
-                disabled={deletingId === t.id}
-              />
+          <Fragment key={t.id}>
+            {/* DESKTOP */}
+            <div
+              className={`
+          hidden md:grid
+          grid-cols-[2fr_1fr_1fr_1fr_180px]
+          items-center
+          px-4 py-3
+          mb-2
+          rounded
+          border border-[#C8D6D1]
+          ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
+          hover:bg-[#E8EFED]
+        `}
+            >
+              {/* DESCRIÇÃO */}
+              <div className="font-medium text-[#2F4F4F]">{t.descricao}</div>
+
+              {/* VALOR */}
+              <div>{formatarValor(t.valor, t.tipo)}</div>
+
+              {/* DATA */}
+              <div>{formatarData(t.data)}</div>
+
+              {/* TIPO */}
+              <div>{t.tipo === 1 ? "Receita" : "Despesa"}</div>
+
+              {/* AÇÕES */}
+              <div className="flex justify-start gap-2 pl-4">
+                <Button onClick={() => abrirModalEditar(t)} label="Editar" variant="edit" disabled={loadingEditar} />
+
+                <Button
+                  onClick={() => DeletarTransacao(t.id)}
+                  label={deletingId === t.id ? "Excluindo..." : "Excluir"}
+                  variant="delete"
+                  disabled={deletingId === t.id}
+                />
+              </div>
             </div>
-          </div>
+
+            {/* MOBILE */}
+            <div
+              className={`
+          md:hidden
+          p-4
+          mb-3
+          rounded-lg
+          border border-[#C8D6D1]
+          ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
+        `}
+            >
+              {/* DESCRIÇÃO */}
+              <div className="font-semibold text-lg text-[#2F4F4F] mb-4">{t.descricao}</div>
+
+              {/* INFORMAÇÕES */}
+              <div className="space-y-2 text-[#2F4F4F]">
+                <div className="flex justify-between gap-4">
+                  <span className="font-medium">Valor</span>
+
+                  <span>{formatarValor(t.valor, t.tipo)}</span>
+                </div>
+
+                <div className="flex justify-between gap-4">
+                  <span className="font-medium">Data</span>
+
+                  <span>{formatarData(t.data)}</span>
+                </div>
+
+                <div className="flex justify-between gap-4">
+                  <span className="font-medium">Tipo</span>
+
+                  <span>{t.tipo === 1 ? "Receita" : "Despesa"}</span>
+                </div>
+              </div>
+
+              {/* AÇÕES */}
+              <div className="flex gap-2 mt-4">
+                <Button onClick={() => abrirModalEditar(t)} label="Editar" variant="edit" disabled={loadingEditar} />
+
+                <Button
+                  onClick={() => DeletarTransacao(t.id)}
+                  label={deletingId === t.id ? "Excluindo..." : "Excluir"}
+                  variant="delete"
+                  disabled={deletingId === t.id}
+                />
+              </div>
+            </div>
+          </Fragment>
         ))}
       </div>
-
-      {/* MODAL */}
       {showModal && transacaoSelecionada && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 border border-[#9DB4AB]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md border border-[#9DB4AB]">
             <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Editar Transação</h2>
 
             <div>
               <label htmlFor="input-descricao" className="block mb-1 text-[#2F4F4F]">
                 Descrição
               </label>
+
               <input
                 id="input-descricao"
                 className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
@@ -338,6 +402,7 @@ export default function Transacao() {
               <label htmlFor="input-valor" className="block mb-1 text-[#2F4F4F]">
                 Valor
               </label>
+
               <input
                 id="input-valor"
                 className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
@@ -350,6 +415,7 @@ export default function Transacao() {
               <label htmlFor="input-data" className="block mb-1 text-[#2F4F4F]">
                 Data
               </label>
+
               <input
                 id="input-data"
                 type="date"
@@ -361,7 +427,8 @@ export default function Transacao() {
 
             <div className="flex justify-center gap-2">
               <Button onClick={editarTransacao} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
-              <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
+
+              <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal" />
             </div>
           </div>
         </div>
