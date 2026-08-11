@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { criarCategoria, consultarCategoria, deletarCategoria, alterarCategoria } from "../Services/CategoriaService";
 import { Finalidade } from "../Types/Finalidade";
@@ -144,7 +144,7 @@ export default function Categoria() {
           <hr className="mb-4 border-[#9DB4AB]"></hr>
 
           <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Descrição */}
               <div>
                 <label htmlFor="input-descricao" className="text-xl text-[#2F4F4F] mb-2">
@@ -192,50 +192,97 @@ export default function Categoria() {
         {/* Card de Listar Categorias */}
         <div className="mt-6 bg-[#F5F7F6] p-6 rounded-xl max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5 transition-shadow duration-200 ease-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
           <h2 className="text-3xl font-semibold mb-4 text-[#2F4F4F]">Lista de Categorias</h2>
-          <hr className="mb-4 border-[#9DB4AB]"></hr>
 
-          <div className="grid grid-cols-[1fr_1fr_180px] gap-4 mb-2 px-4">
+          <hr className="mb-4 border-[#9DB4AB]" />
+
+          {/* CABEÇALHO DESKTOP */}
+          <div className="hidden md:grid grid-cols-[1fr_1fr_180px] gap-4 mb-2 px-4">
             <h3 className="text-xl text-[#2F4F4F]">Descrição</h3>
+
             <h3 className="text-xl text-[#2F4F4F]">Finalidade</h3>
+
             <h3 className="text-xl text-left pl-10 text-[#2F4F4F]">Ações</h3>
           </div>
 
           {categorias.length > 0 ? (
-            <div className="space-y-2 h-80">
+            <div className="space-y-2 md:h-80">
               {categoriasPaginadas.map((categoria, index) => (
-                <div
-                  key={categoria.id}
-                  className={`
-                  grid grid-cols-[1fr_1fr_180px] items-center px-4 py-3 rounded-lg border border-[#C8D6D1]
-                  transition
-                  ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
-                  hover:bg-[#E8EFED]
-                `}
-                >
-                  {/* DESCRIÇÃO */}
-                  <div className="font-medium text-[#2F4F4F]">{categoria.descricao}</div>
+                <Fragment key={categoria.id}>
+                  {/* DESKTOP */}
+                  <div
+                    className={`
+              hidden md:grid
+              grid-cols-[1fr_1fr_180px]
+              items-center
+              px-4
+              py-3
+              rounded-lg
+              border border-[#C8D6D1]
+              transition
+              ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
+              hover:bg-[#E8EFED]
+            `}
+                  >
+                    {/* DESCRIÇÃO */}
+                    <div className="font-medium text-[#2F4F4F]">{categoria.descricao}</div>
 
-                  {/* FINALIDADE */}
-                  <div className="text-[#5A7067]">{Finalidade[categoria.finalidade]}</div>
+                    {/* FINALIDADE */}
+                    <div className="text-[#5A7067]">{Finalidade[categoria.finalidade]}</div>
 
-                  {/* AÇÕES */}
-                  <div className="flex justify-end gap-2 pr-2">
-                    <Button onClick={() => abrirModalEditar(categoria)} label="Editar" variant="edit" />
-                    <Button
-                      onClick={() => DeletarCategoria(categoria.id)}
-                      label={deletingId === categoria.id ? "Excluindo..." : "Excluir"}
-                      variant="delete"
-                      disabled={deletingId === categoria.id}
-                    />
+                    {/* AÇÕES */}
+                    <div className="flex justify-end gap-2 pr-2">
+                      <Button onClick={() => abrirModalEditar(categoria)} label="Editar" variant="edit" />
+
+                      <Button
+                        onClick={() => DeletarCategoria(categoria.id)}
+                        label={deletingId === categoria.id ? "Excluindo..." : "Excluir"}
+                        variant="delete"
+                        disabled={deletingId === categoria.id}
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  {/* MOBILE */}
+                  <div
+                    className={`
+              md:hidden
+              p-4
+              rounded-lg
+              border border-[#C8D6D1]
+              ${index % 2 === 0 ? "bg-white" : "bg-[#F5F7F6]"}
+            `}
+                  >
+                    {/* DESCRIÇÃO */}
+                    <div className="font-semibold text-lg text-[#2F4F4F] mb-3">{categoria.descricao}</div>
+
+                    {/* FINALIDADE */}
+                    <div className="flex justify-between gap-4 text-[#5A7067]">
+                      <span className="font-medium">Finalidade</span>
+
+                      <span>{Finalidade[categoria.finalidade]}</span>
+                    </div>
+
+                    {/* AÇÕES */}
+                    <div className="flex gap-2 mt-4">
+                      <Button onClick={() => abrirModalEditar(categoria)} label="Editar" variant="edit" />
+
+                      <Button
+                        onClick={() => DeletarCategoria(categoria.id)}
+                        label={deletingId === categoria.id ? "Excluindo..." : "Excluir"}
+                        variant="delete"
+                        disabled={deletingId === categoria.id}
+                      />
+                    </div>
+                  </div>
+                </Fragment>
               ))}
             </div>
           ) : (
             <p className="text-[#89A49D] text-center">Nenhuma categoria encontrada</p>
           )}
 
-          <div className="flex justify-center">
+          {/* PAGINAÇÃO */}
+          <div className="flex justify-center mt-4">
             <Button
               label=""
               variant="paginacao"
@@ -243,54 +290,54 @@ export default function Categoria() {
               paginaAtual={paginaAtual}
               totalPaginas={totalPaginas}
               setPaginaAtual={setPaginaAtual}
-            ></Button>
+            />
           </div>
         </div>
+
+        {/* Modal de Edição */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-6 rounded-lg w-full max-w-md border border-[#9DB4AB]">
+              <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Editar Categoria</h2>
+
+              <div className="mb-4">
+                <label htmlFor="input-descricao" className="block mb-1 text-[#2F4F4F]">
+                  Descrição
+                </label>
+                <input
+                  id="input-descricao"
+                  type="text"
+                  value={descricaoEdit}
+                  onChange={(e) => setDescricaoEdit(e.target.value)}
+                  className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="select-finalidade" className="block mb-1 text-[#2F4F4F]">
+                  Finalidade
+                </label>
+                <select
+                  id="select-finalidade"
+                  value={finalidadeEdit}
+                  onChange={(e) => setFinalidadeEdit(e.target.value === "" ? "" : Number(e.target.value))}
+                  className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
+                >
+                  <option value="">Selecione</option>
+                  <option value={Finalidade.Despesa}>Despesa</option>
+                  <option value={Finalidade.Receita}>Receita</option>
+                  <option value={Finalidade.Ambas}>Ambas</option>
+                </select>
+              </div>
+
+              <div className="flex justify-center gap-2">
+                <Button onClick={editarCategoria} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
+                <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Modal de Edição */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 border border-[#9DB4AB]">
-            <h2 className="text-2xl font-semibold mb-4 text-[#2F4F4F]">Editar Categoria</h2>
-
-            <div className="mb-4">
-              <label htmlFor="input-descricao" className="block mb-1 text-[#2F4F4F]">
-                Descrição
-              </label>
-              <input
-                id="input-descricao"
-                type="text"
-                value={descricaoEdit}
-                onChange={(e) => setDescricaoEdit(e.target.value)}
-                className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="select-finalidade" className="block mb-1 text-[#2F4F4F]">
-                Finalidade
-              </label>
-              <select
-                id="select-finalidade"
-                value={finalidadeEdit}
-                onChange={(e) => setFinalidadeEdit(e.target.value === "" ? "" : Number(e.target.value))}
-                className="w-full border border-[#9DB4AB] p-2 rounded focus:outline-none focus:border-[#7A9D8F]"
-              >
-                <option value="">Selecione</option>
-                <option value={Finalidade.Despesa}>Despesa</option>
-                <option value={Finalidade.Receita}>Receita</option>
-                <option value={Finalidade.Ambas}>Ambas</option>
-              </select>
-            </div>
-
-            <div className="flex justify-center gap-2">
-              <Button onClick={editarCategoria} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
-              <Button onClick={() => setShowModal(false)} label="Cancelar" variant="cancelModal"></Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,58 +1,101 @@
 import { Link, Outlet } from "react-router-dom";
+import { useState } from "react";
+
 import category from "../assets/category.png";
 import Finance from "../assets/finance.png";
 import transaction from "../assets/transaction.png";
 import logo from "../assets/logo.png";
 
 export default function Layout() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   function logout() {
     localStorage.removeItem("token");
     window.location.href = "/login";
   }
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
   return (
-    <div className="h-screen w-full flex bg-[#9DB4AB]">
-      {/* Menu lateral */}
-      <aside className="w-72 bg-[#2F4F4F]/90 backdrop-blur-sm text-white p-5 flex flex-col shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
-        <div className="mb-8 flex flex-col items-center">
-          <img src={logo} alt="Logo" className="w-12 h-12" />
-          <h2 className="text-xl font-semibold mb-4">Controle Financeiro</h2>
-        </div>
-        <div className="ml-4">
-          <Link to="/" className={` ${menuLink} flex items-center`}>
-            <img src={Finance} alt="Logo" className="w-6 h-6 mr-2" /> Resumo
-          </Link>
-        </div>
+    <div className="min-h-screen w-full flex flex-col">
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 bg-[#3F6464] shadow-md">
+        <nav className="px-4 md:px-8 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo / Nome */}
+            <Link to="/" onClick={closeMenu} className="flex items-center text-white">
+              <img src={logo} alt="Controle Financeiro" className="w-10 h-10 mr-2" />
 
-        <div className="ml-4">
-          <Link to="/categoria" className={`${menuLink} flex items-center`}>
-            <img src={category} alt="Logo" className="w-6 h-6 mr-2" /> Categorias
-          </Link>
-        </div>
-        <div className="ml-4">
-          <Link to="/transacao" className={`${menuLink} flex items-center`}>
-            <img src={transaction} alt="Logo" className="w-6 h-6 mr-2" /> Transações
-          </Link>
-        </div>
-        <button
-          onClick={logout}
-          className=" mt-auto fundo [#7A9D8F] hover:bg-[#5A7067] px-3 py-2 rounded text-white text-2xl flex items-center justify-center"
-        >
-          Sair
-        </button>
-      </aside>
+              <span className="font-semibold text-xl">Controle Financeiro</span>
+            </Link>
 
-      {/* Área principal */}
-      <div className="flex flex-col flex-1">
-        {/* Conteúdo */}
-        <main className="flex-1 overflow-y-auto p-6 backdrop-blur-sm">
-          <Outlet />
-        </main>
+            {/* Menu desktop */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link to="/" className={menuLink}>
+                <img src={Finance} alt="" className="w-6 h-6" />
+                Resumo
+              </Link>
 
-        {/* Footer */}
-        <footer className="h-10 text-white flex items-center justify-center text-sm backdrop-blur-sm">Controle Financeiro</footer>
-      </div>
+              <Link to="/categoria" className={menuLink}>
+                <img src={category} alt="" className="w-6 h-6" />
+                Categorias
+              </Link>
+
+              <Link to="/transacao" className={menuLink}>
+                <img src={transaction} alt="" className="w-6 h-6" />
+                Transações
+              </Link>
+
+              <button onClick={logout} className="px-3 py-2 rounded text-white hover:bg-[#5A7067] transition-colors">
+                Sair
+              </button>
+            </div>
+
+            {/* Botão mobile */}
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-white text-2xl px-2" aria-label="Abrir menu">
+              ☰
+            </button>
+          </div>
+
+          {/* Menu mobile */}
+          {menuOpen && (
+            <div className="md:hidden mt-4 flex flex-col gap-2 border-t border-white/20 pt-3">
+              <Link to="/" onClick={closeMenu} className={mobileMenuLink}>
+                <img src={Finance} alt="" className="w-6 h-6" />
+                Resumo
+              </Link>
+
+              <Link to="/categoria" onClick={closeMenu} className={mobileMenuLink}>
+                <img src={category} alt="" className="w-6 h-6" />
+                Categorias
+              </Link>
+
+              <Link to="/transacao" onClick={closeMenu} className={mobileMenuLink}>
+                <img src={transaction} alt="" className="w-6 h-6" />
+                Transações
+              </Link>
+
+              <button onClick={logout} className="text-left px-3 py-2 rounded text-white hover:bg-[#5A7067] transition-colors">
+                Sair
+              </button>
+            </div>
+          )}
+        </nav>
+      </header>
+
+      {/* Conteúdo */}
+      <main className="flex-1 p-4 md:p-6 backdrop-blur-sm">
+        <Outlet />
+      </main>
+
+      {/* Footer */}
+      <footer className="h-10 text-white flex items-center justify-center text-sm backdrop-blur-sm">Controle Financeiro</footer>
     </div>
   );
 }
 
-const menuLink = "mb-2 px-2 py-1 rounded hover:bg-gray-600 transition-colors text-2xl";
+const menuLink = "flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-[#5A7067] transition-colors";
+
+const mobileMenuLink = "flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-[#5A7067] transition-colors";

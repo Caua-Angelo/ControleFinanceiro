@@ -238,14 +238,14 @@ export default function RelatorioFinanceiro() {
   }
 
   return (
-    <div>
+    <div className="w-full max-w-full overflow-x-hidden">
       {/* RESUMO GERAL */}
       <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
         <div className="flex items-center justify-between mb-4 gap-6">
           <h2 className="text-3xl font-semibold text-[#2F4F4F]">Resumo Geral</h2>
 
           {/* FILTROS */}
-          <div className="flex items-end gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
             {/* MÊS */}
             <div className="flex flex-col">
               <label htmlFor="select-mes" className="text-xs text-[#5A7067] mb-1">
@@ -296,7 +296,7 @@ export default function RelatorioFinanceiro() {
 
         <hr className="mb-4 border-[#9DB4AB]" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
           <div className="text-center p-6 bg-white rounded-lg border border-[#C8D6D1]">
             <p className="text-[#5A7067] mb-2">Receitas</p>
             <p className="text-green-600 font-bold text-2xl">{formatarValor(totalGeralReceitas)}</p>
@@ -317,11 +317,11 @@ export default function RelatorioFinanceiro() {
       </div>
       {/* GRÁFICO EVOLUÇÃO */}
       <div className="bg-[#F5F7F6] rounded-lg p-4 mb-4 border border-black/5 shadow">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-2xl font-semibold text-[#2F4F4F]">Evolução do Patrimônio</h2>
 
           {/* FILTRO DE PERÍODO */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {[3, 6, 12].map((p) => (
               <button
                 key={p}
@@ -335,7 +335,7 @@ export default function RelatorioFinanceiro() {
           </div>
         </div>
 
-        <div className="w-full h-[250px]">
+        <div className="w-full h-[280px] md:h-[320px]">
           <ResponsiveContainer>
             <BarChart data={dadosPorMes} barGap={8}>
               <XAxis dataKey="mes" />
@@ -356,7 +356,7 @@ export default function RelatorioFinanceiro() {
 
       {/* ÚLTIMAS TRANSAÇÕES */}
       <div className="bg-[#F5F7F6] rounded-lg p-3 mb-4 border border-black/5 shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
           <h2 className="text-2xl font-semibold text-[#2F4F4F]">Últimas Transações</h2>
 
           <button onClick={() => navigate("/transacao")} className="text-sm text-[#2F4F4F] hover:underline">
@@ -382,9 +382,17 @@ export default function RelatorioFinanceiro() {
             {ultimasTransacoes.map((t) => (
               <div
                 key={t.id}
-                className={`flex justify-between items-center p-4 rounded border transition ${
-                  t.id === maiorTransacaoId ? "bg-[#EEF5F2] border-[#7A9D8F] shadow-md" : "bg-white border-[#C8D6D1]"
-                }`}
+                className={`
+    flex flex-col sm:flex-row
+    sm:justify-between
+    sm:items-center
+    gap-3
+    p-4
+    rounded
+    border
+    transition
+    ${t.id === maiorTransacaoId ? "bg-[#EEF5F2] border-[#7A9D8F] shadow-md" : "bg-white border-[#C8D6D1]"}
+  `}
               >
                 <div>
                   <p className="font-semibold text-[#2F4F4F] flex items-center gap-2">
@@ -394,7 +402,14 @@ export default function RelatorioFinanceiro() {
                   <p className="text-sm text-[#5A7067]">{new Date(t.data).toLocaleDateString("pt-BR")}</p>
                 </div>
 
-                <p className={`font-bold ${t.tipo === 1 ? "text-green-600" : "text-red-600"}`}>
+                <p
+                  className={`
+    font-bold
+    whitespace-nowrap
+    sm:text-right
+    ${t.tipo === 1 ? "text-green-600" : "text-red-600"}
+  `}
+                >
                   {t.tipo === 1 ? "+" : "-"} {formatarValor(t.valor)}
                 </p>
               </div>
