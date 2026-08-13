@@ -3,6 +3,7 @@ using ControleFinanceiro.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 namespace ControleFinanceiro.API.Controllers
 {
@@ -25,7 +26,8 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ListarCategorias")]
         public async Task<ActionResult<IEnumerable<CategoriaConsultarDTO>>> Get()
         {
-            var categorias = await _categoriaService.ListAsync();
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var categorias = await _categoriaService.ListAsync(usuarioId);
             return Ok(categorias);
         }
 
@@ -36,7 +38,8 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ConsultarCategoriaPorId")]
         public async Task<ActionResult<CategoriaConsultarDTO>> GetById(int id)
         {
-            var categoria = await _categoriaService.GetByIdAsync(id);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var categoria = await _categoriaService.GetByIdAsync(id, usuarioId);
             return Ok(categoria);
         }
 
@@ -48,7 +51,8 @@ namespace ControleFinanceiro.API.Controllers
         public async Task<ActionResult<CategoriaConsultarDTO>> Post(
             [FromBody] CategoriaIncluirDTO dto)
         {
-            var categoria = await _categoriaService.AddAsync(dto);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var categoria = await _categoriaService.AddAsync(dto, usuarioId);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -66,7 +70,8 @@ namespace ControleFinanceiro.API.Controllers
             int id,
             [FromBody] CategoriaAlterarDTO dto)
         {
-            var categoria = await _categoriaService.UpdateAsync(id, dto);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var categoria = await _categoriaService.UpdateAsync(id, dto, usuarioId);
             return Ok(categoria);
         }
 
@@ -77,7 +82,8 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ExcluirCategoria")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _categoriaService.DeleteAsync(id);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _categoriaService.DeleteAsync(id, usuarioId);
             return NoContent();
         }
     }

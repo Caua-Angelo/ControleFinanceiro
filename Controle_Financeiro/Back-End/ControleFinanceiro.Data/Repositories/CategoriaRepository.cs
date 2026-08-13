@@ -14,18 +14,21 @@ namespace ControleFinanceiro.Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Categoria>> ListAsync()
+        public async Task<IEnumerable<Categoria>> ListAsync(int usuarioId)
         {
             return await _context.Set<Categoria>()
                 .AsNoTracking()
+                .Where(c => c.UsuarioId == null || c.UsuarioId == usuarioId)
                 .ToListAsync();
         }
 
-        public async Task<Categoria?> GetByIdAsync(int id)
+        public async Task<Categoria?> GetByIdAsync(int id, int usuarioId)
         {
             return await _context.Set<Categoria>()
                 .Include(c => c.Transacoes)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    (c.UsuarioId == null || c.UsuarioId == usuarioId));
         }
 
         public async Task AddAsync(Categoria categoria)
