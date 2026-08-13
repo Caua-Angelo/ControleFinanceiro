@@ -18,16 +18,16 @@ namespace ControleFinanceiro.Application.Services
         }
 
 
-        public async Task<IEnumerable<CategoriaConsultarDTO>> ListAsync()
+        public async Task<IEnumerable<CategoriaConsultarDTO>> ListAsync(int usuarioId)
         {
-            var categorias = await _categoriaRepository.ListAsync();
+            var categorias = await _categoriaRepository.ListAsync(usuarioId);
             return _mapper.Map<IEnumerable<CategoriaConsultarDTO>>(categorias);
         }
 
         
-        public async Task<CategoriaConsultarDTO> GetByIdAsync(int id)
+        public async Task<CategoriaConsultarDTO> GetByIdAsync(int id, int usuarioId)
         {
-            var categoria = await _categoriaRepository.GetByIdAsync(id);
+            var categoria = await _categoriaRepository.GetByIdAsync(id, usuarioId);
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
 
@@ -35,9 +35,10 @@ namespace ControleFinanceiro.Application.Services
         }
 
         
-        public async Task<CategoriaConsultarDTO> AddAsync(CategoriaIncluirDTO dto)
+        public async Task<CategoriaConsultarDTO> AddAsync(CategoriaIncluirDTO dto, int usuarioId)
         {
             var categoria = _mapper.Map<Categoria>(dto);
+            categoria.UsuarioId = usuarioId;
 
             await _categoriaRepository.AddAsync(categoria);
             await _categoriaRepository.SaveAsync();
@@ -46,11 +47,15 @@ namespace ControleFinanceiro.Application.Services
         }
 
         
-        public async Task<CategoriaConsultarDTO> UpdateAsync(int id, CategoriaAlterarDTO dto)
+        public async Task<CategoriaConsultarDTO> UpdateAsync(int id, CategoriaAlterarDTO dto, int usuarioId)
         {
-            var categoriaExistente = await _categoriaRepository.GetByIdAsync(id);
+            var categoriaExistente = await _categoriaRepository.GetByIdAsync(id, usuarioId);
             if (categoriaExistente == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
+
+            if (categoriaExistente.UsuarioId == null)
+                throw new InvalidOperationException(
+                    "Categorias básicas não podem ser alteradas.");
 
             categoriaExistente.Update(dto.Descricao, dto.Finalidade);
 
@@ -60,11 +65,15 @@ namespace ControleFinanceiro.Application.Services
         }
 
         
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int usuarioId)
         {
-            var categoria = await _categoriaRepository.GetByIdAsync(id);
+            var categoria = await _categoriaRepository.GetByIdAsync(id, usuarioId);
             if (categoria == null)
                 throw new KeyNotFoundException($"Categoria com ID {id} não encontrada.");
+
+            if (categoria.UsuarioId == null)
+                throw new InvalidOperationException(
+                    "Categorias básicas não podem ser excluídas.");
 
             if (categoria.Transacoes.Any())
             {
