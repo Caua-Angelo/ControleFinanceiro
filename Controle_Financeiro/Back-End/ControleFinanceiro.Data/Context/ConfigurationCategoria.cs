@@ -28,6 +28,12 @@ namespace ControleFinanceiro.Infraestructure.Data
                    .WithOne(t => t.Categoria)
                    .HasForeignKey(t => t.CategoriaId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            // Relacionamento N -> 1 (Categoria pertence a um Usuário)
+            builder.HasOne(c => c.Usuario)
+                   .WithMany(u => u.Categorias)
+                   .HasForeignKey(c => c.UsuarioId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
