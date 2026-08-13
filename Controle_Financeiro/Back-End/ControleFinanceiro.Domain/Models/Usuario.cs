@@ -17,7 +17,7 @@ namespace ControleFinanceiro.Domain.Models
 
         public string HashSenha { get; private set; } = null!;
 
-        public ICollection<Categoria> Categorias { get; set; }
+        public ICollection<Categoria> Categorias { get; private set; } = new List<Categoria>();
 
         protected Usuario() { }
 
