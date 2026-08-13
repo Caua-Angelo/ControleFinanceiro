@@ -70,7 +70,8 @@ namespace ControleFinanceiro.API.Controllers
             int id,
             [FromBody] CategoriaAlterarDTO dto)
         {
-            var categoria = await _categoriaService.UpdateAsync(id, dto);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var categoria = await _categoriaService.UpdateAsync(id, dto, usuarioId);
             return Ok(categoria);
         }
 
@@ -81,7 +82,8 @@ namespace ControleFinanceiro.API.Controllers
             OperationId = "ExcluirCategoria")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _categoriaService.DeleteAsync(id);
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _categoriaService.DeleteAsync(id, usuarioId);
             return NoContent();
         }
     }
