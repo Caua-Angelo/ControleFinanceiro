@@ -53,7 +53,7 @@ namespace ControleFinanceiro.Application.Services
             if (usuario == null)
                 throw new InvalidOperationException("Usuário não encontrado.");
 
-            var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId);
+            var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId, userId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
            
@@ -82,7 +82,7 @@ namespace ControleFinanceiro.Application.Services
             if (transacao.UsuarioId != userId)
                 throw new ForbiddenException("Acesso negado.");
 
-            var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId);
+            var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId, userId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
 
