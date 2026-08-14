@@ -12,7 +12,11 @@ export interface TransacaoRequest {
 
 export async function listarTransacoes(params?: { usuarioId?: number; categoriaId?: number }) {
   const response = await api.get("/transacoes", { params });
-  return response.data as TransacaoResponse[];
+  const data = response.data;
+  // normaliza resposta para sempre retornar um array
+  if (Array.isArray(data)) return data as TransacaoResponse[];
+  if (data && Array.isArray((data as any).data)) return (data as any).data as TransacaoResponse[];
+  return [] as TransacaoResponse[];
 }
 
 export async function consultarTransacaoPorId(id: number) {
