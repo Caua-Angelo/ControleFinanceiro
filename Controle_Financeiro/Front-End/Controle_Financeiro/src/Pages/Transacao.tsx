@@ -6,6 +6,8 @@ import { getUsuarioLogado, type UsuarioLogadoResponse } from "../Services/Usuari
 import type { CategoriaResponse } from "../Types/CategoriaResponse";
 import type { TransacaoResponse } from "../Types/TransacaoResponse";
 import { Button } from "../Components/Button";
+import filtro from "../assets/filtro.png";
+import girar from "../assets/girar.png";
 import dayjs from "dayjs";
 
 export default function Transacao() {
@@ -18,6 +20,11 @@ export default function Transacao() {
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
   const [categorias, setCategorias] = useState<CategoriaResponse[]>([]);
   const [usuario, setUsuario] = useState<UsuarioLogadoResponse | null>(null);
+
+  // filtros da lista
+  const [filtroDescricao, setFiltroDescricao] = useState<string>("");
+  const [filtroTipo, setFiltroTipo] = useState<number | "">("");
+  const [filtroCategoriaId, setFiltroCategoriaId] = useState<number | "">("");
 
   const [showModal, setShowModal] = useState(false);
   const [transacaoSelecionada, setTransacaoSelecionada] = useState<TransacaoResponse | null>(null);
@@ -51,7 +58,7 @@ export default function Transacao() {
     carregarDados();
   }, []);
 
-  const categoriasFiltradas = categorias.filter((categoria) => {
+  const categoriasFiltradas = (Array.isArray(categorias) ? categorias : []).filter((categoria) => {
     if (tipo === "") return false;
 
     if (tipo === 1) {
@@ -190,6 +197,14 @@ export default function Transacao() {
     return `${dia}/${mes}/${ano}`;
   }
 
+  // aplica filtros na lista em memória
+  const transacoesFiltradas = (Array.isArray(transacoes) ? transacoes : []).filter((t) => {
+    if (filtroDescricao && !t.descricao.toLowerCase().includes(filtroDescricao.toLowerCase())) return false;
+    if (filtroTipo !== "" && t.tipo !== Number(filtroTipo)) return false;
+    if (filtroCategoriaId !== "" && t.categoriaId !== Number(filtroCategoriaId)) return false;
+    return true;
+  });
+
   return (
     <div>
       {/* FORM */}
@@ -278,6 +293,65 @@ export default function Transacao() {
       {/* LISTA DE TRANSAÇÕES */}
       <div className="mt-6 bg-[#F5F7F6] rounded-lg p-6 max-w-5xl mx-auto w-full shadow-[0_4px_14px_rgba(0,0,0,0.08)] border border-black/5">
         <h2 className="text-3xl font-semibold mb-6 text-[#2F4F4F]">Lista de Transações</h2>
+        <div className="flex items-center mb-4 text-[#2F4F4F] font-semibold text-lg">
+          <img src={filtro} alt="Controle Financeiro" className="w-5 h-5 mr-2" />
+          Filtros
+        </div>
+        {/* FILTROS */}
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="text-sm text-[#2F4F4F] mb-1 block">Descrição</label>
+            <input
+              className="w-full rounded border border-[#9DB4AB] bg-white p-2 focus:outline-none focus:border-[#7A9D8F]"
+              value={filtroDescricao}
+              onChange={(e) => setFiltroDescricao(e.target.value)}
+              placeholder="Buscar por descrição"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-[#2F4F4F] mb-1 block">Tipo</label>
+            <select
+              className="w-full rounded border border-[#9DB4AB] bg-white p-2 focus:outline-none focus:border-[#7A9D8F]"
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value === "" ? "" : Number(e.target.value))}
+            >
+              <option value="">Todos</option>
+              <option value={1}>Receita</option>
+              <option value={2}>Despesa</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm text-[#2F4F4F] mb-1 block">Categoria</label>
+            <select
+              className="w-full rounded border border-[#9DB4AB] bg-white p-2 focus:outline-none focus:border-[#7A9D8F]"
+              value={filtroCategoriaId}
+              onChange={(e) => setFiltroCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
+            >
+              <option value="">Todas</option>
+              {(Array.isArray(categorias) ? categorias : []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.descricao}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="">
+            <button
+              type="button"
+              className="w-full px-4 py-2 rounded bg-[#E2E8E6] text-[#2F4F4F] hover:bg-[#D0DFDA] flex items-center justify-center gap-2"
+              onClick={() => {
+                setFiltroDescricao("");
+                setFiltroTipo("");
+                setFiltroCategoriaId("");
+              }}
+            >
+              <img src={girar} alt="Controle Financeiro" className="w-5 h-5 mr-2" /> Limpar
+            </button>
+          </div>
+        </div>
 
         {/* CABEÇALHO DESKTOP */}
         <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_180px] font-semibold text-[#2F4F4F] mb-2 px-4">
@@ -289,7 +363,7 @@ export default function Transacao() {
         </div>
 
         {/* LINHAS */}
-        {transacoes.map((t, index) => (
+        {transacoesFiltradas.map((t, index) => (
           <Fragment key={t.id}>
             {/* DESKTOP */}
             <div
