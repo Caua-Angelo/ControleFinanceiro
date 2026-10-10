@@ -1,4 +1,5 @@
 ﻿using ControleFinanceiro.Domain.Models;
+using ControleFinanceiro.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ControleFinanceiro.Infraestructure.Data
@@ -12,6 +13,7 @@ namespace ControleFinanceiro.Infraestructure.Data
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Categoria> Categoria { get; set; }
         public DbSet<Transacao> Transacao{ get; set; }
+        public DbSet<Cartao> Cartao { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -21,6 +23,7 @@ namespace ControleFinanceiro.Infraestructure.Data
             builder.ApplyConfiguration(new ConfigurationUsuario());
             builder.ApplyConfiguration(new ConfigurationCategoria());
             builder.ApplyConfiguration(new ConfigurationTransacao());
+            builder.ApplyConfiguration(new ConfigurationCartao());
 
             base.OnModelCreating(builder);
         }

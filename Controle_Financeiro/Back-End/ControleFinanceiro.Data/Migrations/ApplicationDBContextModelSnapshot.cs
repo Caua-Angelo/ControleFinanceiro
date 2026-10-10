@@ -23,6 +23,40 @@ namespace ControleFinanceiro.Infra.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.Cartao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DiaFechamento")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DiaVencimento")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Imagem")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Cartao", "public");
+                });
+
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Categoria", b =>
                 {
                     b.Property<int>("Id")
@@ -113,6 +147,17 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuario", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.Cartao", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Domain.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Categoria", b =>

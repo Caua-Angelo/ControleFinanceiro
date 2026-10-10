@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ControleFinanceiro.Application.DTO.Cartao;
 using ControleFinanceiro.Application.DTO.Categoria;
 using ControleFinanceiro.Application.DTO.Resumo;
 using ControleFinanceiro.Application.DTO.Transacao;
@@ -24,6 +25,7 @@ namespace ControleFinanceiro.Application.Mapping
             CreateMap<Categoria, CategoriaConsultarDTO>();
             CreateMap<CategoriaIncluirDTO, Categoria>();
             CreateMap<CategoriaAlterarDTO, Categoria>();
+            CreateMap<Cartao, CartaoConsultarDTO>();
 
             CreateMap<Transacao, TransacaoConsultarDTO>()
                 .ForMember(dest => dest.UsuarioNome,

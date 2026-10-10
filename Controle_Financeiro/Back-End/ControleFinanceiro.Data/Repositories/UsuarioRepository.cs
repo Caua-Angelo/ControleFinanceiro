@@ -35,6 +35,12 @@ namespace ControleFinanceiro.Infra.Data.Repositories
             await _context.Usuario.AddAsync(usuario);
         }
 
+        public async Task<Usuario?> GetByIdTrackedAsync(int id)
+        {
+            return await _context.Usuario
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
         public Task UpdateAsync(Usuario usuario)
         {
             _context.Usuario.Update(usuario);
