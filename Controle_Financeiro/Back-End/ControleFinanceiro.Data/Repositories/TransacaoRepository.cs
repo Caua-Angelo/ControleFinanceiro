@@ -29,7 +29,6 @@ namespace ControleFinanceiro.Infra.Data.Repositories
                 .Include(t => t.Usuario)
                 .Include(t => t.Categoria)
                 .Include(t => t.Cartao)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
@@ -59,6 +58,19 @@ namespace ControleFinanceiro.Infra.Data.Repositories
 
             if (_context.Entry(transacao.Categoria).State == EntityState.Detached)
                 _context.Entry(transacao.Categoria).State = EntityState.Unchanged;
+
+            if (transacao.Cartao != null &&
+                _context.Entry(transacao.Cartao).State == EntityState.Detached)
+            {
+                _context.Entry(transacao.Cartao).State = EntityState.Unchanged;
+            }
+
+            if (transacao.Cartao is not null &&
+    _context.Entry(transacao.Cartao).State == EntityState.Detached)
+            {
+                _context.Entry(transacao.Cartao).State = EntityState.Unchanged;
+            }
+
             await _context.Set<Transacao>().AddAsync(transacao);
         }
 

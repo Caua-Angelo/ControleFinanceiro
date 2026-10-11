@@ -51,7 +51,7 @@ namespace ControleFinanceiro.Domain.Models
                 "A descrição deve ter entre 3 e 100 caracteres.");
 
             DomainExceptionValidation.When(
-                !Regex.IsMatch(descricao, @"^[\p{L}\p{N}\s.,()**\\-**]+$"),
+                !Regex.IsMatch(descricao, @"^[\p{L}\p{N}\s.,()\-]+$"),
                 "A descrição contém caracteres inválidos.");
 
             DomainExceptionValidation.When(
