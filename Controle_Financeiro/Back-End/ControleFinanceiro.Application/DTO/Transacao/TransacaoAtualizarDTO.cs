@@ -1,4 +1,5 @@
-﻿using ControleFinanceiro.Domain.Enums;
+﻿
+using ControleFinanceiro.Domain.Enums;
 
 namespace ControleFinanceiro.Application.DTO.Transacao
 {
@@ -7,7 +8,10 @@ namespace ControleFinanceiro.Application.DTO.Transacao
         public string Descricao { get; set; } = string.Empty;
         public decimal Valor { get; set; }
         public TipoTransacao Tipo { get; set; }
+
         public int CategoriaId { get; set; }
-        public DateOnly Data { get;  set; }
+        public DateOnly Data { get; set; }
+
+        public int? CartaoId { get; set; }
     }
 }

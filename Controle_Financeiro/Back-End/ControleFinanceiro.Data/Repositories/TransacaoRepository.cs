@@ -28,6 +28,7 @@ namespace ControleFinanceiro.Infra.Data.Repositories
             return await _context.Set<Transacao>()
                 .Include(t => t.Usuario)
                 .Include(t => t.Categoria)
+                .Include(t => t.Cartao)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
@@ -36,6 +37,7 @@ namespace ControleFinanceiro.Infra.Data.Repositories
         {
             return await _context.Set<Transacao>()
                 .Include(t => t.Categoria)
+                .Include(t => t.Cartao)
                 .Where(t => t.UsuarioId == usuarioId)
                 .AsNoTracking()
                 .ToListAsync();

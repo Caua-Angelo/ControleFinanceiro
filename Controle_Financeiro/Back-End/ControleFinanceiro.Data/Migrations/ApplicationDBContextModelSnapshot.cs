@@ -91,6 +91,9 @@ namespace ControleFinanceiro.Infra.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CartaoId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("CategoriaId")
                         .HasColumnType("integer");
 
@@ -112,6 +115,8 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CartaoId");
 
                     b.HasIndex("CategoriaId");
 
@@ -172,6 +177,11 @@ namespace ControleFinanceiro.Infra.Data.Migrations
 
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Transacao", b =>
                 {
+                    b.HasOne("ControleFinanceiro.Domain.Models.Cartao", "Cartao")
+                        .WithMany()
+                        .HasForeignKey("CartaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ControleFinanceiro.Domain.Models.Categoria", "Categoria")
                         .WithMany("Transacoes")
                         .HasForeignKey("CategoriaId")
@@ -183,6 +193,8 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cartao");
 
                     b.Navigation("Categoria");
 
