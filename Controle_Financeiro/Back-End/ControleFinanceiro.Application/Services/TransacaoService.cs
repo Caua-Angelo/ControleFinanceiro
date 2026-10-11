@@ -12,17 +12,20 @@ namespace ControleFinanceiro.Application.Services
         private readonly ITransacaoRepository _transacaoRepository;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ICategoriaRepository _categoriaRepository;
+        private readonly ICartaoRepository _cartaoRepository;
         private readonly IMapper _mapper;
 
         public TransacaoService(
             ITransacaoRepository transacaoRepository,
             IUsuarioRepository usuarioRepository,
             ICategoriaRepository categoriaRepository,
+            ICartaoRepository cartaoRepository,
             IMapper mapper)
         {
             _transacaoRepository = transacaoRepository;
             _usuarioRepository = usuarioRepository;
             _categoriaRepository = categoriaRepository;
+            _cartaoRepository = cartaoRepository;
             _mapper = mapper;
         }
 
@@ -56,7 +59,8 @@ namespace ControleFinanceiro.Application.Services
             var categoria = await _categoriaRepository.GetByIdAsync(dto.CategoriaId, userId);
             if (categoria == null)
                 throw new InvalidOperationException("Categoria não encontrada.");
-           
+
+            var cartao = await ObterCartaoAsync(dto.CartaoId, userId);
 
             var transacao = new Transacao(
                 dto.Descricao,
@@ -64,8 +68,10 @@ namespace ControleFinanceiro.Application.Services
                 dto.Tipo,
                 categoria,
                 usuario, 
-                dto.Data
+                dto.Data,
+                cartao
             );
+
 
             await _transacaoRepository.AddAsync(transacao);
             await _transacaoRepository.SaveAsync();
@@ -89,13 +95,16 @@ namespace ControleFinanceiro.Application.Services
             if (dto.Valor <= 0)
                 throw new InvalidOperationException("Valor deve ser maior que zero.");
 
+            var cartao = await ObterCartaoAsync(dto.CartaoId, userId);
+
             transacao.Update(
                 dto.Descricao,
                 dto.Valor,
                 dto.Tipo,
                 categoria,
                 transacao.Usuario,
-                dto.Data
+                dto.Data,
+                cartao
             );
 
             await _transacaoRepository.SaveAsync();
@@ -115,5 +124,22 @@ namespace ControleFinanceiro.Application.Services
             await _transacaoRepository.DeleteAsync(transacao);
             await _transacaoRepository.SaveAsync();
         }
+
+        private async Task<Cartao?> ObterCartaoAsync(int? cartaoId, int userId)
+        {
+            if (!cartaoId.HasValue)
+                return null;
+
+            var cartao = await _cartaoRepository.GetByIdAsync(
+                cartaoId.Value,
+                userId);
+
+            if (cartao == null)
+                throw new InvalidOperationException(
+                    "Cartão não encontrado para este usuário.");
+
+            return cartao;
+        }
+
     }
 }
