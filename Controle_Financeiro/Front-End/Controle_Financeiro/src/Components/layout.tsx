@@ -4,6 +4,7 @@ import { useState } from "react";
 import category from "../assets/category.png";
 import Finance from "../assets/finance.png";
 import transaction from "../assets/transaction.png";
+import creditCard from "../assets/credit-card.png";
 import logo from "../assets/logo.png";
 
 export default function Layout() {
@@ -46,6 +47,11 @@ export default function Layout() {
               <Link to="/transacao" className={menuLink}>
                 <img src={transaction} alt="" className="w-6 h-6" />
                 Transações
+              </Link>
+
+              <Link to="/Cartao" className={menuLink}>
+                <img src={creditCard} alt="" className="w-6 h-6" />
+                Cartões
               </Link>
 
               <button onClick={logout} className="px-3 py-2 rounded text-white hover:bg-[#5A7067] transition-colors">

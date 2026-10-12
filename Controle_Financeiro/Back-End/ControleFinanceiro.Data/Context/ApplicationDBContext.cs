@@ -14,6 +14,8 @@ namespace ControleFinanceiro.Infraestructure.Data
         public DbSet<Categoria> Categoria { get; set; }
         public DbSet<Transacao> Transacao{ get; set; }
         public DbSet<Cartao> Cartao { get; set; }
+        public DbSet<CompraParcelada> CompraParcelada { get; set; }
+        public DbSet<Parcela> Parcela { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -24,6 +26,8 @@ namespace ControleFinanceiro.Infraestructure.Data
             builder.ApplyConfiguration(new ConfigurationCategoria());
             builder.ApplyConfiguration(new ConfigurationTransacao());
             builder.ApplyConfiguration(new ConfigurationCartao());
+            builder.ApplyConfiguration(new ConfigurationCompraParcelada());
+            builder.ApplyConfiguration(new ConfigurationParcela());
 
             base.OnModelCreating(builder);
         }

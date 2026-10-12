@@ -7,6 +7,7 @@ import { LoginPage } from "./Pages/LoginPage.tsx";
 import { PrivateRoute } from "./routes/PrivateRoute";
 import { Toaster } from "react-hot-toast";
 import { RegisterPage } from "./Pages/RegisterPage.tsx";
+import Cartao from "./Pages/Cartao.tsx";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route index element={<Inicial />} />
           <Route path="categoria" element={<Categoria />} />
           <Route path="transacao" element={<Transacao />} />
+          <Route path="cartao" element={<Cartao />} />
         </Route>
       </Routes>
       <Toaster

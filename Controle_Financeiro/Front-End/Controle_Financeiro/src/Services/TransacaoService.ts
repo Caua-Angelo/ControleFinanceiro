@@ -1,6 +1,7 @@
 import type { TransacaoResponse } from "../Types/TransacaoResponse";
 import { api } from "./ApiService";
 
+
 export interface TransacaoRequest {
   descricao: string;
   valor: number;
@@ -8,6 +9,7 @@ export interface TransacaoRequest {
   categoriaId: number;
   usuarioId: number;
   data: string;
+  cartaoId?: number | null;
 }
 
 export async function listarTransacoes(params?: { usuarioId?: number; categoriaId?: number }) {

@@ -83,6 +83,78 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                     b.ToTable("Categoria", "public");
                 });
 
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.CompraParcelada", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CartaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("DataCompra")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("QuantidadeParcelas")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartaoId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("CompraParcelada", "public");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.Parcela", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompraParceladaId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("DataVencimento")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Paga")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompraParceladaId", "Numero")
+                        .IsUnique();
+
+                    b.ToTable("Parcela", "public");
+                });
+
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Transacao", b =>
                 {
                     b.Property<int>("Id")
@@ -175,6 +247,36 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.CompraParcelada", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Domain.Models.Cartao", "Cartao")
+                        .WithMany()
+                        .HasForeignKey("CartaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ControleFinanceiro.Domain.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cartao");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.Parcela", b =>
+                {
+                    b.HasOne("ControleFinanceiro.Domain.Models.CompraParcelada", "CompraParcelada")
+                        .WithMany("Parcelas")
+                        .HasForeignKey("CompraParceladaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CompraParcelada");
+                });
+
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Transacao", b =>
                 {
                     b.HasOne("ControleFinanceiro.Domain.Models.Cartao", "Cartao")
@@ -204,6 +306,11 @@ namespace ControleFinanceiro.Infra.Data.Migrations
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Categoria", b =>
                 {
                     b.Navigation("Transacoes");
+                });
+
+            modelBuilder.Entity("ControleFinanceiro.Domain.Models.CompraParcelada", b =>
+                {
+                    b.Navigation("Parcelas");
                 });
 
             modelBuilder.Entity("ControleFinanceiro.Domain.Models.Usuario", b =>
