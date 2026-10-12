@@ -37,6 +37,9 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 builder.Services.AddScoped<ICartaoRepository, CartaoRepository>();
 
+builder.Services.AddScoped<ICompraParceladaRepository, CompraParceladaRepository>();
+builder.Services.AddScoped<ICompraParceladaService, CompraParceladaService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
@@ -141,9 +144,9 @@ using (var scope = app.Services.CreateScope())
     try
     {
         if (db.Database.CanConnect())
-            logger.Information("Conex o com o banco de dados estabelecida com sucesso.");
+            logger.Information("Conexao com o banco de dados estabelecida com sucesso.");
         else
-            logger.Warning("N o foi poss vel conectar ao banco de dados.");
+            logger.Warning("Nao foi poss vel conectar ao banco de dados.");
     }
     catch (Exception ex)
     {
