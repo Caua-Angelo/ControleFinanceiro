@@ -4,7 +4,7 @@ import axios from "axios";
 import { criarCartao, consultarCartoes, alterarCartao, deletarCartao, type CartaoRequest, type CartaoResponse } from "../Services/CartaoService";
 
 import nubank from "../assets/Cartoes/Cartao-Nubank.png";
-import santander from "../assets/Cartoes/Cartao-santander.png";
+import santander from "../assets/Cartoes/Cartao-Santander.png";
 import bradesco from "../assets/Cartoes/Cartao-Bradesco.png";
 import inter from "../assets/Cartoes/Cartao-Inter.png";
 import amazonPrime from "../assets/Cartoes/Cartao-Amazon-Prime.png";
