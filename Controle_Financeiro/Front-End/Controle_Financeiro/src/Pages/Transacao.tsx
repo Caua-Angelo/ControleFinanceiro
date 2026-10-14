@@ -1180,6 +1180,7 @@ export default function Transacao() {
                     <option value="">Selecione</option>
                     {!isMenorDeIdade && <option value={1}>Receita</option>}
                     <option value={2}>Despesa</option>
+                    <option value={3}>Investimento</option>
                   </select>
                 </div>
 

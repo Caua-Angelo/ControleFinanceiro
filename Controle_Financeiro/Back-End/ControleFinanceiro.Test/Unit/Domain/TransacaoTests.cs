@@ -10,6 +10,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         private readonly Usuario _usuarioValido;
         private readonly Categoria _categoriaDeValida;
         private readonly Categoria _categoriaReValida;
+        private readonly Categoria _categoriaInvestimento;
 
         private readonly DateOnly _hoje =
             DateOnly.FromDateTime(DateTime.Today);
@@ -32,6 +33,10 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 "Salario",
                 FinalidadeCategoria.Receita
             );
+            _categoriaInvestimento = new Categoria(
+                "Investimentos",
+                FinalidadeCategoria.Investimento
+);
         }
 
         [Fact]
@@ -203,7 +208,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
 
             act.Should()
                 .Throw<DomainExceptionValidation>()
-                .WithMessage("Categoria de receita não pode ser usada em uma despesa.");
+                .WithMessage("Categoria incompatível com uma despesa.");
         }
 
         [Fact]
@@ -220,7 +225,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
 
             act.Should()
                 .Throw<DomainExceptionValidation>()
-                .WithMessage("Categoria de despesa não pode ser usada em uma receita.");
+                .WithMessage("Categoria incompatível com uma receita.");
         }
 
         [Fact]
@@ -271,6 +276,20 @@ namespace ControleFinanceiro.Test.Unit.Domain
             act.Should()
                 .Throw<DomainExceptionValidation>()
                 .WithMessage("A descrição da transação é obrigatória.");
+        }
+        [Fact]
+        public void InstanciarTransacao_CategoriaInvestimentoEmDespesa_NaoDeveLancarExcecao()
+        {
+            Action act = () => new Transacao(
+                "Compra de ações",
+                100,
+                TipoTransacao.Despesa,
+                _categoriaInvestimento,
+                _usuarioValido,
+                _hoje
+            );
+
+            act.Should().NotThrow();
         }
     }
 }

@@ -7,6 +7,8 @@
 
         public decimal TotalReceitas { get; set; }
         public decimal TotalDespesas { get; set; }
-        public decimal Saldo => TotalReceitas - TotalDespesas;
+        public decimal TotalInvestimentos { get; set; }
+
+        public decimal Saldo => TotalReceitas - TotalDespesas - TotalInvestimentos;
     }
 }

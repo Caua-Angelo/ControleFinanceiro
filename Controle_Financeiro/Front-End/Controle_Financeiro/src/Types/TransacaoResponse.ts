@@ -7,5 +7,6 @@ export interface TransacaoResponse {
   usuarioNome: string;
   categoriaId: number;
   categoriaDescricao: string;
+  finalidadeCategoria: number;
   data: string;
 }
