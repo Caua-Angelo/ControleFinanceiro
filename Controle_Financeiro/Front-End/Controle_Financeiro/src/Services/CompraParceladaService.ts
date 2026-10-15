@@ -7,6 +7,7 @@ export interface CompraParceladaRequest {
   quantidadeParcelas: number;
   dataCompra: string;
   cartaoId: number;
+  categoriaId: number;
 }
 
 export type CompraParceladaAtualizarRequest = CompraParceladaRequest;

@@ -13,7 +13,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
         [Theory]
         [InlineData(FinalidadeCategoria.Despesa)]
         [InlineData(FinalidadeCategoria.Receita)]
-        [InlineData(FinalidadeCategoria.Ambas)]
+        [InlineData(FinalidadeCategoria.Investimento)]
         public void IntanciarCategoria_Dadosvalidos_NãoDeveRetornarDomainExceptionValidation(FinalidadeCategoria finalidade)
         {
             Action action = () => new Categoria("Descrição", finalidade);

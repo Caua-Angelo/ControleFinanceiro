@@ -1,4 +1,4 @@
-﻿
+﻿using ControleFinanceiro.Domain.Enums;
 using ControleFinanceiro.Domain.Models;
 using ControleFinanceiro.Domain.Validation;
 using FluentAssertions;
@@ -9,6 +9,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
     {
         private readonly Usuario _usuarioValido;
         private readonly Cartao _cartaoValido;
+        private readonly Categoria _categoriaValida;
         private readonly DateOnly _dataCompra = new(2026, 10, 11);
 
         public CompraParceladaTests()
@@ -27,6 +28,15 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 10,
                 _usuarioValido
             );
+
+            _categoriaValida = new Categoria(
+                "Eletronicos",
+                FinalidadeCategoria.Despesa
+            )
+            {
+                Usuario = _usuarioValido,
+                UsuarioId = _usuarioValido.Id
+            };
         }
 
         private CompraParcelada CriarCompraValida(
@@ -39,6 +49,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 quantidadeParcelas,
                 _dataCompra,
                 _cartaoValido,
+                _categoriaValida,
                 _usuarioValido
             );
         }
@@ -61,7 +72,9 @@ namespace ControleFinanceiro.Test.Unit.Domain
             compra.QuantidadeParcelas.Should().Be(6);
             compra.DataCompra.Should().Be(_dataCompra);
             compra.CartaoId.Should().Be(_cartaoValido.Id);
+            compra.CategoriaId.Should().Be(_categoriaValida.Id);
             compra.UsuarioId.Should().Be(_usuarioValido.Id);
+            compra.Categoria.Should().BeSameAs(_categoriaValida);
             compra.Parcelas.Should().BeEmpty();
         }
 
@@ -84,6 +97,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 quantidadeParcelas,
                 _dataCompra,
                 _cartaoValido,
+                _categoriaValida,
                 _usuarioValido
             );
 
@@ -103,6 +117,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 6,
                 _dataCompra,
                 _cartaoValido,
+                _categoriaValida,
                 _usuarioValido
             );
 
@@ -120,6 +135,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 6,
                 default,
                 _cartaoValido,
+                _categoriaValida,
                 _usuarioValido
             );
 
@@ -137,12 +153,31 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 6,
                 _dataCompra,
                 null!,
+                _categoriaValida,
                 _usuarioValido
             );
 
             act.Should()
                 .Throw<DomainExceptionValidation>()
                 .WithMessage("O cartão é obrigatório.");
+        }
+
+        [Fact]
+        public void InstanciarCompraParcelada_CategoriaNula_DeveLancarExcecao()
+        {
+            Action act = () => new CompraParcelada(
+                "Monitor novo",
+                1200,
+                6,
+                _dataCompra,
+                _cartaoValido,
+                null!,
+                _usuarioValido
+            );
+
+            act.Should()
+                .Throw<DomainExceptionValidation>()
+                .WithMessage("A categoria é obrigatória.");
         }
 
         [Fact]
@@ -154,6 +189,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 6,
                 _dataCompra,
                 _cartaoValido,
+                _categoriaValida,
                 null!
             );
 
@@ -198,6 +234,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 6,
                 _dataCompra,
                 outroCartao,
+                _categoriaValida,
                 _usuarioValido
             );
 

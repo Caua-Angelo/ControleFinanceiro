@@ -91,13 +91,14 @@ namespace ControleFinanceiro.Domain.Models
             // Categoria deve ser compatível com o tipo da transação
             DomainExceptionValidation.When(
                 tipo == TipoTransacao.Despesa &&
-                categoria.Finalidade == FinalidadeCategoria.Receita,
-                "Categoria de receita não pode ser usada em uma despesa.");
+                categoria.Finalidade != FinalidadeCategoria.Despesa &&
+                categoria.Finalidade != FinalidadeCategoria.Investimento,
+                "Categoria incompatível com uma despesa.");
 
             DomainExceptionValidation.When(
                 tipo == TipoTransacao.Receita &&
-                categoria.Finalidade == FinalidadeCategoria.Despesa,
-                "Categoria de despesa não pode ser usada em uma receita.");
+                categoria.Finalidade != FinalidadeCategoria.Receita,
+                "Categoria incompatível com uma receita.");
 
             // Cartão opcional
             DomainExceptionValidation.When(

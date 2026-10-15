@@ -94,6 +94,9 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                     b.Property<int>("CartaoId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly>("DataCompra")
                         .HasColumnType("date");
 
@@ -115,6 +118,8 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CartaoId");
+
+                    b.HasIndex("CategoriaId");
 
                     b.HasIndex("UsuarioId");
 
@@ -255,6 +260,12 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ControleFinanceiro.Domain.Models.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ControleFinanceiro.Domain.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
@@ -262,6 +273,8 @@ namespace ControleFinanceiro.Infra.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Cartao");
+
+                    b.Navigation("Categoria");
 
                     b.Navigation("Usuario");
                 });

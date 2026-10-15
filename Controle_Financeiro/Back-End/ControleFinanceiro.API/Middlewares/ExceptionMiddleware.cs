@@ -78,6 +78,22 @@ namespace ControleFinanceiro.API.Middlewares
                 });
                 await HandleExceptionAsync(context, HttpStatusCode.Unauthorized, ex.Message);
             }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning("Erro de validação {@Log}", new
+                {
+                    tipo = "ErroValidacao",
+                    rota = $"{context.Request.Method} {context.Request.Path}",
+                    body = DeserializarBody(body),
+                    erro = ex.Message,
+                    timestamp = DateTime.UtcNow
+                });
+
+                await HandleExceptionAsync(
+                    context,
+                    HttpStatusCode.BadRequest,
+                    ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning("Operação inválida {@Log}", new

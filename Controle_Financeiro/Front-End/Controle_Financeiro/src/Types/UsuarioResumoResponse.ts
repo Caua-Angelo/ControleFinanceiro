@@ -1,7 +1,8 @@
 export interface UsuarioResumoResponse {
   usuarioId: number;
-  usuarioNome: string;
+  nome: string;
   totalReceitas: number;
   totalDespesas: number;
-  saldoFinal: number;
+  totalInvestimentos: number;
+  saldo: number;
 }

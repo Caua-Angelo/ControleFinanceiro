@@ -79,6 +79,7 @@ export default function Transacao() {
   const [showModal, setShowModal] = useState(false);
 
   const [transacaoSelecionada, setTransacaoSelecionada] = useState<TransacaoResponse | null>(null);
+
   const [compraParceladaSelecionada, setCompraParceladaSelecionada] = useState<CompraParceladaResponse | null>(null);
 
   const [descricaoEdit, setDescricaoEdit] = useState("");
@@ -92,6 +93,7 @@ export default function Transacao() {
   const [dataEdit, setDataEdit] = useState("");
 
   const [cartaoIdEdit, setCartaoIdEdit] = useState<number | "">("");
+
   const [quantidadeParcelasEdit, setQuantidadeParcelasEdit] = useState("2");
 
   const [loadingCriar, setLoadingCriar] = useState(false);
@@ -102,9 +104,14 @@ export default function Transacao() {
 
   const [deletingCompraId, setDeletingCompraId] = useState<number | null>(null);
 
+  const [tipoSelecionado, setTipoSelecionado] = useState<"" | "receita" | "despesa" | "investimento">("");
+  const [formaPagamento, setFormaPagamento] = useState<"" | "dinheiro" | "cartao">("");
+  const [formaPagamentoEdit, setFormaPagamentoEdit] = useState<"" | "dinheiro" | "cartao">("");
+
   const isMenorDeIdade = usuario ? usuario.idade < 18 : false;
 
-  const ehParcelada = quantidadeParcelas !== "1";
+  const ehParcelada = quantidadeParcelas !== "1" && (tipoSelecionado !== "despesa" || formaPagamento === "cartao");
+  const usaCartao = tipoSelecionado === "despesa" ? formaPagamento === "cartao" : Number(tipo) === 2;
 
   const classeCampo =
     "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#52796F] focus:ring-4 focus:ring-[#52796F]/15 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
@@ -144,23 +151,31 @@ export default function Transacao() {
   }, []);
 
   const categoriasFiltradas = (Array.isArray(categorias) ? categorias : []).filter((categoria) => {
-    if (tipo === "") return false;
+    if (tipoSelecionado === "receita") return categoria.finalidade === 2;
 
-    if (tipo === 1) {
-      return categoria.finalidade === 2 || categoria.finalidade === 3;
-    }
+    if (tipoSelecionado === "despesa") return categoria.finalidade === 1;
 
-    return categoria.finalidade === 1 || categoria.finalidade === 3;
+    if (tipoSelecionado === "investimento") return categoria.finalidade === 3;
+
+    return false;
   });
 
   const categoriasFiltradasEdit = (Array.isArray(categorias) ? categorias : []).filter((categoria) => {
     if (tipoEdit === "") return false;
 
     if (tipoEdit === 1) {
-      return categoria.finalidade === 2 || categoria.finalidade === 3;
+      return categoria.finalidade === 2;
     }
 
-    return categoria.finalidade === 1 || categoria.finalidade === 3;
+    if (tipoEdit === 2) {
+      return categoria.finalidade === 1;
+    }
+
+    if (tipoEdit === 3) {
+      return categoria.finalidade === 3;
+    }
+
+    return false;
   });
 
   async function listarTodasTransacoes() {
@@ -179,6 +194,11 @@ export default function Transacao() {
     if (!descricao.trim() || valor === "" || tipo === "" || !data) {
       toast.error("Preencha todos os campos obrigatórios.");
 
+      return;
+    }
+
+    if (tipoSelecionado === "despesa" && formaPagamento === "") {
+      toast.error("Selecione a forma de pagamento da despesa.");
       return;
     }
 
@@ -210,9 +230,14 @@ export default function Transacao() {
       }
     }
 
-    if (Number(tipo) === 2 && cartaoId === "") {
+    if (Number(tipo) === 2 && usaCartao && cartaoId === "") {
       toast.error("Selecione um cartão para registrar a despesa.");
 
+      return;
+    }
+
+    if (ehParcelada && categoriaId === "") {
+      toast.error("Selecione uma categoria para a compra parcelada.");
       return;
     }
 
@@ -232,6 +257,8 @@ export default function Transacao() {
           dataCompra: dataFormatada,
 
           cartaoId: Number(cartaoId),
+
+          categoriaId: Number(categoriaId),
         });
 
         await listarTodasComprasParceladas();
@@ -257,7 +284,7 @@ export default function Transacao() {
 
           usuarioId: usuario.id,
 
-          cartaoId: Number(tipo) === 2 && cartaoId !== "" ? Number(cartaoId) : null,
+          cartaoId: Number(tipo) === 2 && usaCartao && cartaoId !== "" ? Number(cartaoId) : null,
         };
 
         await criarTransacao(payload);
@@ -272,6 +299,8 @@ export default function Transacao() {
       setValor("");
 
       setTipo("");
+
+      setTipoSelecionado("");
 
       setCategoriaId("");
 
@@ -361,30 +390,51 @@ export default function Transacao() {
     const transacaoComCartao = transacao as TransacaoComCartao;
 
     setTransacaoSelecionada(transacao);
+
     setCompraParceladaSelecionada(null);
+
     setDescricaoEdit(transacao.descricao);
+
     setValorEdit(transacao.valor.toFixed(2).replace(".", ","));
+
     setTipoEdit(transacao.tipo);
+
     setCategoriaIdEdit(transacao.categoriaId);
+
     setDataEdit(transacao.data.split("T")[0]);
+
     setCartaoIdEdit(transacaoComCartao.cartaoId ?? "");
+    setQuantidadeParcelasEdit("1");
+    setFormaPagamentoEdit(transacao.tipo === 2 ? (transacaoComCartao.cartaoId ? "cartao" : "dinheiro") : "");
+
     setShowModal(true);
   }
 
   function abrirModalEditarCompra(compra: CompraParceladaResponse) {
     setTransacaoSelecionada(null);
+
     setCompraParceladaSelecionada(compra);
+
+    setCategoriaIdEdit(compra.categoriaId);
+
     setDescricaoEdit(compra.descricao);
+
     setValorEdit(compra.valorTotal.toFixed(2).replace(".", ","));
+
     setDataEdit(compra.dataCompra.split("T")[0]);
+
     setCartaoIdEdit(compra.cartaoId);
+    setFormaPagamentoEdit("cartao");
+
     setQuantidadeParcelasEdit(String(compra.quantidadeParcelas));
+
     setShowModal(true);
   }
 
   async function editarTransacao() {
     if (!descricaoEdit.trim() || valorEdit === "" || !dataEdit) {
       toast.error("Preencha todos os campos obrigatórios.");
+
       return;
     }
 
@@ -392,54 +442,88 @@ export default function Transacao() {
 
     if (!Number.isFinite(valorNumerico) || valorNumerico <= 0) {
       toast.error("Informe um valor válido.");
+
       return;
     }
 
     if (compraParceladaSelecionada) {
+      if (categoriaIdEdit === "") {
+        toast.error("Selecione uma categoria para a compra parcelada.");
+        return;
+      }
+
       if (cartaoIdEdit === "") {
         toast.error("Selecione um cartão.");
+
         return;
       }
 
       if (Number(quantidadeParcelasEdit) < 2 || Number(quantidadeParcelasEdit) > 60) {
         toast.error("A quantidade deve estar entre 2 e 60 parcelas.");
+
         return;
       }
 
       if (compraParceladaSelecionada.parcelas.some((parcela) => parcela.paga)) {
         toast.error("Não é possível editar uma compra com parcelas pagas.");
+
         return;
       }
 
       try {
         setLoadingEditar(true);
+
         await atualizarCompraParcelada(compraParceladaSelecionada.id, {
           descricao: descricaoEdit.trim(),
+
           valorTotal: valorNumerico,
+
           quantidadeParcelas: Number(quantidadeParcelasEdit),
+
           dataCompra: dayjs(dataEdit).format("YYYY-MM-DD"),
+
           cartaoId: Number(cartaoIdEdit),
+
+          categoriaId: Number(categoriaIdEdit),
         });
+
         await listarTodasComprasParceladas();
+
         toast.success("Compra parcelada atualizada com sucesso!");
+
         setShowModal(false);
+
         setCompraParceladaSelecionada(null);
       } catch (error) {
         console.error(error);
+
         toast.error("Erro ao atualizar compra parcelada.");
       } finally {
         setLoadingEditar(false);
       }
+
       return;
     }
 
     if (!transacaoSelecionada || !usuario?.id) {
       toast.error("Usuário ou transação não encontrados.");
+
       return;
     }
 
     if (tipoEdit === "" || categoriaIdEdit === "") {
       toast.error("Preencha o tipo e a categoria.");
+
+      return;
+    }
+
+    if (Number(tipoEdit) === 2 && formaPagamentoEdit === "") {
+      toast.error("Selecione a forma de pagamento da despesa.");
+      return;
+    }
+
+    if (Number(tipoEdit) === 2 && formaPagamentoEdit === "cartao" && cartaoIdEdit === "") {
+      toast.error("Selecione um cartão.");
       return;
     }
 
@@ -451,24 +535,60 @@ export default function Transacao() {
     try {
       setLoadingEditar(true);
 
+      // Converter uma despesa normal em compra parcelada quando selecionado cartão e 2+ parcelas.
+      if (Number(tipoEdit) === 2 && formaPagamentoEdit === "cartao" && Number(quantidadeParcelasEdit) >= 2) {
+        if (!cartaoIdEdit) {
+          toast.error("Selecione um cartão para parcelar a compra.");
+          return;
+        }
+
+        await criarCompraParcelada({
+          descricao: descricaoEdit.trim(),
+          valorTotal: valorNumerico,
+          quantidadeParcelas: Number(quantidadeParcelasEdit),
+          dataCompra: dayjs(dataEdit).format("YYYY-MM-DD"),
+          cartaoId: Number(cartaoIdEdit),
+          categoriaId: Number(categoriaIdEdit),
+        });
+
+        await deletarTransacao(transacaoSelecionada.id);
+        await Promise.all([listarTodasTransacoes(), listarTodasComprasParceladas()]);
+
+        toast.success("Transação convertida em compra parcelada!");
+        setShowModal(false);
+        setTransacaoSelecionada(null);
+        setQuantidadeParcelasEdit("1");
+        return;
+      }
+
       const payload: TransacaoRequest = {
         descricao: descricaoEdit.trim(),
+
         valor: valorNumerico,
+
         tipo: Number(tipoEdit),
+
         categoriaId: Number(categoriaIdEdit),
+
         data: dayjs(dataEdit).format("YYYY-MM-DD"),
+
         usuarioId: usuario.id,
-        cartaoId: Number(tipoEdit) === 2 && cartaoIdEdit !== "" ? Number(cartaoIdEdit) : null,
+
+        cartaoId: Number(tipoEdit) === 2 && formaPagamentoEdit === "cartao" && cartaoIdEdit !== "" ? Number(cartaoIdEdit) : null,
       };
 
       await alterarTransacao(transacaoSelecionada.id, payload);
+
       await listarTodasTransacoes();
 
       toast.success("Transação atualizada com sucesso!");
+
       setShowModal(false);
+
       setTransacaoSelecionada(null);
     } catch (error) {
       console.error(error);
+
       toast.error("Erro ao atualizar transação.");
     } finally {
       setLoadingEditar(false);
@@ -560,9 +680,12 @@ export default function Transacao() {
         <div className="mb-7 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#648879]">Lançamentos</p>
+
             <h2 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">Adicionar transação</h2>
+
             <p className="mt-1 text-sm text-slate-500">Registre receitas, despesas e compras parceladas.</p>
           </div>
+
           <span className="w-fit rounded-full bg-[#E8EFED] px-3 py-1.5 text-xs font-semibold text-[#2F4F4F]">Novo lançamento</span>
         </div>
 
@@ -606,15 +729,18 @@ export default function Transacao() {
             <select
               id="tipo"
               className={classeCampo}
-              value={tipo}
+              value={tipoSelecionado}
               onChange={(e) => {
-                const novoTipo = e.target.value === "" ? "" : Number(e.target.value);
+                const novoTipo = e.target.value as typeof tipoSelecionado;
 
-                setTipo(novoTipo);
+                setTipoSelecionado(novoTipo);
+                setFormaPagamento("");
+
+                setTipo(novoTipo === "receita" ? 1 : novoTipo === "" ? "" : 2);
 
                 setCategoriaId("");
 
-                if (novoTipo !== 2) {
+                if (novoTipo !== "despesa") {
                   setCartaoId("");
 
                   setQuantidadeParcelas("1");
@@ -623,13 +749,49 @@ export default function Transacao() {
             >
               <option value="">Selecione</option>
 
-              {!isMenorDeIdade && <option value={1}>Receita</option>}
+              {!isMenorDeIdade && <option value="receita">Receita</option>}
 
-              <option value={2}>Despesa</option>
+              <option value="despesa">Despesa</option>
+
+              <option value="investimento">Investimento</option>
             </select>
           </div>
 
-          {tipo === 2 && (
+          {tipoSelecionado === "despesa" && (
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormaPagamento("dinheiro");
+                    setCartaoId("");
+                    setQuantidadeParcelas("1");
+                  }}
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                    formaPagamento === "dinheiro"
+                      ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  Dinheiro / Débito / Pix
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormaPagamento("cartao")}
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                    formaPagamento === "cartao"
+                      ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  Cartão de crédito
+                </button>
+              </div>
+            </div>
+          )}
+
+          {tipo === 2 && (tipoSelecionado !== "despesa" || formaPagamento === "cartao") && (
             <div>
               <label htmlFor="parcelas" className="mb-2 block text-sm font-semibold text-slate-700">
                 Parcelas
@@ -700,26 +862,28 @@ export default function Transacao() {
                 )}
               </div>
 
-              <div>
-                <label htmlFor="cartao" className="mb-2 block text-sm font-semibold text-slate-700">
-                  Cartão de crédito
-                </label>
+              {usaCartao && (
+                <div>
+                  <label htmlFor="cartao" className="mb-2 block text-sm font-semibold text-slate-700">
+                    Cartão de crédito
+                  </label>
 
-                <select
-                  id="cartao"
-                  className={classeCampo}
-                  value={cartaoId}
-                  onChange={(e) => setCartaoId(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">Selecione o cartão</option>
+                  <select
+                    id="cartao"
+                    className={classeCampo}
+                    value={cartaoId}
+                    onChange={(e) => setCartaoId(e.target.value === "" ? "" : Number(e.target.value))}
+                  >
+                    <option value="">Selecione o cartão</option>
 
-                  {cartoes.map((cartao) => (
-                    <option key={cartao.id} value={cartao.id}>
-                      {cartao.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    {cartoes.map((cartao) => (
+                      <option key={cartao.id} value={cartao.id}>
+                        {cartao.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </>
           )}
 
@@ -763,9 +927,12 @@ export default function Transacao() {
         <div className="mb-6 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#648879]">Visão geral</p>
+
             <h2 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">Suas transações</h2>
+
             <p className="mt-1 text-sm text-slate-500">Pesquise, filtre e gerencie seus lançamentos.</p>
           </div>
+
           <span className="w-fit rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
             {transacoesFiltradas.length + comprasParceladasFiltradas.length} resultado(s)
           </span>
@@ -1079,7 +1246,9 @@ export default function Transacao() {
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8EFED] text-[#52796F]">
               <span className="text-xl">⌕</span>
             </div>
+
             <p className="font-semibold text-slate-700">Nenhum lançamento encontrado</p>
+
             <p className="mt-1 text-sm text-slate-500">Tente ajustar os filtros ou cadastre uma nova transação.</p>
           </div>
         )}
@@ -1092,6 +1261,7 @@ export default function Transacao() {
       </section>
 
       {/* MODAL DE EDIÇÃO */}
+
       {showModal && (transacaoSelecionada || compraParceladaSelecionada) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5">
           <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/60 bg-white p-5 shadow-2xl sm:p-7">
@@ -1103,6 +1273,7 @@ export default function Transacao() {
               <label htmlFor="input-descricao" className="mb-1.5 block text-sm font-semibold text-slate-700">
                 Descrição
               </label>
+
               <input id="input-descricao" className={classeCampo} value={descricaoEdit} onChange={(e) => setDescricaoEdit(e.target.value)} />
             </div>
 
@@ -1110,6 +1281,7 @@ export default function Transacao() {
               <label htmlFor="input-valor" className="mb-1.5 block text-sm font-semibold text-slate-700">
                 {compraParceladaSelecionada ? "Valor total" : "Valor"}
               </label>
+
               <input id="input-valor" inputMode="decimal" className={classeCampo} value={valorEdit} onChange={(e) => setValorEdit(e.target.value)} />
             </div>
 
@@ -1117,6 +1289,7 @@ export default function Transacao() {
               <label htmlFor="input-data" className="mb-1.5 block text-sm font-semibold text-slate-700">
                 {compraParceladaSelecionada ? "Data da compra" : "Data"}
               </label>
+
               <input id="input-data" type="date" className={classeCampo} value={dataEdit} onChange={(e) => setDataEdit(e.target.value)} />
             </div>
 
@@ -1126,6 +1299,7 @@ export default function Transacao() {
                   <label htmlFor="parcelas-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
                     Quantidade de parcelas
                   </label>
+
                   <select
                     id="parcelas-edit"
                     className={classeCampo}
@@ -1144,6 +1318,7 @@ export default function Transacao() {
                   <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
                     Cartão de crédito
                   </label>
+
                   <select
                     id="cartao-edit"
                     className={classeCampo}
@@ -1151,6 +1326,7 @@ export default function Transacao() {
                     onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
                   >
                     <option value="">Selecione o cartão</option>
+
                     {cartoes.map((cartao) => (
                       <option key={cartao.id} value={cartao.id}>
                         {cartao.nome}
@@ -1158,6 +1334,7 @@ export default function Transacao() {
                     ))}
                   </select>
                 </div>
+
                 <p className="mb-4 text-xs text-gray-500">Compras com parcelas pagas não podem ser editadas.</p>
               </>
             ) : (
@@ -1166,20 +1343,27 @@ export default function Transacao() {
                   <label htmlFor="tipo-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
                     Tipo
                   </label>
+
                   <select
                     id="tipo-edit"
                     className={classeCampo}
                     value={tipoEdit}
                     onChange={(e) => {
                       const novoTipo = e.target.value === "" ? "" : Number(e.target.value);
+
                       setTipoEdit(novoTipo);
                       setCategoriaIdEdit("");
-                      if (novoTipo !== 2) setCartaoIdEdit("");
+                      setFormaPagamentoEdit("");
+                      setCartaoIdEdit("");
                     }}
                   >
                     <option value="">Selecione</option>
+
                     {!isMenorDeIdade && <option value={1}>Receita</option>}
+
                     <option value={2}>Despesa</option>
+
+                    <option value={3}>Investimento</option>
                   </select>
                 </div>
 
@@ -1187,6 +1371,7 @@ export default function Transacao() {
                   <label htmlFor="categoria-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
                     Categoria
                   </label>
+
                   <select
                     id="categoria-edit"
                     className={classeCampo}
@@ -1194,6 +1379,7 @@ export default function Transacao() {
                     onChange={(e) => setCategoriaIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
                   >
                     <option value="">Selecione</option>
+
                     {categoriasFiltradasEdit.map((categoria) => (
                       <option key={categoria.id} value={categoria.id}>
                         {categoria.descricao}
@@ -1204,33 +1390,91 @@ export default function Transacao() {
 
                 {tipoEdit === 2 && (
                   <div className="mb-4">
-                    <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                      Cartão de crédito
-                    </label>
-                    <select
-                      id="cartao-edit"
-                      className={classeCampo}
-                      value={cartaoIdEdit}
-                      onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
-                    >
-                      <option value="">Nenhum</option>
-                      {cartoes.map((cartao) => (
-                        <option key={cartao.id} value={cartao.id}>
-                          {cartao.nome}
-                        </option>
-                      ))}
-                    </select>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormaPagamentoEdit("dinheiro");
+                          setCartaoIdEdit("");
+                          setQuantidadeParcelasEdit("1");
+                        }}
+                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                          formaPagamentoEdit === "dinheiro"
+                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        Dinheiro / Débito / Pix
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormaPagamentoEdit("cartao")}
+                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                          formaPagamentoEdit === "cartao"
+                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        Cartão de crédito
+                      </button>
+                    </div>
                   </div>
+                )}
+
+                {tipoEdit === 2 && formaPagamentoEdit === "cartao" && (
+                  <>
+                    <div className="mb-4">
+                      <label htmlFor="parcelas-normal-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                        Parcelas
+                      </label>
+                      <select
+                        id="parcelas-normal-edit"
+                        className={classeCampo}
+                        value={quantidadeParcelasEdit}
+                        onChange={(e) => setQuantidadeParcelasEdit(e.target.value)}
+                      >
+                        <option value="1">À vista (1x)</option>
+                        {Array.from({ length: 59 }, (_, i) => i + 2).map((qtd) => (
+                          <option key={qtd} value={qtd}>
+                            {qtd}x
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-xs text-slate-500">Escolher 2 ou mais parcelas transforma esta despesa em uma compra parcelada.</p>
+                    </div>
+                    <div className="mb-4">
+                      <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                        Cartão de crédito
+                      </label>
+                      <select
+                        id="cartao-edit"
+                        className={classeCampo}
+                        value={cartaoIdEdit}
+                        onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
+                      >
+                        <option value="">Selecione o cartão</option>
+                        {cartoes.map((cartao) => (
+                          <option key={cartao.id} value={cartao.id}>
+                            {cartao.nome}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
                 )}
               </>
             )}
 
             <div className="flex justify-center gap-2">
               <Button onClick={editarTransacao} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
+
               <Button
                 onClick={() => {
                   setShowModal(false);
+
                   setTransacaoSelecionada(null);
+
                   setCompraParceladaSelecionada(null);
                 }}
                 label="Cancelar"

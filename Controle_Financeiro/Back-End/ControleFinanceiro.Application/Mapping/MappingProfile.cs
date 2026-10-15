@@ -29,16 +29,17 @@ namespace ControleFinanceiro.Application.Mapping
 
 
             CreateMap<Transacao, TransacaoConsultarDTO>()
-                .ForMember(dest => dest.UsuarioNome,
-                    opt => opt.MapFrom(src => src.Usuario.Nome))
-                .ForMember(dest => dest.CategoriaDescricao,
-                    opt => opt.MapFrom(src => src.Categoria.Descricao))
-                .ForMember(dest => dest.Data,
-                    opt => opt.MapFrom(src => src.Data))
-                .ForMember(dest => dest.CartaoNome,
-                    opt => opt.MapFrom(src =>
-                        src.Cartao != null ? src.Cartao.Nome : null));
-
+                 .ForMember(dest => dest.UsuarioNome,
+                     opt => opt.MapFrom(src => src.Usuario.Nome))
+                 .ForMember(dest => dest.CategoriaDescricao,
+                     opt => opt.MapFrom(src => src.Categoria.Descricao))
+                 .ForMember(dest => dest.FinalidadeCategoria,
+                     opt => opt.MapFrom(src => src.Categoria.Finalidade))
+                 .ForMember(dest => dest.Data,
+                     opt => opt.MapFrom(src => src.Data))
+                 .ForMember(dest => dest.CartaoNome,
+                     opt => opt.MapFrom(src =>
+                         src.Cartao != null ? src.Cartao.Nome : null));
 
             CreateMap<TransacaoCriarDTO, Transacao>()
                 .ForMember(dest => dest.Usuario, opt => opt.Ignore())
@@ -48,6 +49,7 @@ namespace ControleFinanceiro.Application.Mapping
                 .ForMember(dest => dest.Usuario, opt => opt.Ignore())
                 .ForMember(dest => dest.UsuarioId, opt => opt.Ignore());
 
+          
             CreateMap<Usuario, UsuarioResumoFinanceiroDTO>()
                 .ForMember(dest => dest.UsuarioId,
                     opt => opt.MapFrom(src => src.Id))
@@ -61,8 +63,17 @@ namespace ControleFinanceiro.Application.Mapping
                 .ForMember(dest => dest.TotalDespesas,
                     opt => opt.MapFrom(src =>
                         src.Transacao
-                           .Where(t => t.Tipo == Domain.Enums.TipoTransacao.Despesa)
+                           .Where(t =>
+                               t.Tipo == Domain.Enums.TipoTransacao.Despesa &&
+                               t.Categoria.Finalidade == Domain.Enums.FinalidadeCategoria.Despesa)
+                           .Sum(t => t.Valor)))
+                .ForMember(dest => dest.TotalInvestimentos,
+                    opt => opt.MapFrom(src =>
+                        src.Transacao
+                           .Where(t =>
+                               t.Categoria.Finalidade == Domain.Enums.FinalidadeCategoria.Investimento)
                            .Sum(t => t.Valor)));
+
         }
     }
 }
