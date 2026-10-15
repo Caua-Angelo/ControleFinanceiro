@@ -18,6 +18,8 @@ import { listarTransacoes } from "../Services/TransacaoService";
 
 import { listarComprasParceladas } from "../Services/CompraParceladaService";
 
+import { consultarCartoes, type CartaoResponse } from "../Services/CartaoService";
+
 import type { TransacaoResponse } from "../Types/index";
 
 import type { CompraParceladaResponse } from "../Types/CompraParceladaResponse";
@@ -34,6 +36,8 @@ export default function RelatorioFinanceiro() {
   const [transacoes, setTransacoes] = useState<TransacaoResponse[]>([]);
 
   const [comprasParceladas, setComprasParceladas] = useState<CompraParceladaResponse[]>([]);
+
+  const [cartoes, setCartoes] = useState<CartaoResponse[]>([]);
 
   const filtrosSalvos = JSON.parse(localStorage.getItem("filtros-dashboard") || "{}");
 
@@ -54,7 +58,13 @@ export default function RelatorioFinanceiro() {
       try {
         setLoading(true);
 
-        const [resultadoTransacoes, resultadoCompras] = await Promise.allSettled([listarTransacoes(), listarComprasParceladas()]);
+        const [resultadoTransacoes, resultadoCompras, resultadoCartoes] = await Promise.allSettled([
+          listarTransacoes(),
+
+          listarComprasParceladas(),
+
+          consultarCartoes(),
+        ]);
 
         if (resultadoTransacoes.status === "fulfilled") {
           setTransacoes(resultadoTransacoes.value);
@@ -82,6 +92,12 @@ export default function RelatorioFinanceiro() {
 
             toast.error("Não foi possível carregar o valor da fatura");
           }
+        }
+
+        if (resultadoCartoes.status === "fulfilled") {
+          setCartoes(resultadoCartoes.value);
+        } else {
+          console.error(resultadoCartoes.reason);
         }
       } finally {
         setLoading(false);
@@ -142,10 +158,15 @@ export default function RelatorioFinanceiro() {
       number,
       {
         usuarioId: number;
+
         usuarioNome: string;
+
         totalReceitas: number;
+
         totalDespesas: number;
+
         totalInvestimentos: number;
+
         saldoFinal: number;
       }
     >();
@@ -154,15 +175,21 @@ export default function RelatorioFinanceiro() {
       if (!usuariosMap.has(transacao.usuarioId)) {
         usuariosMap.set(transacao.usuarioId, {
           usuarioId: transacao.usuarioId,
+
           usuarioNome: transacao.usuarioNome,
+
           totalReceitas: 0,
+
           totalDespesas: 0,
+
           totalInvestimentos: 0,
+
           saldoFinal: 0,
         });
       }
 
       const usuario = usuariosMap.get(transacao.usuarioId)!;
+
       const ehInvestimento = transacao.finalidadeCategoria === Finalidade.Investimento;
 
       if (ehInvestimento) {
@@ -228,48 +255,89 @@ export default function RelatorioFinanceiro() {
   const dadosPorMes = useMemo(() => {
     const mapa = new Map<string, { receita: number; despesa: number; investimento: number }>();
 
+    const garantirMes = (data: dayjs.Dayjs) => {
+      const chave = data.format("MM/YY");
+
+      if (!mapa.has(chave)) mapa.set(chave, { receita: 0, despesa: 0, investimento: 0 });
+
+      return mapa.get(chave)!;
+    };
+
     transacoesPeriodo.forEach((t) => {
       const data = dayjs(t.data, ["YYYY-MM-DD", "DD/MM/YYYY"]);
+
       if (!data.isValid()) return;
 
-      const chave = data.format("MM/YY");
-      if (!mapa.has(chave)) {
-        mapa.set(chave, { receita: 0, despesa: 0, investimento: 0 });
-      }
+      const item = garantirMes(data);
 
-      const item = mapa.get(chave)!;
-      if (t.finalidadeCategoria === Finalidade.Investimento) {
-        item.investimento += t.valor;
-      } else if (t.tipo === 1) {
-        item.receita += t.valor;
-      } else if (t.tipo === 2) {
-        item.despesa += t.valor;
-      }
+      if (t.finalidadeCategoria === Finalidade.Investimento) item.investimento += t.valor;
+      else if (t.tipo === 1) item.receita += t.valor;
+      else if (t.tipo === 2) item.despesa += t.valor;
     });
 
-    const dadosOrdenados = Array.from({ length: period }).map((_, i) => {
-      const data = dayjs().subtract(period - 1 - i, "month");
-      const chave = data.format("MM/YY");
-      const valores = mapa.get(chave) || {
-        receita: 0,
-        despesa: 0,
-        investimento: 0,
+    // Cada parcela entra no mês da fatura: se a compra foi feita depois do fechamento,
+
+    // a primeira parcela passa para o mês seguinte; as demais seguem mês a mês.
+
+    comprasParceladas.forEach((compra) => {
+      const compraComDados = compra as CompraParceladaResponse & {
+        dataCompra?: string;
+
+        cartaoId?: number;
+
+        parcelas: Array<{ valor: number; dataVencimento?: string; paga?: boolean }>;
       };
 
-      return {
-        mes: chave,
-        receita: valores.receita,
-        despesa: valores.despesa,
-        investimento: valores.investimento,
-      };
+      const dataCompra = dayjs(compraComDados.dataCompra);
+
+      if (!dataCompra.isValid()) return;
+
+      const cartaoId = (compra as CompraParceladaResponse & { cartaoId?: number }).cartaoId;
+
+      const cartao = cartoes.find((c) => c.id === cartaoId);
+
+      const diaFechamento = cartao?.diaFechamento ?? 31;
+
+      const passouFechamento = dataCompra.date() > diaFechamento;
+
+      compraComDados.parcelas.forEach((parcela, indice) => {
+        // Distribui uma parcela por mês, começando no mês da compra; se a compra
+
+        // ocorreu após o fechamento, a primeira parcela entra no mês seguinte.
+
+        const mesParcela = dataCompra.startOf("month").add(indice + (passouFechamento ? 1 : 0), "month");
+
+        const inicioPeriodo = dayjs()
+          .subtract(period - 1, "month")
+
+          .startOf("month");
+
+        if (mesParcela.isBefore(inicioPeriodo, "month") || mesParcela.isAfter(dayjs().add(4, "month"), "month")) return;
+
+        garantirMes(mesParcela).despesa += parcela.valor;
+      });
+    });
+
+    const dadosOrdenados = Array.from({ length: period + 4 }).map((_, i) => {
+      const data = dayjs()
+        .subtract(period - 1, "month")
+        .add(i, "month");
+
+      const chave = data.format("MM/YY");
+
+      const valores = mapa.get(chave) || { receita: 0, despesa: 0, investimento: 0 };
+
+      return { mes: chave, receita: valores.receita, despesa: valores.despesa, investimento: valores.investimento };
     });
 
     let saldo = 0;
+
     return dadosOrdenados.map((item) => {
       saldo += item.receita - item.despesa - item.investimento;
+
       return { ...item, saldoAcumulado: saldo };
     });
-  }, [transacoesPeriodo, period]);
+  }, [transacoesPeriodo, comprasParceladas, cartoes, period]);
 
   function filterByPeriod(transactions: TransacaoResponse[], months: number) {
     const startDate = dayjs()
@@ -288,36 +356,187 @@ export default function RelatorioFinanceiro() {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   }
 
-  const faturaAtual = useMemo(() => {
-    const inicioMes = dayjs().startOf("month");
+  const faturasPorCartao = useMemo(() => {
+    const hoje = dayjs();
 
-    const fimMes = dayjs().endOf("month");
+    const inicioMes = hoje.startOf("month");
 
-    const parcelasPendentes = comprasParceladas.flatMap((compra) =>
-      compra.parcelas
+    const fimMes = hoje.endOf("month");
+
+    const itens: Array<{
+      id: number;
+
+      valor: number;
+
+      dataVencimento: string;
+
+      descricaoCompra: string;
+
+      origem: "parcela" | "avista";
+
+      cartaoId: number | null;
+
+      cartaoNome: string;
+    }> = [];
+
+    comprasParceladas.forEach((compra) => {
+      const dados = compra as CompraParceladaResponse & {
+        cartaoId?: number | null;
+
+        parcelas: Array<{ id: number; valor: number; dataVencimento: string; paga: boolean }>;
+      };
+
+      const cartaoId = dados.cartaoId ?? null;
+
+      const cartao = cartoes.find((c) => c.id === cartaoId);
+
+      dados.parcelas
 
         .filter((parcela) => {
           const vencimento = dayjs(parcela.dataVencimento);
 
-          return (
-            !parcela.paga &&
-            vencimento.isValid() &&
-            (vencimento.isAfter(inicioMes.subtract(1, "day")) || vencimento.isSame(inicioMes, "day")) &&
-            (vencimento.isBefore(fimMes.add(1, "day")) || vencimento.isSame(fimMes, "day"))
-          );
+          return !parcela.paga && vencimento.isValid() && !vencimento.isBefore(inicioMes, "day") && !vencimento.isAfter(fimMes, "day");
         })
 
-        .map((parcela) => ({ ...parcela, descricaoCompra: compra.descricao })),
-    );
+        .forEach((parcela) =>
+          itens.push({
+            id: parcela.id,
 
-    return {
-      total: parcelasPendentes.reduce((total, parcela) => total + parcela.valor, 0),
+            valor: parcela.valor,
 
-      quantidade: parcelasPendentes.length,
+            dataVencimento: parcela.dataVencimento,
 
-      parcelas: parcelasPendentes,
-    };
-  }, [comprasParceladas]);
+            descricaoCompra: compra.descricao,
+
+            origem: "parcela",
+
+            cartaoId,
+
+            cartaoNome: cartao?.nome ?? "Cartão não identificado",
+          }),
+        );
+    });
+
+    (transacoes as (TransacaoResponse & { cartaoId?: number | null; cartao?: { id: number; nome: string } | null })[]).forEach((transacao) => {
+      const cartaoId = transacao.cartaoId ?? transacao.cartao?.id ?? null;
+
+      if (transacao.tipo !== 2 || cartaoId == null) return;
+
+      const dataCompra = dayjs(transacao.data);
+
+      if (!dataCompra.isValid()) return;
+
+      const cartao = cartoes.find((c) => c.id === cartaoId);
+
+      const diaFechamento = cartao?.diaFechamento ?? 31;
+
+      const mesFatura = dataCompra.date() > diaFechamento ? dataCompra.add(1, "month") : dataCompra;
+
+      if (mesFatura.isBefore(inicioMes, "month") || mesFatura.isAfter(fimMes, "month")) return;
+
+      itens.push({
+        id: transacao.id,
+
+        valor: transacao.valor,
+
+        dataVencimento: mesFatura.format("YYYY-MM-DD"),
+
+        descricaoCompra: transacao.descricao,
+
+        origem: "avista",
+
+        cartaoId,
+
+        cartaoNome: cartao?.nome ?? transacao.cartao?.nome ?? "Cartão não identificado",
+      });
+    });
+
+    return cartoes
+
+      .map((cartao) => {
+        const compras = itens.filter((item) => item.cartaoId === cartao.id);
+
+        return {
+          cartaoId: cartao.id,
+
+          cartaoNome: cartao.nome,
+
+          total: compras.reduce((soma, item) => soma + item.valor, 0),
+
+          quantidade: compras.length,
+
+          compras,
+        };
+      })
+
+      .filter((fatura) => fatura.compras.length > 0);
+  }, [comprasParceladas, transacoes, cartoes]);
+
+  const historicoFaturas = useMemo(() => {
+    const meses = Array.from({ length: period + 4 }, (_, indice) => {
+      const dataMes = dayjs()
+        .subtract(period - 1, "month")
+        .add(indice, "month");
+
+      return {
+        chave: dataMes.format("YYYY-MM"),
+
+        mes: dataMes.format("MMM/YY"),
+
+        total: 0,
+      };
+    });
+
+    const porMes = new Map(meses.map((mes) => [mes.chave, mes]));
+
+    comprasParceladas.forEach((compra) => {
+      const dados = compra as CompraParceladaResponse & {
+        parcelas?: Array<{ valor: number; dataVencimento?: string; paga?: boolean }>;
+      };
+
+      (dados.parcelas ?? []).forEach((parcela) => {
+        if (!parcela.dataVencimento) return;
+
+        const vencimento = dayjs(parcela.dataVencimento);
+
+        const mes = vencimento.isValid() ? porMes.get(vencimento.format("YYYY-MM")) : undefined;
+
+        if (mes && !parcela.paga) mes.total += Number(parcela.valor) || 0;
+      });
+    });
+
+    (
+      transacoes as (TransacaoResponse & {
+        cartaoId?: number | null;
+
+        cartao?: { id: number; nome: string } | null;
+      })[]
+    ).forEach((transacao) => {
+      const cartaoId = transacao.cartaoId ?? transacao.cartao?.id ?? null;
+
+      if (transacao.tipo !== 2 || cartaoId == null) return;
+
+      const dataCompra = dayjs(transacao.data);
+
+      if (!dataCompra.isValid()) return;
+
+      const cartao = cartoes.find((item) => item.id === cartaoId);
+
+      const diaFechamento = cartao?.diaFechamento ?? 31;
+
+      const dataFatura = dataCompra.date() > diaFechamento ? dataCompra.add(1, "month") : dataCompra;
+
+      const mes = porMes.get(dataFatura.format("YYYY-MM"));
+
+      if (mes) mes.total += Number(transacao.valor) || 0;
+    });
+
+    return meses.map(({ mes, total }) => ({ mes, total }));
+  }, [period, comprasParceladas, transacoes, cartoes]);
+
+  const totalFaturaAtual = useMemo(() => faturasPorCartao.reduce((total, fatura) => total + fatura.total, 0), [faturasPorCartao]);
+
+  const quantidadeItensFatura = useMemo(() => faturasPorCartao.reduce((total, fatura) => total + fatura.quantidade, 0), [faturasPorCartao]);
 
   dayjs.locale("pt-br");
 
@@ -456,16 +675,16 @@ export default function RelatorioFinanceiro() {
 
         <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 sm:p-5">
           <div className="rounded-xl bg-[#F1F7F4] p-4 sm:col-span-2">
-            <p className="text-sm font-medium text-[#527165]">Total de parcelas pendentes com vencimento neste mês</p>
+            <p className="text-sm font-medium text-[#527165]">Total da fatura em aberto neste mês</p>
 
             <p className="mt-2 wrap-break-word text-3xl font-bold tracking-tight text-[#24483E] sm:text-4xl">
-              {loadingFaturas ? "Carregando..." : formatarValor(faturaAtual.total)}
+              {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
               {loadingFaturas
                 ? "Buscando parcelas..."
-                : `${faturaAtual.quantidade} ${faturaAtual.quantidade === 1 ? "parcela pendente" : "parcelas pendentes"}`}
+                : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento pendente" : "lançamentos pendentes"}`}
             </p>
           </div>
 
@@ -477,41 +696,71 @@ export default function RelatorioFinanceiro() {
             </p>
 
             <p className="mt-2 text-xs leading-relaxed text-slate-500">
-              O valor considera apenas parcelas ainda não marcadas como pagas, com vencimento neste mês.
+              O valor é separado por cartão e considera parcelas pendentes e compras à vista conforme o fechamento de cada cartão.
             </p>
           </div>
         </div>
 
-        {!loadingFaturas && faturaAtual.parcelas.length > 0 && (
-          <div className="border-t border-slate-100 px-4 py-4 sm:px-5">
-            <h3 className="mb-3 text-sm font-semibold text-slate-700">Parcelas incluídas na fatura</h3>
+        {!loadingFaturas && faturasPorCartao.length > 0 && (
+          <div className="space-y-4 border-t border-slate-100 px-4 py-4 sm:px-5">
+            {faturasPorCartao.map((fatura) => (
+              <div key={fatura.cartaoId} className="rounded-xl border border-slate-200 p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-semibold text-slate-800">{fatura.cartaoNome}</h3>
 
-            <div className="space-y-2">
-              {faturaAtual.parcelas.slice(0, 4).map((parcela) => (
-                <div
-                  key={parcela.id}
-                  className="flex flex-col gap-1 rounded-xl border border-slate-100 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-slate-800">{parcela.descricaoCompra}</p>
-
-                    <p className="text-xs text-slate-500">Vencimento em {dayjs(parcela.dataVencimento).format("DD/MM/YYYY")}</p>
-                  </div>
-
-                  <p className="font-semibold text-slate-800">{formatarValor(parcela.valor)}</p>
+                  <p className="text-lg font-bold text-[#24483E]">{formatarValor(fatura.total)}</p>
                 </div>
-              ))}
 
-              {faturaAtual.parcelas.length > 4 && (
-                <p className="pt-1 text-xs text-slate-500">E mais {faturaAtual.parcelas.length - 4} parcelas nesta fatura.</p>
-              )}
-            </div>
+                <div className="space-y-2">
+                  {fatura.compras.map((compra) => (
+                    <div
+                      key={`${compra.origem}-${compra.id}`}
+                      className="flex flex-col gap-1 rounded-lg border border-slate-100 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-slate-800">{compra.descricaoCompra}</p>
+
+                        <p className="text-xs text-slate-500">
+                          {compra.origem === "parcela" ? "Parcela" : "Compra à vista"} · {dayjs(compra.dataVencimento).format("DD/MM/YYYY")}
+                        </p>
+                      </div>
+
+                      <p className="font-semibold text-slate-800">{formatarValor(compra.valor)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        {!loadingFaturas && faturaAtual.parcelas.length === 0 && (
-          <div className="border-t border-slate-100 px-4 py-5 text-sm text-slate-500 sm:px-5">Nenhuma parcela pendente com vencimento neste mês.</div>
+        {!loadingFaturas && faturasPorCartao.length === 0 && (
+          <div className="border-t border-slate-100 px-4 py-5 text-sm text-slate-500 sm:px-5">Nenhuma compra pendente na fatura deste mês.</div>
         )}
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="mb-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#658176]">Cartões</p>
+
+          <h2 className="mt-1 text-lg font-bold text-[#24483E]">Fatura total por mês</h2>
+
+          <p className="mt-1 text-sm text-slate-500">Soma das parcelas e compras à vista no cartão, agrupadas pelo mês da fatura.</p>
+        </div>
+
+        <div className="h-44 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={historicoFaturas} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+              <XAxis dataKey="mes" tickLine={false} axisLine={false} />
+
+              <YAxis tickFormatter={(valor) => `R$${valor}`} width={58} tickLine={false} axisLine={false} />
+
+              <Tooltip formatter={(valor) => formatarValor(Number(valor))} />
+
+              <Bar dataKey="total" name="Fatura total" fill="#285748" radius={[5, 5, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
@@ -552,6 +801,7 @@ export default function RelatorioFinanceiro() {
               <Bar dataKey="receita" name="Receitas" fill="#16a34a" radius={[5, 5, 0, 0]} />
 
               <Bar dataKey="despesa" name="Despesas" fill="#dc2626" radius={[5, 5, 0, 0]} />
+
               <Bar dataKey="investimento" name="Investimentos" fill="#2563eb" radius={[5, 5, 0, 0]} />
 
               <Line type="linear" dataKey="saldoAcumulado" name="Saldo acumulado" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />

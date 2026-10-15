@@ -1,4 +1,4 @@
-﻿
+﻿using ControleFinanceiro.Domain.Enums;
 using ControleFinanceiro.Domain.Models;
 using ControleFinanceiro.Domain.Validation;
 using FluentAssertions;
@@ -9,6 +9,7 @@ namespace ControleFinanceiro.Test.Unit.Domain
     {
         private readonly Usuario _usuario;
         private readonly Cartao _cartao;
+        private readonly Categoria _categoria;
         private readonly CompraParcelada _compra;
         private readonly DateOnly _vencimento = new(2026, 11, 10);
 
@@ -29,12 +30,22 @@ namespace ControleFinanceiro.Test.Unit.Domain
                 _usuario
             );
 
+            _categoria = new Categoria(
+                "Eletronicos",
+                FinalidadeCategoria.Despesa
+            )
+            {
+                UsuarioId = _usuario.Id,
+                Usuario = _usuario
+            };
+
             _compra = new CompraParcelada(
                 "Monitor novo",
                 1200m,
                 6,
                 new DateOnly(2026, 10, 11),
                 _cartao,
+                _categoria,
                 _usuario
             );
         }

@@ -174,7 +174,7 @@ export default function Categoria() {
                   <option value="">Selecione a Finalidade</option>
                   <option value={Finalidade.Despesa}>Despesa</option>
                   <option value={Finalidade.Receita}>Receita</option>
-                  <option value={Finalidade.Ambas}>Ambas</option>
+                  <option value={Finalidade.Investimento}>Investimento</option>
                 </select>
               </div>
 
@@ -326,7 +326,7 @@ export default function Categoria() {
                   <option value="">Selecione</option>
                   <option value={Finalidade.Despesa}>Despesa</option>
                   <option value={Finalidade.Receita}>Receita</option>
-                  <option value={Finalidade.Ambas}>Ambas</option>
+                  <option value={Finalidade.Investimento}>Investimento</option>
                 </select>
               </div>
 

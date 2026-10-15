@@ -13,5 +13,6 @@ export interface CompraParceladaResponse {
   quantidadeParcelas: number;
   dataCompra: string;
   cartaoId: number;
+  categoriaId: number;
   parcelas: ParcelaResponse[];
 }

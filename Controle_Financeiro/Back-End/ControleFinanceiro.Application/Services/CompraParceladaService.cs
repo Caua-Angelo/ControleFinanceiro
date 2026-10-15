@@ -1,5 +1,4 @@
-﻿
-using ControleFinanceiro.Application.DTO.CompraParcelada;
+﻿using ControleFinanceiro.Application.DTO.CompraParcelada;
 using ControleFinanceiro.Application.Interfaces;
 using ControleFinanceiro.Domain.Interfaces;
 using ControleFinanceiro.Domain.Models;
@@ -11,15 +10,18 @@ namespace ControleFinanceiro.Application.Services
         private readonly ICompraParceladaRepository _compraRepository;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ICartaoRepository _cartaoRepository;
+        private readonly ICategoriaRepository _categoriaRepository;
 
         public CompraParceladaService(
             ICompraParceladaRepository compraRepository,
             IUsuarioRepository usuarioRepository,
-            ICartaoRepository cartaoRepository)
+            ICartaoRepository cartaoRepository,
+            ICategoriaRepository categoriaRepository)
         {
             _compraRepository = compraRepository;
             _usuarioRepository = usuarioRepository;
             _cartaoRepository = cartaoRepository;
+            _categoriaRepository = categoriaRepository;
         }
 
         public async Task<CompraParceladaResponseDTO> AddAsync(
@@ -39,6 +41,14 @@ namespace ControleFinanceiro.Application.Services
                 throw new InvalidOperationException(
                     "Cartão não encontrado para este usuário.");
 
+            var categoria = await _categoriaRepository.GetByIdAsync(
+                dto.CategoriaId,
+                userId);
+
+            if (categoria == null)
+                throw new InvalidOperationException(
+                    "Categoria não encontrada para este usuário.");
+
             if (dto.ValorTotal <= 0)
                 throw new InvalidOperationException(
                     "O valor total deve ser maior que zero.");
@@ -53,6 +63,7 @@ namespace ControleFinanceiro.Application.Services
                 dto.QuantidadeParcelas,
                 dto.DataCompra,
                 cartao,
+                categoria,
                 usuario);
 
             var valorBase = Math.Floor(
@@ -75,10 +86,10 @@ namespace ControleFinanceiro.Application.Services
                 var vencimento = primeiroVencimento.AddMonths(numero - 1);
 
                 var parcela = new Parcela(
-                 numero,
-                 valorParcela,
-                 vencimento,
-                 compra);
+                    numero,
+                    valorParcela,
+                    vencimento,
+                    compra);
 
                 compra.AdicionarParcela(parcela);
             }
@@ -104,7 +115,8 @@ namespace ControleFinanceiro.Application.Services
             var compra = await _compraRepository.GetByIdAsync(id);
 
             if (compra == null)
-                throw new KeyNotFoundException("Compra parcelada não encontrada.");
+                throw new KeyNotFoundException(
+                    "Compra parcelada não encontrada.");
 
             if (compra.UsuarioId != userId)
                 throw new ForbiddenException("Acesso negado.");
@@ -112,7 +124,9 @@ namespace ControleFinanceiro.Application.Services
             return MapearResposta(compra);
         }
 
-        public async Task MarcarParcelaComoPagaAsync(int parcelaId, int usuarioId)
+        public async Task MarcarParcelaComoPagaAsync(
+            int parcelaId,
+            int usuarioId)
         {
             var parcela = await _compraRepository.GetParcelaByIdAsync(parcelaId);
 
@@ -128,7 +142,9 @@ namespace ControleFinanceiro.Application.Services
             await _compraRepository.SaveAsync();
         }
 
-        public async Task ReabrirParcelaAsync(int parcelaId, int usuarioId)
+        public async Task ReabrirParcelaAsync(
+            int parcelaId,
+            int usuarioId)
         {
             var parcela = await _compraRepository.GetParcelaByIdAsync(parcelaId);
 
@@ -145,14 +161,15 @@ namespace ControleFinanceiro.Application.Services
         }
 
         public async Task<CompraParceladaResponseDTO> UpdateAsync(
-    int id,
-    CompraParceladaAtualizarDTO dto,
-    int userId)
+            int id,
+            CompraParceladaAtualizarDTO dto,
+            int userId)
         {
             var compra = await _compraRepository.GetByIdAsync(id);
 
             if (compra is null)
-                throw new KeyNotFoundException("Compra parcelada não encontrada.");
+                throw new KeyNotFoundException(
+                    "Compra parcelada não encontrada.");
 
             if (compra.UsuarioId != userId)
                 throw new ForbiddenException("Acesso negado.");
@@ -161,20 +178,33 @@ namespace ControleFinanceiro.Application.Services
                 throw new InvalidOperationException(
                     "Não é possível editar uma compra com parcelas pagas.");
 
-            var cartao = await _cartaoRepository.GetByIdAsync(dto.CartaoId, userId);
+            var cartao = await _cartaoRepository.GetByIdAsync(
+                dto.CartaoId,
+                userId);
 
             if (cartao is null)
                 throw new InvalidOperationException(
                     "Cartão não encontrado para este usuário.");
+
+            var categoria = await _categoriaRepository.GetByIdAsync(
+                dto.CategoriaId,
+                userId);
+
+            if (categoria is null)
+                throw new InvalidOperationException(
+                    "Categoria não encontrada para este usuário.");
 
             compra.Atualizar(
                 dto.Descricao,
                 dto.ValorTotal,
                 dto.QuantidadeParcelas,
                 dto.DataCompra,
-                cartao);
+                cartao,
+                categoria);
 
-            await _compraRepository.RemoverParcelasAsync(compra.Parcelas.ToList());
+            await _compraRepository.RemoverParcelasAsync(
+                compra.Parcelas.ToList());
+
             compra.Parcelas.Clear();
 
             var valorBase = Math.Floor(
@@ -208,13 +238,13 @@ namespace ControleFinanceiro.Application.Services
             return MapearResposta(compra);
         }
 
-
         public async Task DeleteAsync(int id, int userId)
         {
             var compra = await _compraRepository.GetByIdAsync(id);
 
             if (compra == null)
-                throw new KeyNotFoundException("Compra parcelada não encontrada.");
+                throw new KeyNotFoundException(
+                    "Compra parcelada não encontrada.");
 
             if (compra.UsuarioId != userId)
                 throw new ForbiddenException("Acesso negado.");
@@ -238,8 +268,6 @@ namespace ControleFinanceiro.Application.Services
                 mesFatura.Month,
                 diaVencimento);
 
-            // Se o vencimento calculado não for posterior à compra,
-            // utiliza o vencimento do ciclo seguinte.
             if (dataFatura <= dataCompra)
             {
                 var mesSeguinte = mesFatura.AddMonths(1);
@@ -277,6 +305,8 @@ namespace ControleFinanceiro.Application.Services
                 QuantidadeParcelas = compra.QuantidadeParcelas,
                 DataCompra = compra.DataCompra,
                 CartaoId = compra.CartaoId,
+                CategoriaId = compra.CategoriaId,
+
                 Parcelas = compra.Parcelas
                     .OrderBy(p => p.Numero)
                     .Select(p => new ParcelaResponseDTO
