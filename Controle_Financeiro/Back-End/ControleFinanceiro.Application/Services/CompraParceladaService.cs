@@ -33,6 +33,16 @@ namespace ControleFinanceiro.Application.Services
             if (usuario == null)
                 throw new InvalidOperationException("Usuário não encontrado.");
 
+            // Valida os dados da compra antes de consultar cartão e categoria,
+            // para que dados inválidos retornem erro de validação (400).
+            if (dto.ValorTotal <= 0)
+                throw new ArgumentException(
+                    "O valor total deve ser maior que zero.");
+
+            if (dto.QuantidadeParcelas < 2 || dto.QuantidadeParcelas > 60)
+                throw new ArgumentException(
+                    "A quantidade de parcelas deve estar entre 2 e 60.");
+
             var cartao = await _cartaoRepository.GetByIdAsync(
                 dto.CartaoId,
                 userId);
@@ -48,14 +58,6 @@ namespace ControleFinanceiro.Application.Services
             if (categoria == null)
                 throw new InvalidOperationException(
                     "Categoria não encontrada para este usuário.");
-
-            if (dto.ValorTotal <= 0)
-                throw new InvalidOperationException(
-                    "O valor total deve ser maior que zero.");
-
-            if (dto.QuantidadeParcelas < 2 || dto.QuantidadeParcelas > 60)
-                throw new InvalidOperationException(
-                    "A quantidade de parcelas deve estar entre 2 e 60.");
 
             var compra = new CompraParcelada(
                 dto.Descricao,
