@@ -273,10 +273,7 @@ export default function RelatorioFinanceiro() {
       if (t.finalidadeCategoria === Finalidade.Investimento) item.investimento += t.valor;
       else if (t.tipo === 1) item.receita += t.valor;
       else if (t.tipo === 2) item.despesa += t.valor;
-    });
-
-    // Cada parcela entra no mês da fatura: se a compra foi feita depois do fechamento,
-
+    }); // Cada parcela entra no mês da fatura: se a compra foi feita depois do fechamento,
     // a primeira parcela passa para o mês seguinte; as demais seguem mês a mês.
 
     comprasParceladas.forEach((compra) => {
@@ -543,350 +540,337 @@ export default function RelatorioFinanceiro() {
   const mesFatura = dayjs().format("MMMM [de] YYYY");
 
   return (
-    <div className="w-full max-w-full space-y-5 overflow-x-hidden pb-6">
-      <section className="rounded-2xl border border-emerald-900/10 bg-linear-to-br from-[#F5F8F6] to-white p-4 shadow-sm sm:p-6">
-        <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="mb-1 text-sm font-medium uppercase tracking-wider text-[#658176]">Visão financeira</p>
-
-            <h1 className="text-2xl font-bold tracking-tight text-[#24483E] sm:text-3xl">Resumo geral</h1>
-
-            <p className="mt-1 text-sm text-slate-500">Acompanhe suas receitas, despesas e saldo em um só lugar.</p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
-              Mês
-              <select
-                id="select-mes"
-                value={mesSelecionado}
-                onChange={(e) => setMesSelecionado(e.target.value)}
-                className="min-w-44 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-800 outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10"
-              >
-                <option value="todos">Todos os meses</option>
-
-                {gerarMeses().map((mes) => (
-                  <option key={mes.valor} value={mes.valor}>
-                    {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
-              Tipo de lançamento
-              <select
-                id="select-tipo"
-                value={tipoSelecionado}
-                onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-                className="min-w-40 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-800 outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10"
-              >
-                <option value="todos">Todos os tipos</option>
-
-                <option value={1}>Receitas</option>
-
-                <option value={2}>Despesas</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
-          <p className="text-sm text-slate-500">
-            {filtrosAtivos ? "Exibindo resultados conforme os filtros selecionados." : "Exibindo todos os lançamentos."}
-          </p>
-
-          <button
-            onClick={limparFiltros}
-            disabled={!filtrosAtivos}
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-[#2F5D50] transition hover:bg-emerald-900/5 disabled:cursor-not-allowed disabled:text-slate-400"
-          >
-            Limpar filtros
-          </button>
-        </div>
-
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-lg text-emerald-700">↗</span>
-
-              <p className="text-sm font-medium text-slate-500">Receitas</p>
+    <main className="min-h-full w-full overflow-x-hidden bg-[#E8DCC6] px-3 py-5 text-slate-800 sm:px-5 lg:px-7">
+      <div className="mx-auto w-full max-w-[1600px] space-y-5">
+        {/* Cabeçalho e filtros */}
+        <section className="rounded-3xl border border-[#D9C7AB] bg-white p-5 shadow-sm sm:p-7">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#87A878]">Sua vida financeira, em perspectiva</p>
+              <h1 className="text-3xl font-bold tracking-tight text-[#5B3A29] sm:text-4xl">Resumo financeiro</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                Acompanhe entradas, despesas, investimentos e compromissos do cartão em um só lugar.
+              </p>
             </div>
-
-            <p className="wrap-break-word text-2xl font-bold tracking-tight text-emerald-700 sm:text-3xl">{formatarValor(totalGeralReceitas)}</p>
-          </div>
-
-          <div className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-lg text-rose-700">↘</span>
-
-              <p className="text-sm font-medium text-slate-500">Despesas</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
+                Período
+                <select
+                  id="select-mes"
+                  value={mesSelecionado}
+                  onChange={(e) => setMesSelecionado(e.target.value)}
+                  className="min-w-44 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
+                >
+                  <option value="todos">Todos os meses</option>
+                  {gerarMeses().map((mes) => (
+                    <option key={mes.valor} value={mes.valor}>
+                      {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
+                Tipo de lançamento
+                <select
+                  id="select-tipo"
+                  value={tipoSelecionado}
+                  onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
+                  className="min-w-40 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
+                >
+                  <option value="todos">Todos os tipos</option>
+                  <option value={1}>Receitas</option>
+                  <option value={2}>Despesas</option>
+                </select>
+              </label>
             </div>
-
-            <p className="wrap-break-word text-2xl font-bold tracking-tight text-rose-700 sm:text-3xl">{formatarValor(totalGeralDespesas)}</p>
           </div>
-
-          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">↗</span>
-
-              <p className="text-sm font-medium text-slate-500">Investimentos</p>
-            </div>
-
-            <p className="wrap-break-word text-2xl font-bold tracking-tight text-blue-700 sm:text-3xl">{formatarValor(totalGeralInvestimentos)}</p>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+            <p className="text-xs text-slate-500">
+              {filtrosAtivos ? "Resumo atualizado conforme os filtros selecionados." : "Você está vendo todos os lançamentos."}
+            </p>
+            <button
+              onClick={limparFiltros}
+              disabled={!filtrosAtivos}
+              className="rounded-lg px-3 py-2 text-xs font-bold text-[#5B3A29] transition hover:bg-[#EEF2E8] disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              Limpar filtros ↺
+            </button>
           </div>
+        </section>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-lg text-slate-700">=</span>
-
-              <p className="text-sm font-medium text-slate-500">Saldo final</p>
+        {/* Indicadores */}
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+          <article className="relative overflow-hidden rounded-2xl border border-[#D5E2CC] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#EEF2E8]" />
+            <div className="relative flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF2E8] text-xl font-bold text-[#587B4C]">↙</span>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Receitas</p>
+                <p className="mt-1 text-xs text-[#587B4C]">Entradas no período</p>
+              </div>
             </div>
-
+            <p className="relative mt-5 break-words text-2xl font-bold tracking-tight text-[#587B4C] sm:text-3xl">
+              {formatarValor(totalGeralReceitas)}
+            </p>
+          </article>
+          <article className="relative overflow-hidden rounded-2xl border border-[#E8C7B4] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F8E9DF]" />
+            <div className="relative flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8E9DF] text-xl font-bold text-[#A94F2B]">↗</span>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Despesas</p>
+                <p className="mt-1 text-xs text-[#A94F2B]">Saídas no período</p>
+              </div>
+            </div>
+            <p className="relative mt-5 break-words text-2xl font-bold tracking-tight text-[#A94F2B] sm:text-3xl">
+              {formatarValor(totalGeralDespesas)}
+            </p>
+          </article>
+          <article className="relative overflow-hidden rounded-2xl border border-[#E5D6B5] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F6EEDB]" />
+            <div className="relative flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F6EEDB] text-xl font-bold text-[#94732F]">◇</span>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Investimentos</p>
+                <p className="mt-1 text-xs text-[#94732F]">Valores investidos</p>
+              </div>
+            </div>
+            <p className="relative mt-5 break-words text-2xl font-bold tracking-tight text-[#94732F] sm:text-3xl">
+              {formatarValor(totalGeralInvestimentos)}
+            </p>
+          </article>
+          <article className="relative overflow-hidden rounded-2xl border border-[#D9C7AB] bg-[#5B3A29] p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <div className="absolute -right-4 -top-8 h-28 w-28 rounded-full border-[18px] border-white/5" />
+            <div className="relative flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-xl font-bold text-white">=</span>
+              <div>
+                <p className="text-sm font-medium text-white/75">Saldo final</p>
+                <p className="mt-1 text-xs text-white/60">Receitas menos saídas</p>
+              </div>
+            </div>
             <p
-              className={`wrap-break-word text-2xl font-bold tracking-tight sm:text-3xl ${saldoGeralFinal >= 0 ? "text-emerald-700" : "text-rose-700"}`}
+              className={`relative mt-5 break-words text-2xl font-bold tracking-tight sm:text-3xl ${saldoGeralFinal >= 0 ? "text-white" : "text-[#F0C8AE]"}`}
             >
               {formatarValor(saldoGeralFinal)}
             </p>
-          </div>
-        </div>
-      </section>
+          </article>
+        </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-slate-100 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#658176]">Cartão de crédito</p>
-
-            <h2 className="mt-1 text-xl font-bold text-[#24483E] sm:text-2xl">Fatura em aberto</h2>
-
-            <p className="mt-1 text-sm capitalize text-slate-500">{mesFatura}</p>
-          </div>
-
-          <button
-            onClick={() => navigate("/transacao")}
-            className="inline-flex items-center justify-center rounded-xl bg-[#285748] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F4639] focus:outline-none focus:ring-4 focus:ring-emerald-800/20"
-          >
-            Ver compras parceladas{" "}
-            <span className="ml-2" aria-hidden="true">
-              →
-            </span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 sm:p-5">
-          <div className="rounded-xl bg-[#F1F7F4] p-4 sm:col-span-2">
-            <p className="text-sm font-medium text-[#527165]">Total da fatura em aberto neste mês</p>
-
-            <p className="mt-2 wrap-break-word text-3xl font-bold tracking-tight text-[#24483E] sm:text-4xl">
-              {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
-            </p>
-
-            <p className="mt-2 text-sm text-slate-500">
-              {loadingFaturas
-                ? "Buscando parcelas..."
-                : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento pendente" : "lançamentos pendentes"}`}
-            </p>
-          </div>
-
-          <div className="flex flex-col justify-center rounded-xl border border-slate-200 p-4">
-            <p className="text-sm text-slate-500">Período considerado</p>
-
-            <p className="mt-1 font-semibold capitalize text-slate-800">
-              {dayjs().startOf("month").format("DD/MM")} a {dayjs().endOf("month").format("DD/MM/YYYY")}
-            </p>
-
-            <p className="mt-2 text-xs leading-relaxed text-slate-500">
-              O valor é separado por cartão e considera parcelas pendentes e compras à vista conforme o fechamento de cada cartão.
-            </p>
-          </div>
-        </div>
-
-        {!loadingFaturas && faturasPorCartao.length > 0 && (
-          <div className="space-y-4 border-t border-slate-100 px-4 py-4 sm:px-5">
-            {faturasPorCartao.map((fatura) => (
-              <div key={fatura.cartaoId} className="rounded-xl border border-slate-200 p-4">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold text-slate-800">{fatura.cartaoNome}</h3>
-
-                  <p className="text-lg font-bold text-[#24483E]">{formatarValor(fatura.total)}</p>
-                </div>
-
-                <div className="space-y-2">
-                  {fatura.compras.map((compra) => (
-                    <div
-                      key={`${compra.origem}-${compra.id}`}
-                      className="flex flex-col gap-1 rounded-lg border border-slate-100 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-slate-800">{compra.descricaoCompra}</p>
-
-                        <p className="text-xs text-slate-500">
-                          {compra.origem === "parcela" ? "Parcela" : "Compra à vista"} · {dayjs(compra.dataVencimento).format("DD/MM/YYYY")}
-                        </p>
-                      </div>
-
-                      <p className="font-semibold text-slate-800">{formatarValor(compra.valor)}</p>
-                    </div>
-                  ))}
-                </div>
+        {/* Fatura e gráfico de cartões */}
+        <section className="grid grid-cols-1 items-stretch gap-5 2xl:grid-cols-[1.05fr_1fr]">
+          <article className="overflow-hidden rounded-2xl border border-[#D9C7AB] bg-white shadow-sm">
+            <div className="flex flex-col gap-4 bg-gradient-to-br from-[#5B3A29] to-[#C46A3A] p-5 text-white sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#F4EBDD]">Cartão de crédito</p>
+                <h2 className="mt-1 text-2xl font-bold">Fatura em aberto</h2>
+                <p className="mt-1 text-sm capitalize text-white/70">{mesFatura}</p>
               </div>
-            ))}
-          </div>
-        )}
-
-        {!loadingFaturas && faturasPorCartao.length === 0 && (
-          <div className="border-t border-slate-100 px-4 py-5 text-sm text-slate-500 sm:px-5">Nenhuma compra pendente na fatura deste mês.</div>
-        )}
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="mb-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#658176]">Cartões</p>
-
-          <h2 className="mt-1 text-lg font-bold text-[#24483E]">Fatura total por mês</h2>
-
-          <p className="mt-1 text-sm text-slate-500">Soma das parcelas e compras à vista no cartão, agrupadas pelo mês da fatura.</p>
-        </div>
-
-        <div className="h-44 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={historicoFaturas} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-              <XAxis dataKey="mes" tickLine={false} axisLine={false} />
-
-              <YAxis tickFormatter={(valor) => `R$${valor}`} width={58} tickLine={false} axisLine={false} />
-
-              <Tooltip formatter={(valor) => formatarValor(Number(valor))} />
-
-              <Bar dataKey="total" name="Fatura total" fill="#285748" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#658176]">Histórico</p>
-
-            <h2 className="mt-1 text-xl font-bold text-[#24483E] sm:text-2xl">Evolução financeira</h2>
-
-            <p className="mt-1 text-sm text-slate-500">Compare receitas, despesas e saldo acumulado ao longo do tempo.</p>
-          </div>
-
-          <div className="flex rounded-xl bg-slate-100 p-1" aria-label="Período do gráfico">
-            {[3, 6, 12].map((p) => (
               <button
-                key={p}
-                onClick={() => setPeriod(p as 3 | 6 | 12)}
-                aria-pressed={period === p}
-                className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${period === p ? "bg-white text-[#285748] shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                onClick={() => navigate("/transacao")}
+                className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#5B3A29] shadow-sm transition hover:bg-[#EEF2E8] focus:outline-none focus:ring-4 focus:ring-white/20"
               >
-                {p} meses
+                Ver compras parceladas <span className="ml-2">→</span>
               </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="h-72 w-full sm:h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={dadosPorMes} barGap={8}>
-              <XAxis dataKey="mes" tickLine={false} axisLine={false} />
-
-              <YAxis tickFormatter={(valor) => `R$ ${valor}`} width={75} tickLine={false} axisLine={false} />
-
-              <Tooltip content={<CustomTooltip />} />
-
-              <Legend />
-
-              <Bar dataKey="receita" name="Receitas" fill="#16a34a" radius={[5, 5, 0, 0]} />
-
-              <Bar dataKey="despesa" name="Despesas" fill="#dc2626" radius={[5, 5, 0, 0]} />
-
-              <Bar dataKey="investimento" name="Investimentos" fill="#2563eb" radius={[5, 5, 0, 0]} />
-
-              <Line type="linear" dataKey="saldoAcumulado" name="Saldo acumulado" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#658176]">Movimentações recentes</p>
-
-            <h2 className="mt-1 text-xl font-bold text-[#24483E] sm:text-2xl">Últimas transações</h2>
-          </div>
-
-          <button
-            onClick={() => navigate("/transacao")}
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-[#285748] transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-800/10"
-          >
-            Ver todas{" "}
-            <span className="ml-2" aria-hidden="true">
-              →
-            </span>
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="animate-pulse rounded-xl border border-slate-100 p-4">
-                <div className="mb-2 h-4 w-1/2 rounded bg-slate-200" />
-
-                <div className="h-3 w-1/3 rounded bg-slate-100" />
-              </div>
-            ))}
-          </div>
-        ) : ultimasTransacoes.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center">
-            <p className="font-semibold text-slate-700">Nenhuma transação encontrada</p>
-
-            <p className="mt-1 text-sm text-slate-500">Tente limpar os filtros para visualizar outros lançamentos.</p>
-
-            {filtrosAtivos && (
-              <button onClick={limparFiltros} className="mt-3 rounded-lg px-3 py-2 text-sm font-semibold text-[#285748] hover:bg-emerald-50">
-                Limpar filtros
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className={`space-y-2 transition-all duration-200 ${animando ? "translate-y-1 opacity-60" : "opacity-100"}`}>
-            {ultimasTransacoes.map((t) => (
-              <div
-                key={t.id}
-                className={`flex flex-col gap-3 rounded-xl border p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:justify-between ${t.id === maiorTransacaoId ? "border-emerald-200 bg-emerald-50/50" : "border-slate-100 bg-white"}`}
-              >
-                <div className="flex min-w-0 items-start gap-3">
-                  <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${t.tipo === 1 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}
-                    aria-hidden="true"
-                  >
-                    {t.tipo === 1 ? "↗" : "↘"}
-                  </span>
-
-                  <div className="min-w-0">
-                    <p className="wrap-break-word font-semibold text-slate-800">{t.descricao}</p>
-
-                    <p className="mt-1 text-sm text-slate-500">{dayjs(t.data).isValid() ? dayjs(t.data).format("DD/MM/YYYY") : t.data}</p>
-                  </div>
-                </div>
-
-                <p className={`pl-13 text-lg font-bold sm:pl-0 sm:text-right ${t.tipo === 1 ? "text-emerald-700" : "text-rose-700"}`}>
-                  {t.tipo === 1 ? "+" : "−"} {formatarValor(t.valor)}
+            </div>
+            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-[1.2fr_1fr] sm:p-6">
+              <div className="rounded-2xl bg-[#F4EBDD] p-5">
+                <p className="text-sm font-medium text-[#5B3A29]">Total previsto neste mês</p>
+                <p className="mt-3 break-words text-3xl font-bold tracking-tight text-[#5B3A29] sm:text-4xl">
+                  {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  {loadingFaturas
+                    ? "Buscando parcelas..."
+                    : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento pendente" : "lançamentos pendentes"}`}
                 </p>
               </div>
-            ))}
+              <div className="flex flex-col justify-center rounded-2xl border border-slate-200 p-5">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Período considerado</p>
+                <p className="mt-2 font-semibold text-slate-800">
+                  {dayjs().startOf("month").format("DD/MM")} a {dayjs().endOf("month").format("DD/MM/YYYY")}
+                </p>
+                <p className="mt-3 text-xs leading-5 text-slate-500">
+                  Inclui parcelas pendentes e compras à vista no cartão, considerando o fechamento de cada cartão.
+                </p>
+              </div>
+            </div>
+            {!loadingFaturas && faturasPorCartao.length > 0 && (
+              <div className="space-y-3 border-t border-slate-100 p-5 sm:px-6">
+                {faturasPorCartao.map((fatura) => (
+                  <div key={fatura.cartaoId} className="rounded-xl border border-slate-200 p-4">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-bold text-slate-800">{fatura.cartaoNome}</h3>
+                      <p className="text-lg font-bold text-[#5B3A29]">{formatarValor(fatura.total)}</p>
+                    </div>
+                    <div className="space-y-2">
+                      {fatura.compras.map((compra) => (
+                        <div
+                          key={`${compra.origem}-${compra.id}`}
+                          className="flex flex-col gap-1 rounded-lg bg-slate-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div className="min-w-0">
+                            <p className="break-words text-sm font-semibold text-slate-800">{compra.descricaoCompra}</p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {compra.origem === "parcela" ? "Parcela" : "Compra à vista"} · {dayjs(compra.dataVencimento).format("DD/MM/YYYY")}
+                            </p>
+                          </div>
+                          <p className="text-sm font-bold text-slate-700">{formatarValor(compra.valor)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!loadingFaturas && faturasPorCartao.length === 0 && (
+              <div className="border-t border-slate-100 px-5 py-6 text-sm text-slate-500">Nenhuma compra pendente na fatura deste mês.</div>
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div className="mb-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Planejamento</p>
+              <h2 className="mt-1 text-xl font-bold text-[#5B3A29]">Fatura total por mês</h2>
+              <p className="mt-1 text-sm leading-5 text-slate-500">Veja como os compromissos do cartão se distribuem ao longo dos meses.</p>
+            </div>
+            <div className="h-64 w-full sm:h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={historicoFaturas} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                  <YAxis
+                    tickFormatter={(valor) => `R$${valor}`}
+                    width={62}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: "#64748b", fontSize: 11 }}
+                  />
+                  <Tooltip formatter={(valor) => formatarValor(Number(valor))} contentStyle={{ borderRadius: 12, borderColor: "#D9C7AB" }} />
+                  <Bar dataKey="total" name="Fatura total" fill="#87A878" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </article>
+        </section>
+
+        {/* Evolução financeira */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Visão de longo prazo</p>
+              <h2 className="mt-1 text-xl font-bold text-[#5B3A29] sm:text-2xl">Evolução financeira</h2>
+              <p className="mt-1 text-sm text-slate-500">Compare receitas, despesas, investimentos e saldo acumulado.</p>
+            </div>
+            <div className="inline-flex w-fit rounded-xl bg-slate-100 p-1" aria-label="Período do gráfico">
+              {[3, 6, 12].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPeriod(p as 3 | 6 | 12)}
+                  aria-pressed={period === p}
+                  className={`rounded-lg px-3 py-2 text-sm font-bold transition ${period === p ? "bg-white text-[#5B3A29] shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                >
+                  {p} meses
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="h-72 w-full sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dadosPorMes} barGap={8} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                <YAxis
+                  tickFormatter={(valor) => `R$ ${valor}`}
+                  width={75}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: "#64748b", fontSize: 11 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                <Bar dataKey="receita" name="Receitas" fill="#87A878" radius={[5, 5, 0, 0]} />
+                <Bar dataKey="despesa" name="Despesas" fill="#C46A3A" radius={[5, 5, 0, 0]} />
+                <Bar dataKey="investimento" name="Investimentos" fill="#C8A45D" radius={[5, 5, 0, 0]} />
+                <Line
+                  type="monotone"
+                  dataKey="saldoAcumulado"
+                  name="Saldo acumulado"
+                  stroke="#5B3A29"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: "#5B3A29" }}
+                  activeDot={{ r: 5 }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {/* Transações recentes */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Atividade recente</p>
+              <h2 className="mt-1 text-xl font-bold text-[#5B3A29] sm:text-2xl">Últimas transações</h2>
+              <p className="mt-1 text-sm text-slate-500">Os cinco lançamentos mais recentes dentro dos filtros atuais.</p>
+            </div>
+            <button
+              onClick={() => navigate("/transacao")}
+              className="inline-flex items-center justify-center rounded-xl border border-[#D9C7AB] px-4 py-2.5 text-sm font-bold text-[#5B3A29] transition hover:bg-[#F4EBDD] focus:outline-none focus:ring-4 focus:ring-[#87A878]/20"
+            >
+              Ver todas <span className="ml-2">→</span>
+            </button>
+          </div>
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse rounded-xl border border-slate-100 p-4">
+                  <div className="mb-2 h-4 w-1/2 rounded bg-slate-200" />
+                  <div className="h-3 w-1/3 rounded bg-slate-100" />
+                </div>
+              ))}
+            </div>
+          ) : ultimasTransacoes.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center">
+              <p className="font-semibold text-slate-700">Nenhuma transação encontrada</p>
+              <p className="mt-1 text-sm text-slate-500">Tente limpar os filtros para visualizar outros lançamentos.</p>
+              {filtrosAtivos && (
+                <button onClick={limparFiltros} className="mt-3 rounded-lg px-3 py-2 text-sm font-bold text-[#5B3A29] hover:bg-[#EEF2E8]">
+                  Limpar filtros
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className={`space-y-2 transition-all duration-200 ${animando ? "translate-y-1 opacity-60" : "opacity-100"}`}>
+              {ultimasTransacoes.map((t) => (
+                <div
+                  key={t.id}
+                  className={`flex flex-col gap-3 rounded-xl border p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:justify-between ${t.id === maiorTransacaoId ? "border-[#B8CDAA] bg-[#EEF2E8]/50" : "border-slate-100 bg-white"}`}
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg font-bold ${t.tipo === 1 ? "bg-[#EEF2E8] text-[#587B4C]" : "bg-[#F8E9DF] text-[#A94F2B]"}`}
+                      aria-hidden="true"
+                    >
+                      {t.tipo === 1 ? "↙" : "↗"}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="break-words font-semibold text-slate-800">{t.descricao}</p>
+                      <p className="mt-1 text-sm text-slate-500">{dayjs(t.data).isValid() ? dayjs(t.data).format("DD/MM/YYYY") : t.data}</p>
+                    </div>
+                  </div>
+                  <p className={`pl-14 text-lg font-bold sm:pl-0 sm:text-right ${t.tipo === 1 ? "text-[#587B4C]" : "text-[#A94F2B]"}`}>
+                    {t.tipo === 1 ? "+" : "−"} {formatarValor(t.valor)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {!loading && resumoPorUsuario.length === 0 && (
+          <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500">
+            Não há lançamentos para os filtros selecionados.
           </div>
         )}
-      </section>
-
-      {!loading && resumoPorUsuario.length === 0 && (
-        <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500">
-          Não há lançamentos para os filtros selecionados.
-        </div>
-      )}
-    </div>
+      </div>
+    </main>
   );
 }

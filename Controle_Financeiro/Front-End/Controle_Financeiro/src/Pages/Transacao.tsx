@@ -105,12 +105,15 @@ export default function Transacao() {
   const [deletingCompraId, setDeletingCompraId] = useState<number | null>(null);
 
   const [tipoSelecionado, setTipoSelecionado] = useState<"" | "receita" | "despesa" | "investimento">("");
+
   const [formaPagamento, setFormaPagamento] = useState<"" | "dinheiro" | "cartao">("");
+
   const [formaPagamentoEdit, setFormaPagamentoEdit] = useState<"" | "dinheiro" | "cartao">("");
 
   const isMenorDeIdade = usuario ? usuario.idade < 18 : false;
 
   const ehParcelada = quantidadeParcelas !== "1" && (tipoSelecionado !== "despesa" || formaPagamento === "cartao");
+
   const usaCartao = tipoSelecionado === "despesa" ? formaPagamento === "cartao" : Number(tipo) === 2;
 
   const classeCampo =
@@ -199,6 +202,7 @@ export default function Transacao() {
 
     if (tipoSelecionado === "despesa" && formaPagamento === "") {
       toast.error("Selecione a forma de pagamento da despesa.");
+
       return;
     }
 
@@ -238,6 +242,7 @@ export default function Transacao() {
 
     if (ehParcelada && categoriaId === "") {
       toast.error("Selecione uma categoria para a compra parcelada.");
+
       return;
     }
 
@@ -404,7 +409,9 @@ export default function Transacao() {
     setDataEdit(transacao.data.split("T")[0]);
 
     setCartaoIdEdit(transacaoComCartao.cartaoId ?? "");
+
     setQuantidadeParcelasEdit("1");
+
     setFormaPagamentoEdit(transacao.tipo === 2 ? (transacaoComCartao.cartaoId ? "cartao" : "dinheiro") : "");
 
     setShowModal(true);
@@ -424,6 +431,7 @@ export default function Transacao() {
     setDataEdit(compra.dataCompra.split("T")[0]);
 
     setCartaoIdEdit(compra.cartaoId);
+
     setFormaPagamentoEdit("cartao");
 
     setQuantidadeParcelasEdit(String(compra.quantidadeParcelas));
@@ -449,6 +457,7 @@ export default function Transacao() {
     if (compraParceladaSelecionada) {
       if (categoriaIdEdit === "") {
         toast.error("Selecione uma categoria para a compra parcelada.");
+
         return;
       }
 
@@ -519,16 +528,19 @@ export default function Transacao() {
 
     if (Number(tipoEdit) === 2 && formaPagamentoEdit === "") {
       toast.error("Selecione a forma de pagamento da despesa.");
+
       return;
     }
 
     if (Number(tipoEdit) === 2 && formaPagamentoEdit === "cartao" && cartaoIdEdit === "") {
       toast.error("Selecione um cartão.");
+
       return;
     }
 
     if (Number(tipoEdit) !== 2 && cartaoIdEdit !== "") {
       toast.error("Cartão de crédito só pode ser associado a despesas.");
+
       return;
     }
 
@@ -536,28 +548,40 @@ export default function Transacao() {
       setLoadingEditar(true);
 
       // Converter uma despesa normal em compra parcelada quando selecionado cartão e 2+ parcelas.
+
       if (Number(tipoEdit) === 2 && formaPagamentoEdit === "cartao" && Number(quantidadeParcelasEdit) >= 2) {
         if (!cartaoIdEdit) {
           toast.error("Selecione um cartão para parcelar a compra.");
+
           return;
         }
 
         await criarCompraParcelada({
           descricao: descricaoEdit.trim(),
+
           valorTotal: valorNumerico,
+
           quantidadeParcelas: Number(quantidadeParcelasEdit),
+
           dataCompra: dayjs(dataEdit).format("YYYY-MM-DD"),
+
           cartaoId: Number(cartaoIdEdit),
+
           categoriaId: Number(categoriaIdEdit),
         });
 
         await deletarTransacao(transacaoSelecionada.id);
+
         await Promise.all([listarTodasTransacoes(), listarTodasComprasParceladas()]);
 
         toast.success("Transação convertida em compra parcelada!");
+
         setShowModal(false);
+
         setTransacaoSelecionada(null);
+
         setQuantidadeParcelasEdit("1");
+
         return;
       }
 
@@ -734,6 +758,7 @@ export default function Transacao() {
                 const novoTipo = e.target.value as typeof tipoSelecionado;
 
                 setTipoSelecionado(novoTipo);
+
                 setFormaPagamento("");
 
                 setTipo(novoTipo === "receita" ? 1 : novoTipo === "" ? "" : 2);
@@ -760,12 +785,15 @@ export default function Transacao() {
           {tipoSelecionado === "despesa" && (
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setFormaPagamento("dinheiro");
+
                     setCartaoId("");
+
                     setQuantidadeParcelas("1");
                   }}
                   className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
@@ -776,6 +804,7 @@ export default function Transacao() {
                 >
                   Dinheiro / Débito / Pix
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setFormaPagamento("cartao")}
@@ -844,9 +873,8 @@ export default function Transacao() {
                   className={classeCampo}
                   value={categoriaId}
                   onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
-                  disabled={ehParcelada}
                 >
-                  <option value="">{ehParcelada ? "Categoria será habilitada após ajuste no back-end" : "Selecione"}</option>
+                  <option value="">Selecione uma categoria</option>
 
                   {categoriasFiltradas.map((categoria) => (
                     <option key={categoria.id} value={categoria.id}>
@@ -854,12 +882,6 @@ export default function Transacao() {
                     </option>
                   ))}
                 </select>
-
-                {ehParcelada && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Para persistir a categoria em compras parceladas, precisamos adicioná-la ao DTO e à entidade no back-end.
-                  </p>
-                )}
               </div>
 
               {usaCartao && (
@@ -1352,8 +1374,11 @@ export default function Transacao() {
                       const novoTipo = e.target.value === "" ? "" : Number(e.target.value);
 
                       setTipoEdit(novoTipo);
+
                       setCategoriaIdEdit("");
+
                       setFormaPagamentoEdit("");
+
                       setCartaoIdEdit("");
                     }}
                   >
@@ -1391,12 +1416,15 @@ export default function Transacao() {
                 {tipoEdit === 2 && (
                   <div className="mb-4">
                     <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
                         onClick={() => {
                           setFormaPagamentoEdit("dinheiro");
+
                           setCartaoIdEdit("");
+
                           setQuantidadeParcelasEdit("1");
                         }}
                         className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
@@ -1407,6 +1435,7 @@ export default function Transacao() {
                       >
                         Dinheiro / Débito / Pix
                       </button>
+
                       <button
                         type="button"
                         onClick={() => setFormaPagamentoEdit("cartao")}
@@ -1428,6 +1457,7 @@ export default function Transacao() {
                       <label htmlFor="parcelas-normal-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
                         Parcelas
                       </label>
+
                       <select
                         id="parcelas-normal-edit"
                         className={classeCampo}
@@ -1435,18 +1465,22 @@ export default function Transacao() {
                         onChange={(e) => setQuantidadeParcelasEdit(e.target.value)}
                       >
                         <option value="1">À vista (1x)</option>
+
                         {Array.from({ length: 59 }, (_, i) => i + 2).map((qtd) => (
                           <option key={qtd} value={qtd}>
                             {qtd}x
                           </option>
                         ))}
                       </select>
+
                       <p className="mt-1 text-xs text-slate-500">Escolher 2 ou mais parcelas transforma esta despesa em uma compra parcelada.</p>
                     </div>
+
                     <div className="mb-4">
                       <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
                         Cartão de crédito
                       </label>
+
                       <select
                         id="cartao-edit"
                         className={classeCampo}
@@ -1454,6 +1488,7 @@ export default function Transacao() {
                         onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
                       >
                         <option value="">Selecione o cartão</option>
+
                         {cartoes.map((cartao) => (
                           <option key={cartao.id} value={cartao.id}>
                             {cartao.nome}
