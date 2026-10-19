@@ -33,7 +33,7 @@ import santander from "../assets/Cartoes/Cartao-Santander.png";
 import bradesco from "../assets/Cartoes/Cartao-Bradesco.png";
 import inter from "../assets/Cartoes/Cartao-Inter.png";
 import amazonPrime from "../assets/Cartoes/Cartao-Amazon-Prime.png";
-import bancoBrasil from "../assets/Cartoes/Cartao-Canco-Brasil.png";
+import bancoBrasil from "../assets/Cartoes/Cartao-Banco-Brasil.png";
 import caixa from "../assets/Cartoes/Cartao-Caixa.png";
 
 const CARTOES_DISPONIVEIS = [
