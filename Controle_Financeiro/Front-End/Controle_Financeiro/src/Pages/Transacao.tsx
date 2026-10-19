@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import toast from "react-hot-toast";
 
@@ -72,11 +73,17 @@ export default function Transacao() {
 
   const [tipoLancamento, setTipoLancamento] = useState<TipoLancamento>("todos");
 
+  const [paginaTransacoes, setPaginaTransacoes] = useState(1);
+  const [paginaParceladas, setPaginaParceladas] = useState(1);
+  const TRANSACOES_POR_PAGINA = 6;
+  const PARCELADAS_POR_PAGINA = 3;
+
   const [comprasExpandidas, setComprasExpandidas] = useState<number[]>([]);
 
   const [parcelasProcessando, setParcelasProcessando] = useState<number[]>([]);
 
   const [showModal, setShowModal] = useState(false);
+  const [showAdicionarModal, setShowAdicionarModal] = useState(false);
 
   const [transacaoSelecionada, setTransacaoSelecionada] = useState<TransacaoResponse | null>(null);
 
@@ -314,6 +321,7 @@ export default function Transacao() {
       setCartaoId("");
 
       setQuantidadeParcelas("1");
+      setShowAdicionarModal(false);
     } catch (error) {
       console.error(error);
 
@@ -392,6 +400,7 @@ export default function Transacao() {
   }
 
   function abrirModalEditar(transacao: TransacaoResponse) {
+    window.scrollTo({ top: 0, behavior: "instant" });
     const transacaoComCartao = transacao as TransacaoComCartao;
 
     setTransacaoSelecionada(transacao);
@@ -418,6 +427,7 @@ export default function Transacao() {
   }
 
   function abrirModalEditarCompra(compra: CompraParceladaResponse) {
+    window.scrollTo({ top: 0, behavior: "instant" });
     setTransacaoSelecionada(null);
 
     setCompraParceladaSelecionada(compra);
@@ -692,256 +702,323 @@ export default function Transacao() {
     return true;
   });
 
+  // Ordena pelas datas mais recentes e pagina cada tipo de lançamento separadamente.
+  const transacoesOrdenadas = [...transacoesFiltradas].sort((a, b) => dayjs(b.data).valueOf() - dayjs(a.data).valueOf());
+  const comprasParceladasOrdenadas = [...comprasParceladasFiltradas].sort((a, b) => dayjs(b.dataCompra).valueOf() - dayjs(a.dataCompra).valueOf());
+
+  const totalPaginasTransacoes = Math.ceil(transacoesOrdenadas.length / TRANSACOES_POR_PAGINA);
+  const totalPaginasParceladas = Math.ceil(comprasParceladasOrdenadas.length / PARCELADAS_POR_PAGINA);
+  const transacoesPaginadas = transacoesOrdenadas.slice((paginaTransacoes - 1) * TRANSACOES_POR_PAGINA, paginaTransacoes * TRANSACOES_POR_PAGINA);
+  const comprasParceladasPaginadas = comprasParceladasOrdenadas.slice(
+    (paginaParceladas - 1) * PARCELADAS_POR_PAGINA,
+    paginaParceladas * PARCELADAS_POR_PAGINA,
+  );
+
+  useEffect(() => {
+    setPaginaTransacoes(1);
+    setPaginaParceladas(1);
+  }, [filtroDescricao, filtroTipo, filtroCategoriaId, tipoLancamento]);
+
+  useEffect(() => {
+    setPaginaTransacoes((pagina) => Math.min(pagina, Math.max(1, totalPaginasTransacoes)));
+  }, [totalPaginasTransacoes]);
+
+  useEffect(() => {
+    setPaginaParceladas((pagina) => Math.min(pagina, Math.max(1, totalPaginasParceladas)));
+  }, [totalPaginasParceladas]);
+
+  useEffect(() => {
+    if (!showAdicionarModal) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !loadingCriar) setShowAdicionarModal(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showAdicionarModal, loadingCriar]);
+
   const totalParcelasPagas = comprasParceladas.reduce((total, compra) => total + compra.parcelas.filter((parcela) => parcela.paga).length, 0);
 
   const totalParcelas = comprasParceladas.reduce((total, compra) => total + compra.parcelas.length, 0);
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8 px-3 pb-10 sm:px-5 lg:px-8">
-      {/* FORMULÁRIO ÚNICO */}
-
-      <section className="mx-auto w-full rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
-        <div className="mb-7 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#648879]">Lançamentos</p>
-
-            <h2 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">Adicionar transação</h2>
-
-            <p className="mt-1 text-sm text-slate-500">Registre receitas, despesas e compras parceladas.</p>
-          </div>
-
-          <span className="w-fit rounded-full bg-[#E8EFED] px-3 py-1.5 text-xs font-semibold text-[#2F4F4F]">Novo lançamento</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="descricao" className="mb-2 block text-sm font-semibold text-slate-700">
-              Descrição
-            </label>
-
-            <input id="descricao" className={classeCampo} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-          </div>
-
-          <div>
-            <label htmlFor="valor" className="mb-2 block text-sm font-semibold text-slate-700">
-              Valor total
-            </label>
-
-            <input
-              id="valor"
-              inputMode="decimal"
-              className={classeCampo}
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              placeholder="Ex.: 1200,00"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="data" className="mb-2 block text-sm font-semibold text-slate-700">
-              Data da compra/transação
-            </label>
-
-            <input id="data" type="date" className={classeCampo} value={data} onChange={(e) => setData(e.target.value)} />
-          </div>
-
-          <div>
-            <label htmlFor="tipo" className="mb-2 block text-sm font-semibold text-slate-700">
-              Tipo
-            </label>
-
-            <select
-              id="tipo"
-              className={classeCampo}
-              value={tipoSelecionado}
-              onChange={(e) => {
-                const novoTipo = e.target.value as typeof tipoSelecionado;
-
-                setTipoSelecionado(novoTipo);
-
-                setFormaPagamento("");
-
-                setTipo(novoTipo === "receita" ? 1 : novoTipo === "" ? "" : 2);
-
-                setCategoriaId("");
-
-                if (novoTipo !== "despesa") {
-                  setCartaoId("");
-
-                  setQuantidadeParcelas("1");
-                }
-              }}
+      {/* MODAL DE CADASTRO */}
+      {showAdicionarModal &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-100 flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget && !loadingCriar) setShowAdicionarModal(false);
+            }}
+          >
+            <section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="titulo-modal-adicionar"
+              className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/60 bg-white p-5 shadow-2xl sm:p-7 lg:p-8"
             >
-              <option value="">Selecione</option>
-
-              {!isMenorDeIdade && <option value="receita">Receita</option>}
-
-              <option value="despesa">Despesa</option>
-
-              <option value="investimento">Investimento</option>
-            </select>
-          </div>
-
-          {tipoSelecionado === "despesa" && (
-            <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormaPagamento("dinheiro");
-
-                    setCartaoId("");
-
-                    setQuantidadeParcelas("1");
-                  }}
-                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                    formaPagamento === "dinheiro"
-                      ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  Dinheiro / Débito / Pix
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFormaPagamento("cartao")}
-                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                    formaPagamento === "cartao"
-                      ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  Cartão de crédito
-                </button>
-              </div>
-            </div>
-          )}
-
-          {tipo === 2 && (tipoSelecionado !== "despesa" || formaPagamento === "cartao") && (
-            <div>
-              <label htmlFor="parcelas" className="mb-2 block text-sm font-semibold text-slate-700">
-                Parcelas
-              </label>
-
-              <select id="parcelas" className={classeCampo} value={quantidadeParcelas} onChange={(e) => setQuantidadeParcelas(e.target.value)}>
-                <option value="1">À vista</option>
-
-                {Array.from({ length: 19 }, (_, i) => i + 2).map((qtd) => (
-                  <option key={qtd} value={qtd}>
-                    {qtd}x
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {tipo !== 2 && (
-            <div>
-              <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
-                Categoria
-              </label>
-
-              <select
-                id="categoria"
-                className={classeCampo}
-                value={categoriaId}
-                onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
-              >
-                <option value="">Selecione</option>
-
-                {categoriasFiltradas.map((categoria) => (
-                  <option key={categoria.id} value={categoria.id}>
-                    {categoria.descricao}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {tipo === 2 && (
-            <>
-              <div>
-                <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
-                  Categoria
-                </label>
-
-                <select
-                  id="categoria"
-                  className={classeCampo}
-                  value={categoriaId}
-                  onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">Selecione uma categoria</option>
-
-                  {categoriasFiltradas.map((categoria) => (
-                    <option key={categoria.id} value={categoria.id}>
-                      {categoria.descricao}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {usaCartao && (
+              <div className="mb-7 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <label htmlFor="cartao" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Cartão de crédito
+                  <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#648879]">Lançamentos</p>
+
+                  <h2 id="titulo-modal-adicionar" className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">
+                    Adicionar transação
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">Registre receitas, despesas e compras parceladas.</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAdicionarModal(false)}
+                  disabled={loadingCriar}
+                  aria-label="Fechar formulário"
+                  className="rounded-full px-3 py-2 text-xl font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 disabled:opacity-50"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="descricao" className="mb-2 block text-sm font-semibold text-slate-700">
+                    Descrição
+                  </label>
+
+                  <input id="descricao" className={classeCampo} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+                </div>
+
+                <div>
+                  <label htmlFor="valor" className="mb-2 block text-sm font-semibold text-slate-700">
+                    Valor total
+                  </label>
+
+                  <input
+                    id="valor"
+                    inputMode="decimal"
+                    className={classeCampo}
+                    value={valor}
+                    onChange={(e) => setValor(e.target.value)}
+                    placeholder="Ex.: 1200,00"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="data" className="mb-2 block text-sm font-semibold text-slate-700">
+                    Data da compra/transação
+                  </label>
+
+                  <input id="data" type="date" className={classeCampo} value={data} onChange={(e) => setData(e.target.value)} />
+                </div>
+
+                <div>
+                  <label htmlFor="tipo" className="mb-2 block text-sm font-semibold text-slate-700">
+                    Tipo
                   </label>
 
                   <select
-                    id="cartao"
+                    id="tipo"
                     className={classeCampo}
-                    value={cartaoId}
-                    onChange={(e) => setCartaoId(e.target.value === "" ? "" : Number(e.target.value))}
-                  >
-                    <option value="">Selecione o cartão</option>
+                    value={tipoSelecionado}
+                    onChange={(e) => {
+                      const novoTipo = e.target.value as typeof tipoSelecionado;
 
-                    {cartoes.map((cartao) => (
-                      <option key={cartao.id} value={cartao.id}>
-                        {cartao.nome}
-                      </option>
-                    ))}
+                      setTipoSelecionado(novoTipo);
+
+                      setFormaPagamento("");
+
+                      setTipo(novoTipo === "receita" ? 1 : novoTipo === "" ? "" : 2);
+
+                      setCategoriaId("");
+
+                      if (novoTipo !== "despesa") {
+                        setCartaoId("");
+
+                        setQuantidadeParcelas("1");
+                      }
+                    }}
+                  >
+                    <option value="">Selecione</option>
+
+                    {!isMenorDeIdade && <option value="receita">Receita</option>}
+
+                    <option value="despesa">Despesa</option>
+
+                    <option value="investimento">Investimento</option>
                   </select>
                 </div>
-              )}
-            </>
-          )}
 
-          {ehParcelada && tipo === 2 && valor !== "" && Number(valor.replace(",", ".")) > 0 && (
-            <div className="md:col-span-2 rounded-2xl border border-[#C8D6D1] bg-linear-to-br from-[#F5F9F7] to-white p-5">
-              <p className="font-semibold text-slate-800">Resumo do parcelamento</p>
+                {tipoSelecionado === "despesa" && (
+                  <div className="md:col-span-2">
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
 
-              <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
-                  Valor total<strong className="mt-1 block text-lg text-slate-900">{formatarMoeda(Number(valor.replace(",", ".")))}</strong>
-                </span>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormaPagamento("dinheiro");
 
-                <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
-                  Valor aproximado por parcela
-                  <strong className="mt-1 block text-lg text-slate-900">
-                    {formatarMoeda(Number(valor.replace(",", ".")) / Number(quantidadeParcelas))}
-                  </strong>
-                </span>
+                          setCartaoId("");
+
+                          setQuantidadeParcelas("1");
+                        }}
+                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                          formaPagamento === "dinheiro"
+                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        Dinheiro / Débito / Pix
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setFormaPagamento("cartao")}
+                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                          formaPagamento === "cartao"
+                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        Cartão de crédito
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {tipo === 2 && (tipoSelecionado !== "despesa" || formaPagamento === "cartao") && (
+                  <div>
+                    <label htmlFor="parcelas" className="mb-2 block text-sm font-semibold text-slate-700">
+                      Parcelas
+                    </label>
+
+                    <select id="parcelas" className={classeCampo} value={quantidadeParcelas} onChange={(e) => setQuantidadeParcelas(e.target.value)}>
+                      <option value="1">À vista</option>
+
+                      {Array.from({ length: 19 }, (_, i) => i + 2).map((qtd) => (
+                        <option key={qtd} value={qtd}>
+                          {qtd}x
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {tipo !== 2 && (
+                  <div>
+                    <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
+                      Categoria
+                    </label>
+
+                    <select
+                      id="categoria"
+                      className={classeCampo}
+                      value={categoriaId}
+                      onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
+                    >
+                      <option value="">Selecione</option>
+
+                      {categoriasFiltradas.map((categoria) => (
+                        <option key={categoria.id} value={categoria.id}>
+                          {categoria.descricao}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {tipo === 2 && (
+                  <>
+                    <div>
+                      <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
+                        Categoria
+                      </label>
+
+                      <select
+                        id="categoria"
+                        className={classeCampo}
+                        value={categoriaId}
+                        onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
+                      >
+                        <option value="">Selecione uma categoria</option>
+
+                        {categoriasFiltradas.map((categoria) => (
+                          <option key={categoria.id} value={categoria.id}>
+                            {categoria.descricao}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {usaCartao && (
+                      <div>
+                        <label htmlFor="cartao" className="mb-2 block text-sm font-semibold text-slate-700">
+                          Cartão de crédito
+                        </label>
+
+                        <select
+                          id="cartao"
+                          className={classeCampo}
+                          value={cartaoId}
+                          onChange={(e) => setCartaoId(e.target.value === "" ? "" : Number(e.target.value))}
+                        >
+                          <option value="">Selecione o cartão</option>
+
+                          {cartoes.map((cartao) => (
+                            <option key={cartao.id} value={cartao.id}>
+                              {cartao.nome}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {ehParcelada && tipo === 2 && valor !== "" && Number(valor.replace(",", ".")) > 0 && (
+                  <div className="md:col-span-2 rounded-2xl border border-[#C8D6D1] bg-linear-to-br from-[#F5F9F7] to-white p-5">
+                    <p className="font-semibold text-slate-800">Resumo do parcelamento</p>
+
+                    <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                      <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
+                        Valor total<strong className="mt-1 block text-lg text-slate-900">{formatarMoeda(Number(valor.replace(",", ".")))}</strong>
+                      </span>
+
+                      <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
+                        Valor aproximado por parcela
+                        <strong className="mt-1 block text-lg text-slate-900">
+                          {formatarMoeda(Number(valor.replace(",", ".")) / Number(quantidadeParcelas))}
+                        </strong>
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-2">
+                      O valor exato de cada parcela será calculado pelo back-end, com os centavos distribuídos corretamente.
+                    </p>
+                  </div>
+                )}
+
+                <div className="md:col-span-2 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdicionarModal(false)}
+                    disabled={loadingCriar}
+                    className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <Button
+                    onClick={CriarTransacao}
+                    label={loadingCriar ? "Salvando..." : ehParcelada && tipo === 2 ? "Criar Compra Parcelada" : "Criar Transação"}
+                    variant="primary"
+                    disabled={loadingCriar}
+                  />
+                </div>
               </div>
-
-              <p className="text-xs text-gray-500 mt-2">
-                O valor exato de cada parcela será calculado pelo back-end, com os centavos distribuídos corretamente.
-              </p>
-            </div>
-          )}
-
-          <div className="md:col-span-2 border-t border-slate-100 pt-5">
-            <Button
-              onClick={CriarTransacao}
-              label={loadingCriar ? "Salvando..." : ehParcelada && tipo === 2 ? "Criar Compra Parcelada" : "Criar Transação"}
-              variant="primary"
-              disabled={loadingCriar}
-            />
-          </div>
-        </div>
-      </section>
+            </section>
+          </div>,
+          document.body,
+        )}
 
       {/* LISTAGEM UNIFICADA */}
 
@@ -955,9 +1032,31 @@ export default function Transacao() {
             <p className="mt-1 text-sm text-slate-500">Pesquise, filtre e gerencie seus lançamentos.</p>
           </div>
 
-          <span className="w-fit rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-            {transacoesFiltradas.length + comprasParceladasFiltradas.length} resultado(s)
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="w-fit rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+              {transacoesFiltradas.length + comprasParceladasFiltradas.length} resultado(s)
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setDescricao("");
+                setValor("");
+                setTipo("");
+                setTipoSelecionado("");
+                setCategoriaId("");
+                setData("");
+                setCartaoId("");
+                setQuantidadeParcelas("1");
+                setShowAdicionarModal(true);
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2F4F4F] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#243D3D] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#52796F]/25"
+            >
+              <span aria-hidden="true" className="text-lg leading-none">
+                +
+              </span>{" "}
+              Adicionar transação
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-5">
@@ -1045,7 +1144,7 @@ export default function Transacao() {
 
         {/* TRANSAÇÕES COMUNS */}
 
-        {transacoesFiltradas.map((t, index) => (
+        {transacoesPaginadas.map((t, index) => (
           <Fragment key={`transacao-${t.id}`}>
             <div
               className={`hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_180px] items-center gap-3 rounded-xl border border-slate-200 px-4 py-4 mb-2 transition-colors ${
@@ -1117,9 +1216,39 @@ export default function Transacao() {
           </Fragment>
         ))}
 
+        {transacoesOrdenadas.length > 0 && tipoLancamento !== "parceladas" && (
+          <div className="mb-8 mt-4 flex flex-col items-center justify-between gap-3 border-b border-slate-100 pb-6 sm:flex-row">
+            <p className="text-sm text-slate-500">
+              Mostrando {Math.min((paginaTransacoes - 1) * TRANSACOES_POR_PAGINA + 1, transacoesOrdenadas.length)}–
+              {Math.min(paginaTransacoes * TRANSACOES_POR_PAGINA, transacoesOrdenadas.length)} de {transacoesOrdenadas.length} transações
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPaginaTransacoes((p) => Math.max(1, p - 1))}
+                disabled={paginaTransacoes === 1}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-[#2F4F4F] hover:bg-[#E8EFED] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Anterior
+              </button>
+              <span className="min-w-20 text-center text-sm text-slate-600">
+                Página {paginaTransacoes} de {Math.max(1, totalPaginasTransacoes)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPaginaTransacoes((p) => Math.min(Math.max(1, totalPaginasTransacoes), p + 1))}
+                disabled={paginaTransacoes >= totalPaginasTransacoes}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-[#2F4F4F] hover:bg-[#E8EFED] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Próxima
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* COMPRAS PARCELADAS */}
 
-        {comprasParceladasFiltradas.map((compra) => {
+        {comprasParceladasPaginadas.map((compra) => {
           const expandida = comprasExpandidas.includes(compra.id);
 
           const pagas = compra.parcelas.filter((parcela) => parcela.paga).length;
@@ -1263,6 +1392,37 @@ export default function Transacao() {
           );
         })}
 
+        {comprasParceladasOrdenadas.length > 0 && tipoLancamento !== "normais" && (
+          <div className="mb-4 mt-4 flex flex-col items-center justify-between gap-3 border-b border-slate-100 pb-6 sm:flex-row">
+            <p className="text-sm text-slate-500">
+              Mostrando {Math.min((paginaParceladas - 1) * PARCELADAS_POR_PAGINA + 1, comprasParceladasOrdenadas.length)}–
+              {Math.min(paginaParceladas * PARCELADAS_POR_PAGINA, comprasParceladasOrdenadas.length)} de {comprasParceladasOrdenadas.length} compras
+              parceladas
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPaginaParceladas((p) => Math.max(1, p - 1))}
+                disabled={paginaParceladas === 1}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-[#2F4F4F] hover:bg-[#E8EFED] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Anterior
+              </button>
+              <span className="min-w-20 text-center text-sm text-slate-600">
+                Página {paginaParceladas} de {Math.max(1, totalPaginasParceladas)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPaginaParceladas((p) => Math.min(Math.max(1, totalPaginasParceladas), p + 1))}
+                disabled={paginaParceladas >= totalPaginasParceladas}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-[#2F4F4F] hover:bg-[#E8EFED] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Próxima
+              </button>
+            </div>
+          </div>
+        )}
+
         {transacoesFiltradas.length === 0 && comprasParceladasFiltradas.length === 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-12 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8EFED] text-[#52796F]">
@@ -1284,241 +1444,250 @@ export default function Transacao() {
 
       {/* MODAL DE EDIÇÃO */}
 
-      {showModal && (transacaoSelecionada || compraParceladaSelecionada) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5">
-          <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/60 bg-white p-5 shadow-2xl sm:p-7">
-            <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-800">
-              {compraParceladaSelecionada ? "Editar Compra Parcelada" : "Editar Transação"}
-            </h2>
+      {showModal &&
+        (transacaoSelecionada || compraParceladaSelecionada) &&
+        createPortal(
+          <div className="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5">
+            <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/60 bg-white p-5 shadow-2xl sm:p-7">
+              <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-800">
+                {compraParceladaSelecionada ? "Editar Compra Parcelada" : "Editar Transação"}
+              </h2>
 
-            <div className="mb-4">
-              <label htmlFor="input-descricao" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                Descrição
-              </label>
+              <div className="mb-4">
+                <label htmlFor="input-descricao" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  Descrição
+                </label>
 
-              <input id="input-descricao" className={classeCampo} value={descricaoEdit} onChange={(e) => setDescricaoEdit(e.target.value)} />
-            </div>
+                <input id="input-descricao" className={classeCampo} value={descricaoEdit} onChange={(e) => setDescricaoEdit(e.target.value)} />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="input-valor" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                {compraParceladaSelecionada ? "Valor total" : "Valor"}
-              </label>
+              <div className="mb-4">
+                <label htmlFor="input-valor" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  {compraParceladaSelecionada ? "Valor total" : "Valor"}
+                </label>
 
-              <input id="input-valor" inputMode="decimal" className={classeCampo} value={valorEdit} onChange={(e) => setValorEdit(e.target.value)} />
-            </div>
+                <input
+                  id="input-valor"
+                  inputMode="decimal"
+                  className={classeCampo}
+                  value={valorEdit}
+                  onChange={(e) => setValorEdit(e.target.value)}
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="input-data" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                {compraParceladaSelecionada ? "Data da compra" : "Data"}
-              </label>
+              <div className="mb-4">
+                <label htmlFor="input-data" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  {compraParceladaSelecionada ? "Data da compra" : "Data"}
+                </label>
 
-              <input id="input-data" type="date" className={classeCampo} value={dataEdit} onChange={(e) => setDataEdit(e.target.value)} />
-            </div>
+                <input id="input-data" type="date" className={classeCampo} value={dataEdit} onChange={(e) => setDataEdit(e.target.value)} />
+              </div>
 
-            {compraParceladaSelecionada ? (
-              <>
-                <div className="mb-4">
-                  <label htmlFor="parcelas-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                    Quantidade de parcelas
-                  </label>
-
-                  <select
-                    id="parcelas-edit"
-                    className={classeCampo}
-                    value={quantidadeParcelasEdit}
-                    onChange={(e) => setQuantidadeParcelasEdit(e.target.value)}
-                  >
-                    {Array.from({ length: 59 }, (_, i) => i + 2).map((qtd) => (
-                      <option key={qtd} value={qtd}>
-                        {qtd}x
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                    Cartão de crédito
-                  </label>
-
-                  <select
-                    id="cartao-edit"
-                    className={classeCampo}
-                    value={cartaoIdEdit}
-                    onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
-                  >
-                    <option value="">Selecione o cartão</option>
-
-                    {cartoes.map((cartao) => (
-                      <option key={cartao.id} value={cartao.id}>
-                        {cartao.nome}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <p className="mb-4 text-xs text-gray-500">Compras com parcelas pagas não podem ser editadas.</p>
-              </>
-            ) : (
-              <>
-                <div className="mb-4">
-                  <label htmlFor="tipo-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                    Tipo
-                  </label>
-
-                  <select
-                    id="tipo-edit"
-                    className={classeCampo}
-                    value={tipoEdit}
-                    onChange={(e) => {
-                      const novoTipo = e.target.value === "" ? "" : Number(e.target.value);
-
-                      setTipoEdit(novoTipo);
-
-                      setCategoriaIdEdit("");
-
-                      setFormaPagamentoEdit("");
-
-                      setCartaoIdEdit("");
-                    }}
-                  >
-                    <option value="">Selecione</option>
-
-                    {!isMenorDeIdade && <option value={1}>Receita</option>}
-
-                    <option value={2}>Despesa</option>
-
-                    <option value={3}>Investimento</option>
-                  </select>
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="categoria-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                    Categoria
-                  </label>
-
-                  <select
-                    id="categoria-edit"
-                    className={classeCampo}
-                    value={categoriaIdEdit}
-                    onChange={(e) => setCategoriaIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
-                  >
-                    <option value="">Selecione</option>
-
-                    {categoriasFiltradasEdit.map((categoria) => (
-                      <option key={categoria.id} value={categoria.id}>
-                        {categoria.descricao}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {tipoEdit === 2 && (
+              {compraParceladaSelecionada ? (
+                <>
                   <div className="mb-4">
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+                    <label htmlFor="parcelas-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      Quantidade de parcelas
+                    </label>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormaPagamentoEdit("dinheiro");
-
-                          setCartaoIdEdit("");
-
-                          setQuantidadeParcelasEdit("1");
-                        }}
-                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                          formaPagamentoEdit === "dinheiro"
-                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                        }`}
-                      >
-                        Dinheiro / Débito / Pix
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setFormaPagamentoEdit("cartao")}
-                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                          formaPagamentoEdit === "cartao"
-                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                        }`}
-                      >
-                        Cartão de crédito
-                      </button>
-                    </div>
+                    <select
+                      id="parcelas-edit"
+                      className={classeCampo}
+                      value={quantidadeParcelasEdit}
+                      onChange={(e) => setQuantidadeParcelasEdit(e.target.value)}
+                    >
+                      {Array.from({ length: 59 }, (_, i) => i + 2).map((qtd) => (
+                        <option key={qtd} value={qtd}>
+                          {qtd}x
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
 
-                {tipoEdit === 2 && formaPagamentoEdit === "cartao" && (
-                  <>
+                  <div className="mb-4">
+                    <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      Cartão de crédito
+                    </label>
+
+                    <select
+                      id="cartao-edit"
+                      className={classeCampo}
+                      value={cartaoIdEdit}
+                      onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
+                    >
+                      <option value="">Selecione o cartão</option>
+
+                      {cartoes.map((cartao) => (
+                        <option key={cartao.id} value={cartao.id}>
+                          {cartao.nome}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <p className="mb-4 text-xs text-gray-500">Compras com parcelas pagas não podem ser editadas.</p>
+                </>
+              ) : (
+                <>
+                  <div className="mb-4">
+                    <label htmlFor="tipo-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      Tipo
+                    </label>
+
+                    <select
+                      id="tipo-edit"
+                      className={classeCampo}
+                      value={tipoEdit}
+                      onChange={(e) => {
+                        const novoTipo = e.target.value === "" ? "" : Number(e.target.value);
+
+                        setTipoEdit(novoTipo);
+
+                        setCategoriaIdEdit("");
+
+                        setFormaPagamentoEdit("");
+
+                        setCartaoIdEdit("");
+                      }}
+                    >
+                      <option value="">Selecione</option>
+
+                      {!isMenorDeIdade && <option value={1}>Receita</option>}
+
+                      <option value={2}>Despesa</option>
+
+                      <option value={3}>Investimento</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label htmlFor="categoria-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      Categoria
+                    </label>
+
+                    <select
+                      id="categoria-edit"
+                      className={classeCampo}
+                      value={categoriaIdEdit}
+                      onChange={(e) => setCategoriaIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
+                    >
+                      <option value="">Selecione</option>
+
+                      {categoriasFiltradasEdit.map((categoria) => (
+                        <option key={categoria.id} value={categoria.id}>
+                          {categoria.descricao}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {tipoEdit === 2 && (
                     <div className="mb-4">
-                      <label htmlFor="parcelas-normal-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                        Parcelas
-                      </label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
 
-                      <select
-                        id="parcelas-normal-edit"
-                        className={classeCampo}
-                        value={quantidadeParcelasEdit}
-                        onChange={(e) => setQuantidadeParcelasEdit(e.target.value)}
-                      >
-                        <option value="1">À vista (1x)</option>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormaPagamentoEdit("dinheiro");
 
-                        {Array.from({ length: 59 }, (_, i) => i + 2).map((qtd) => (
-                          <option key={qtd} value={qtd}>
-                            {qtd}x
-                          </option>
-                        ))}
-                      </select>
+                            setCartaoIdEdit("");
 
-                      <p className="mt-1 text-xs text-slate-500">Escolher 2 ou mais parcelas transforma esta despesa em uma compra parcelada.</p>
+                            setQuantidadeParcelasEdit("1");
+                          }}
+                          className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                            formaPagamentoEdit === "dinheiro"
+                              ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                          }`}
+                        >
+                          Dinheiro / Débito / Pix
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setFormaPagamentoEdit("cartao")}
+                          className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                            formaPagamentoEdit === "cartao"
+                              ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                          }`}
+                        >
+                          Cartão de crédito
+                        </button>
+                      </div>
                     </div>
+                  )}
 
-                    <div className="mb-4">
-                      <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                        Cartão de crédito
-                      </label>
+                  {tipoEdit === 2 && formaPagamentoEdit === "cartao" && (
+                    <>
+                      <div className="mb-4">
+                        <label htmlFor="parcelas-normal-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                          Parcelas
+                        </label>
 
-                      <select
-                        id="cartao-edit"
-                        className={classeCampo}
-                        value={cartaoIdEdit}
-                        onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
-                      >
-                        <option value="">Selecione o cartão</option>
+                        <select
+                          id="parcelas-normal-edit"
+                          className={classeCampo}
+                          value={quantidadeParcelasEdit}
+                          onChange={(e) => setQuantidadeParcelasEdit(e.target.value)}
+                        >
+                          <option value="1">À vista (1x)</option>
 
-                        {cartoes.map((cartao) => (
-                          <option key={cartao.id} value={cartao.id}>
-                            {cartao.nome}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
+                          {Array.from({ length: 59 }, (_, i) => i + 2).map((qtd) => (
+                            <option key={qtd} value={qtd}>
+                              {qtd}x
+                            </option>
+                          ))}
+                        </select>
 
-            <div className="flex justify-center gap-2">
-              <Button onClick={editarTransacao} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
+                        <p className="mt-1 text-xs text-slate-500">Escolher 2 ou mais parcelas transforma esta despesa em uma compra parcelada.</p>
+                      </div>
 
-              <Button
-                onClick={() => {
-                  setShowModal(false);
+                      <div className="mb-4">
+                        <label htmlFor="cartao-edit" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                          Cartão de crédito
+                        </label>
 
-                  setTransacaoSelecionada(null);
+                        <select
+                          id="cartao-edit"
+                          className={classeCampo}
+                          value={cartaoIdEdit}
+                          onChange={(e) => setCartaoIdEdit(e.target.value === "" ? "" : Number(e.target.value))}
+                        >
+                          <option value="">Selecione o cartão</option>
 
-                  setCompraParceladaSelecionada(null);
-                }}
-                label="Cancelar"
-                variant="cancelModal"
-              />
+                          {cartoes.map((cartao) => (
+                            <option key={cartao.id} value={cartao.id}>
+                              {cartao.nome}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              <div className="flex justify-center gap-2">
+                <Button onClick={editarTransacao} label={loadingEditar ? "Salvando..." : "Salvar"} variant="saveModal" disabled={loadingEditar} />
+
+                <Button
+                  onClick={() => {
+                    setShowModal(false);
+
+                    setTransacaoSelecionada(null);
+
+                    setCompraParceladaSelecionada(null);
+                  }}
+                  label="Cancelar"
+                  variant="cancelModal"
+                />
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

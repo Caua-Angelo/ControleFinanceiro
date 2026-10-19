@@ -17,11 +17,12 @@ export function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   }
   const receita = payload.find((item) => item.dataKey === "receita");
   const despesa = payload.find((item) => item.dataKey === "despesa");
+  const investimento = payload.find((item) => item.dataKey === "investimento");
   const saldo = payload.find((item) => item.dataKey === "saldoAcumulado");
   const saldoValor = saldo?.value ?? 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 min-w-[220px]">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 min-w-55">
       <p className="text-sm font-semibold text-gray-700 mb-3">{label}</p>
 
       <div className="space-y-2">
@@ -39,6 +40,13 @@ export function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
             <span className="text-sm text-red-700">Despesas</span>
           </div>
           <span className="text-sm font-medium">{formatarValor(despesa?.value ?? 0)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-blue-600" />
+            <span className="text-sm text-blue-700">Investimentos</span>
+          </div>
+          <span className="text-sm font-medium">{formatarValor(investimento?.value ?? 0)}</span>
         </div>
 
         <div className="border-t pt-2  flex items-center justify-between">
