@@ -28,6 +28,30 @@ import { CustomTooltip } from "../Components/CustomTooltip";
 
 import { Finalidade } from "../Types/Finalidade";
 
+import nubank from "../assets/Cartoes/Cartao-nubank.png";
+import santander from "../assets/Cartoes/Cartao-santander.png";
+import bradesco from "../assets/Cartoes/Cartao-bradesco.png";
+import inter from "../assets/Cartoes/Cartao-inter.png";
+import amazonPrime from "../assets/Cartoes/Cartao-amazon-prime.png";
+import bancoBrasil from "../assets/Cartoes/Cartao-banco-brasil.png";
+import caixa from "../assets/Cartoes/Cartao-caixa.png";
+
+const CARTOES_DISPONIVEIS = [
+  { nome: "Nubank", imagem: "nubank.png", src: nubank },
+  { nome: "Santander", imagem: "santander.png", src: santander },
+  { nome: "Bradesco", imagem: "bradesco.png", src: bradesco },
+  { nome: "Inter", imagem: "inter.png", src: inter },
+  { nome: "Amazon Prime", imagem: "amazon-prime.png", src: amazonPrime },
+  { nome: "Banco do Brasil", imagem: "banco-do-brasil.png", src: bancoBrasil },
+  { nome: "Caixa", imagem: "caixa.png", src: caixa },
+];
+
+function obterImagem(imagem: string | null | undefined) {
+  if (!imagem) return undefined;
+
+  return CARTOES_DISPONIVEIS.find((cartao) => cartao.imagem === imagem)?.src;
+}
+
 dayjs.extend(customParseFormat);
 
 export default function RelatorioFinanceiro() {
@@ -48,6 +72,8 @@ export default function RelatorioFinanceiro() {
   const [loading, setLoading] = useState(true);
 
   const [loadingFaturas, setLoadingFaturas] = useState(true);
+
+  const [cartaoSelecionadoId, setCartaoSelecionadoId] = useState<number | null>(null);
 
   const [animando, setAnimando] = useState(false);
 
@@ -126,12 +152,6 @@ export default function RelatorioFinanceiro() {
 
     return resultados;
   }, [mesSelecionado, tipoSelecionado, transacoes]);
-
-  const transacoesPeriodo = useMemo(
-    () => filterByPeriod(tipoSelecionado === "todos" ? transacoes : transacoes.filter((t) => t.tipo === Number(tipoSelecionado)), period),
-
-    [transacoes, tipoSelecionado, period],
-  );
 
   useEffect(() => {
     setAnimando(true);
@@ -216,7 +236,77 @@ export default function RelatorioFinanceiro() {
 
   const totalGeralReceitas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalReceitas, 0), [resumoPorUsuario]);
 
-  const totalGeralDespesas = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalDespesas, 0), [resumoPorUsuario]);
+  const totalGeralDespesas = useMemo(() => {
+    if (tipoSelecionado === 1) return 0;
+
+    let total = 0;
+
+    const filtrarPorMes = (data: dayjs.Dayjs) => {
+      if (!data.isValid()) return false;
+
+      if (mesSelecionado === "todos") return true;
+
+      return data.format("YYYY-MM") === mesSelecionado;
+    };
+
+    // Transações comuns.
+    transacoes.forEach((transacao) => {
+      if (transacao.tipo !== 2) return;
+
+      if (transacao.finalidadeCategoria === Finalidade.Investimento) {
+        return;
+      }
+
+      const transacaoComCartao = transacao as TransacaoResponse & {
+        cartaoId?: number | null;
+        cartao?: { id: number; nome: string } | null;
+      };
+
+      const cartaoId = transacaoComCartao.cartaoId ?? transacaoComCartao.cartao?.id ?? null;
+
+      const dataCompra = dayjs(transacao.data);
+
+      if (!dataCompra.isValid()) return;
+
+      let dataCompetencia = dataCompra;
+
+      // Se for cartão, considera o mês da fatura.
+      if (cartaoId != null) {
+        const cartao = cartoes.find((c) => c.id === cartaoId);
+        const diaFechamento = cartao?.diaFechamento ?? 31;
+
+        if (dataCompra.date() > diaFechamento) {
+          dataCompetencia = dataCompra.add(1, "month");
+        }
+      }
+
+      if (filtrarPorMes(dataCompetencia)) {
+        total += Number(transacao.valor) || 0;
+      }
+    });
+
+    // Compras parceladas.
+    comprasParceladas.forEach((compra) => {
+      const dados = compra as CompraParceladaResponse & {
+        parcelas?: Array<{
+          valor: number;
+          dataVencimento?: string;
+        }>;
+      };
+
+      (dados.parcelas ?? []).forEach((parcela) => {
+        if (!parcela.dataVencimento) return;
+
+        const dataVencimento = dayjs(parcela.dataVencimento);
+
+        if (filtrarPorMes(dataVencimento)) {
+          total += Number(parcela.valor) || 0;
+        }
+      });
+    });
+
+    return total;
+  }, [transacoes, comprasParceladas, cartoes, mesSelecionado, tipoSelecionado]);
 
   const totalGeralInvestimentos = useMemo(() => resumoPorUsuario.reduce((acc, curr) => acc + curr.totalInvestimentos, 0), [resumoPorUsuario]);
 
@@ -258,73 +348,110 @@ export default function RelatorioFinanceiro() {
     const garantirMes = (data: dayjs.Dayjs) => {
       const chave = data.format("MM/YY");
 
-      if (!mapa.has(chave)) mapa.set(chave, { receita: 0, despesa: 0, investimento: 0 });
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          receita: 0,
+          despesa: 0,
+          investimento: 0,
+        });
+      }
 
       return mapa.get(chave)!;
     };
 
-    transacoesPeriodo.forEach((t) => {
-      const data = dayjs(t.data, ["YYYY-MM-DD", "DD/MM/YYYY"]);
+    const inicioPeriodo = dayjs()
+      .subtract(period - 1, "month")
+      .startOf("month");
 
-      if (!data.isValid()) return;
+    const fimPeriodo = dayjs().add(4, "month").endOf("month");
 
-      const item = garantirMes(data);
+    // Transações comuns
+    transacoes.forEach((transacao) => {
+      if (tipoSelecionado !== "todos" && transacao.tipo !== Number(tipoSelecionado)) {
+        return;
+      }
 
-      if (t.finalidadeCategoria === Finalidade.Investimento) item.investimento += t.valor;
-      else if (t.tipo === 1) item.receita += t.valor;
-      else if (t.tipo === 2) item.despesa += t.valor;
-    }); // Cada parcela entra no mês da fatura: se a compra foi feita depois do fechamento,
-    // a primeira parcela passa para o mês seguinte; as demais seguem mês a mês.
-
-    comprasParceladas.forEach((compra) => {
-      const compraComDados = compra as CompraParceladaResponse & {
-        dataCompra?: string;
-
-        cartaoId?: number;
-
-        parcelas: Array<{ valor: number; dataVencimento?: string; paga?: boolean }>;
-      };
-
-      const dataCompra = dayjs(compraComDados.dataCompra);
+      const dataCompra = dayjs(transacao.data);
 
       if (!dataCompra.isValid()) return;
 
-      const cartaoId = (compra as CompraParceladaResponse & { cartaoId?: number }).cartaoId;
+      const transacaoComCartao = transacao as TransacaoResponse & {
+        cartaoId?: number | null;
+        cartao?: { id: number; nome: string } | null;
+      };
 
-      const cartao = cartoes.find((c) => c.id === cartaoId);
+      const cartaoId = transacaoComCartao.cartaoId ?? transacaoComCartao.cartao?.id ?? null;
 
-      const diaFechamento = cartao?.diaFechamento ?? 31;
+      let dataCompetencia = dataCompra;
 
-      const passouFechamento = dataCompra.date() > diaFechamento;
+      // Compras no cartão entram no mês da fatura.
+      if (transacao.tipo === 2 && cartaoId != null) {
+        const cartao = cartoes.find((c) => c.id === cartaoId);
+        const diaFechamento = cartao?.diaFechamento ?? 31;
 
-      compraComDados.parcelas.forEach((parcela, indice) => {
-        // Distribui uma parcela por mês, começando no mês da compra; se a compra
+        if (dataCompra.date() > diaFechamento) {
+          dataCompetencia = dataCompra.add(1, "month");
+        }
+      }
 
-        // ocorreu após o fechamento, a primeira parcela entra no mês seguinte.
+      if (dataCompetencia.isBefore(inicioPeriodo, "month") || dataCompetencia.isAfter(fimPeriodo, "month")) {
+        return;
+      }
 
-        const mesParcela = dataCompra.startOf("month").add(indice + (passouFechamento ? 1 : 0), "month");
+      const item = garantirMes(dataCompetencia);
 
-        const inicioPeriodo = dayjs()
-          .subtract(period - 1, "month")
+      if (transacao.finalidadeCategoria === Finalidade.Investimento) {
+        item.investimento += transacao.valor;
+      } else if (transacao.tipo === 1) {
+        item.receita += transacao.valor;
+      } else if (transacao.tipo === 2) {
+        item.despesa += transacao.valor;
+      }
+    });
 
-          .startOf("month");
+    // Compras parceladas: cada parcela entra no mês do vencimento.
+    comprasParceladas.forEach((compra) => {
+      const dados = compra as CompraParceladaResponse & {
+        parcelas?: Array<{
+          valor: number;
+          dataVencimento?: string;
+        }>;
+      };
 
-        if (mesParcela.isBefore(inicioPeriodo, "month") || mesParcela.isAfter(dayjs().add(4, "month"), "month")) return;
+      (dados.parcelas ?? []).forEach((parcela) => {
+        if (!parcela.dataVencimento) return;
 
-        garantirMes(mesParcela).despesa += parcela.valor;
+        const dataVencimento = dayjs(parcela.dataVencimento);
+
+        if (!dataVencimento.isValid()) return;
+
+        if (dataVencimento.isBefore(inicioPeriodo, "month") || dataVencimento.isAfter(fimPeriodo, "month")) {
+          return;
+        }
+
+        garantirMes(dataVencimento).despesa += Number(parcela.valor) || 0;
       });
     });
 
-    const dadosOrdenados = Array.from({ length: period + 4 }).map((_, i) => {
+    const dadosOrdenados = Array.from({ length: period + 4 }).map((_, indice) => {
       const data = dayjs()
         .subtract(period - 1, "month")
-        .add(i, "month");
+        .add(indice, "month");
 
       const chave = data.format("MM/YY");
 
-      const valores = mapa.get(chave) || { receita: 0, despesa: 0, investimento: 0 };
+      const valores = mapa.get(chave) ?? {
+        receita: 0,
+        despesa: 0,
+        investimento: 0,
+      };
 
-      return { mes: chave, receita: valores.receita, despesa: valores.despesa, investimento: valores.investimento };
+      return {
+        mes: chave,
+        receita: valores.receita,
+        despesa: valores.despesa,
+        investimento: valores.investimento,
+      };
     });
 
     let saldo = 0;
@@ -332,22 +459,12 @@ export default function RelatorioFinanceiro() {
     return dadosOrdenados.map((item) => {
       saldo += item.receita - item.despesa - item.investimento;
 
-      return { ...item, saldoAcumulado: saldo };
+      return {
+        ...item,
+        saldoAcumulado: saldo,
+      };
     });
-  }, [transacoesPeriodo, comprasParceladas, cartoes, period]);
-
-  function filterByPeriod(transactions: TransacaoResponse[], months: number) {
-    const startDate = dayjs()
-      .subtract(months - 1, "month")
-
-      .startOf("month");
-
-    return transactions.filter((t) => {
-      const data = dayjs(t.data).startOf("day");
-
-      return data.isValid() && (data.isSame(startDate, "month") || data.isAfter(startDate, "month"));
-    });
-  }
+  }, [transacoes, comprasParceladas, cartoes, period, tipoSelecionado]);
 
   function formatarValor(valor: number) {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -362,17 +479,12 @@ export default function RelatorioFinanceiro() {
 
     const itens: Array<{
       id: number;
-
       valor: number;
-
       dataVencimento: string;
-
+      dataCompra: string;
       descricaoCompra: string;
-
       origem: "parcela" | "avista";
-
       cartaoId: number | null;
-
       cartaoNome: string;
     }> = [];
 
@@ -402,6 +514,8 @@ export default function RelatorioFinanceiro() {
             valor: parcela.valor,
 
             dataVencimento: parcela.dataVencimento,
+
+            dataCompra: compra.dataCompra,
 
             descricaoCompra: compra.descricao,
 
@@ -437,6 +551,8 @@ export default function RelatorioFinanceiro() {
         valor: transacao.valor,
 
         dataVencimento: mesFatura.format("YYYY-MM-DD"),
+
+        dataCompra: transacao.data,
 
         descricaoCompra: transacao.descricao,
 
@@ -541,7 +657,7 @@ export default function RelatorioFinanceiro() {
 
   return (
     <main className="min-h-full w-full overflow-x-hidden bg-[#E8DCC6] px-3 py-5 text-slate-800 sm:px-5 lg:px-7">
-      <div className="mx-auto w-full max-w-[1600px] space-y-5">
+      <div className="mx-auto w-full max-w-400 space-y-5">
         {/* Cabeçalho e filtros */}
         <section className="rounded-3xl border border-[#D9C7AB] bg-white p-5 shadow-sm sm:p-7">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
@@ -552,317 +668,561 @@ export default function RelatorioFinanceiro() {
                 Acompanhe entradas, despesas, investimentos e compromissos do cartão em um só lugar.
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
-                Período
-                <select
-                  id="select-mes"
-                  value={mesSelecionado}
-                  onChange={(e) => setMesSelecionado(e.target.value)}
-                  className="min-w-44 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
-                >
-                  <option value="todos">Todos os meses</option>
-                  {gerarMeses().map((mes) => (
-                    <option key={mes.valor} value={mes.valor}>
-                      {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
-                Tipo de lançamento
-                <select
-                  id="select-tipo"
-                  value={tipoSelecionado}
-                  onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-                  className="min-w-40 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
-                >
-                  <option value="todos">Todos os tipos</option>
-                  <option value={1}>Receitas</option>
-                  <option value={2}>Despesas</option>
-                </select>
-              </label>
-            </div>
-          </div>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-            <p className="text-xs text-slate-500">
-              {filtrosAtivos ? "Resumo atualizado conforme os filtros selecionados." : "Você está vendo todos os lançamentos."}
-            </p>
-            <button
-              onClick={limparFiltros}
-              disabled={!filtrosAtivos}
-              className="rounded-lg px-3 py-2 text-xs font-bold text-[#5B3A29] transition hover:bg-[#EEF2E8] disabled:cursor-not-allowed disabled:text-slate-300"
-            >
-              Limpar filtros ↺
-            </button>
-          </div>
-        </section>
-
-        {/* Indicadores */}
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-          <article className="relative overflow-hidden rounded-2xl border border-[#D5E2CC] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-            <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#EEF2E8]" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF2E8] text-xl font-bold text-[#587B4C]">↙</span>
-              <div>
-                <p className="text-sm font-medium text-slate-500">Receitas</p>
-                <p className="mt-1 text-xs text-[#587B4C]">Entradas no período</p>
-              </div>
-            </div>
-            <p className="relative mt-5 break-words text-2xl font-bold tracking-tight text-[#587B4C] sm:text-3xl">
-              {formatarValor(totalGeralReceitas)}
-            </p>
-          </article>
-          <article className="relative overflow-hidden rounded-2xl border border-[#E8C7B4] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-            <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F8E9DF]" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8E9DF] text-xl font-bold text-[#A94F2B]">↗</span>
-              <div>
-                <p className="text-sm font-medium text-slate-500">Despesas</p>
-                <p className="mt-1 text-xs text-[#A94F2B]">Saídas no período</p>
-              </div>
-            </div>
-            <p className="relative mt-5 break-words text-2xl font-bold tracking-tight text-[#A94F2B] sm:text-3xl">
-              {formatarValor(totalGeralDespesas)}
-            </p>
-          </article>
-          <article className="relative overflow-hidden rounded-2xl border border-[#E5D6B5] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-            <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F6EEDB]" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F6EEDB] text-xl font-bold text-[#94732F]">◇</span>
-              <div>
-                <p className="text-sm font-medium text-slate-500">Investimentos</p>
-                <p className="mt-1 text-xs text-[#94732F]">Valores investidos</p>
-              </div>
-            </div>
-            <p className="relative mt-5 break-words text-2xl font-bold tracking-tight text-[#94732F] sm:text-3xl">
-              {formatarValor(totalGeralInvestimentos)}
-            </p>
-          </article>
-          <article className="relative overflow-hidden rounded-2xl border border-[#D9C7AB] bg-[#5B3A29] p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-            <div className="absolute -right-4 -top-8 h-28 w-28 rounded-full border-[18px] border-white/5" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-xl font-bold text-white">=</span>
-              <div>
-                <p className="text-sm font-medium text-white/75">Saldo final</p>
-                <p className="mt-1 text-xs text-white/60">Receitas menos saídas</p>
-              </div>
-            </div>
-            <p
-              className={`relative mt-5 break-words text-2xl font-bold tracking-tight sm:text-3xl ${saldoGeralFinal >= 0 ? "text-white" : "text-[#F0C8AE]"}`}
-            >
-              {formatarValor(saldoGeralFinal)}
-            </p>
-          </article>
-        </section>
-
-        {/* Fatura e gráfico de cartões */}
-        <section className="grid grid-cols-1 items-stretch gap-5 2xl:grid-cols-[1.05fr_1fr]">
-          <article className="overflow-hidden rounded-2xl border border-[#D9C7AB] bg-white shadow-sm">
-            <div className="flex flex-col gap-4 bg-gradient-to-br from-[#5B3A29] to-[#C46A3A] p-5 text-white sm:flex-row sm:items-center sm:justify-between sm:p-6">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#F4EBDD]">Cartão de crédito</p>
-                <h2 className="mt-1 text-2xl font-bold">Fatura em aberto</h2>
-                <p className="mt-1 text-sm capitalize text-white/70">{mesFatura}</p>
-              </div>
+            <div className="flex flex-col gap-3 sm:items-end">
               <button
-                onClick={() => navigate("/transacao")}
-                className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#5B3A29] shadow-sm transition hover:bg-[#EEF2E8] focus:outline-none focus:ring-4 focus:ring-white/20"
+                onClick={limparFiltros}
+                disabled={!filtrosAtivos}
+                className="self-end rounded-lg border border-[#D9C7AB] px-3 py-2 text-xs font-bold text-[#5B3A29] transition hover:bg-[#F4EBDD] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Ver compras parceladas <span className="ml-2">→</span>
+                Limpar filtros
               </button>
-            </div>
-            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-[1.2fr_1fr] sm:p-6">
-              <div className="rounded-2xl bg-[#F4EBDD] p-5">
-                <p className="text-sm font-medium text-[#5B3A29]">Total previsto neste mês</p>
-                <p className="mt-3 break-words text-3xl font-bold tracking-tight text-[#5B3A29] sm:text-4xl">
-                  {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
-                </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  {loadingFaturas
-                    ? "Buscando parcelas..."
-                    : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento pendente" : "lançamentos pendentes"}`}
-                </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
+                  Período
+                  <select
+                    id="select-mes"
+                    value={mesSelecionado}
+                    onChange={(e) => setMesSelecionado(e.target.value)}
+                    className="min-w-44 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
+                  >
+                    <option value="todos">Todos os meses</option>
+                    {gerarMeses().map((mes) => (
+                      <option key={mes.valor} value={mes.valor}>
+                        {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
+                  Tipo de lançamento
+                  <select
+                    id="select-tipo"
+                    value={tipoSelecionado}
+                    onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
+                    className="min-w-40 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
+                  >
+                    <option value="todos">Todos os tipos</option>
+                    <option value={1}>Receitas</option>
+                    <option value={2}>Despesas</option>
+                  </select>
+                </label>
               </div>
-              <div className="flex flex-col justify-center rounded-2xl border border-slate-200 p-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Período considerado</p>
-                <p className="mt-2 font-semibold text-slate-800">
-                  {dayjs().startOf("month").format("DD/MM")} a {dayjs().endOf("month").format("DD/MM/YYYY")}
-                </p>
-                <p className="mt-3 text-xs leading-5 text-slate-500">
-                  Inclui parcelas pendentes e compras à vista no cartão, considerando o fechamento de cada cartão.
-                </p>
-              </div>
             </div>
-            {!loadingFaturas && faturasPorCartao.length > 0 && (
-              <div className="space-y-3 border-t border-slate-100 p-5 sm:px-6">
-                {faturasPorCartao.map((fatura) => (
-                  <div key={fatura.cartaoId} className="rounded-xl border border-slate-200 p-4">
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="font-bold text-slate-800">{fatura.cartaoNome}</h3>
-                      <p className="text-lg font-bold text-[#5B3A29]">{formatarValor(fatura.total)}</p>
-                    </div>
-                    <div className="space-y-2">
-                      {fatura.compras.map((compra) => (
-                        <div
-                          key={`${compra.origem}-${compra.id}`}
-                          className="flex flex-col gap-1 rounded-lg bg-slate-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
-                        >
-                          <div className="min-w-0">
-                            <p className="break-words text-sm font-semibold text-slate-800">{compra.descricaoCompra}</p>
-                            <p className="mt-1 text-xs text-slate-500">
-                              {compra.origem === "parcela" ? "Parcela" : "Compra à vista"} · {dayjs(compra.dataVencimento).format("DD/MM/YYYY")}
-                            </p>
-                          </div>
-                          <p className="text-sm font-bold text-slate-700">{formatarValor(compra.valor)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          </div>
+
+          {/* Indicadores integrados ao resumo financeiro */}
+          <div className="mt-5 grid grid-cols-1 gap-3 border-t border-[#E8DCC6] pt-5 sm:grid-cols-2 2xl:grid-cols-4">
+            <article className="relative overflow-hidden rounded-2xl border border-[#D5E2CC] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#EEF2E8]" />
+              <div className="relative flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF2E8] text-xl font-bold text-[#587B4C]">↙</span>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Receitas</p>
+                  <p className="mt-1 text-xs text-[#587B4C]">Entradas no período</p>
+                </div>
+              </div>
+              <p className="relative mt-5 wrap-break-word text-2xl font-bold tracking-tight text-[#587B4C] sm:text-3xl">
+                {formatarValor(totalGeralReceitas)}
+              </p>
+            </article>
+            <article className="relative overflow-hidden rounded-2xl border border-[#E8C7B4] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F8E9DF]" />
+              <div className="relative flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8E9DF] text-xl font-bold text-[#A94F2B]">↗</span>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Despesas</p>
+                  <p className="mt-1 text-xs text-[#A94F2B]">Saídas no período</p>
+                </div>
+              </div>
+              <p className="relative mt-5 wrap-break-word text-2xl font-bold tracking-tight text-[#A94F2B] sm:text-3xl">
+                {formatarValor(totalGeralDespesas)}
+              </p>
+            </article>
+            <article className="relative overflow-hidden rounded-2xl border border-[#E5D6B5] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F6EEDB]" />
+              <div className="relative flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F6EEDB] text-xl font-bold text-[#94732F]">◇</span>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Investimentos</p>
+                  <p className="mt-1 text-xs text-[#94732F]">Valores investidos</p>
+                </div>
+              </div>
+              <p className="relative mt-5 wrap-break-word text-2xl font-bold tracking-tight text-[#94732F] sm:text-3xl">
+                {formatarValor(totalGeralInvestimentos)}
+              </p>
+            </article>
+            <article className="relative overflow-hidden rounded-2xl border border-[#D9C7AB] bg-[#5B3A29] p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="absolute -right-4 -top-8 h-28 w-28 rounded-full border-18 border-white/5" />
+              <div className="relative flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-xl font-bold text-white">=</span>
+                <div>
+                  <p className="text-sm font-medium text-white/75">Saldo final</p>
+                  <p className="mt-1 text-xs text-white/60">Receitas menos saídas</p>
+                </div>
+              </div>
+              <p
+                className={`relative mt-5 wrap-break-word text-2xl font-bold tracking-tight sm:text-3xl ${saldoGeralFinal >= 0 ? "text-white" : "text-[#F0C8AE]"}`}
+              >
+                {formatarValor(saldoGeralFinal)}
+              </p>
+            </article>
+          </div>
+        </section>
+        <div className="flex gap-5 flex-col 2xl:flex-row">
+          {/* Evolução financeira */}
+          <section className=" w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Visão de longo prazo</p>
+                <h2 className="mt-1 text-xl font-bold text-[#5B3A29] sm:text-2xl">Evolução financeira</h2>
+                <p className="mt-1 text-sm text-slate-500">Compare receitas, despesas, investimentos e saldo acumulado.</p>
+              </div>
+              <div className="inline-flex w-fit rounded-xl bg-slate-100 p-1" aria-label="Período do gráfico">
+                {[3, 6, 12].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p as 3 | 6 | 12)}
+                    aria-pressed={period === p}
+                    className={`rounded-lg px-3 py-2 text-sm font-bold transition ${period === p ? "bg-white text-[#5B3A29] shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                  >
+                    {p} meses
+                  </button>
                 ))}
               </div>
-            )}
-            {!loadingFaturas && faturasPorCartao.length === 0 && (
-              <div className="border-t border-slate-100 px-5 py-6 text-sm text-slate-500">Nenhuma compra pendente na fatura deste mês.</div>
-            )}
-          </article>
-
-          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="mb-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Planejamento</p>
-              <h2 className="mt-1 text-xl font-bold text-[#5B3A29]">Fatura total por mês</h2>
-              <p className="mt-1 text-sm leading-5 text-slate-500">Veja como os compromissos do cartão se distribuem ao longo dos meses.</p>
             </div>
-            <div className="h-64 w-full sm:h-72">
+            <div className="h-72 w-full sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={historicoFaturas} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <BarChart data={dadosPorMes} barGap={8} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
                   <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
                   <YAxis
-                    tickFormatter={(valor) => `R$${valor}`}
-                    width={62}
+                    tickFormatter={(valor) => `R$ ${valor}`}
+                    width={75}
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: "#64748b", fontSize: 11 }}
                   />
-                  <Tooltip formatter={(valor) => formatarValor(Number(valor))} contentStyle={{ borderRadius: 12, borderColor: "#D9C7AB" }} />
-                  <Bar dataKey="total" name="Fatura total" fill="#87A878" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                  <Bar dataKey="receita" name="Receitas" fill="#87A878" radius={[5, 5, 0, 0]} />
+                  <Bar dataKey="despesa" name="Despesas" fill="#C46A3A" radius={[5, 5, 0, 0]} />
+                  <Bar dataKey="investimento" name="Investimentos" fill="#C8A45D" radius={[5, 5, 0, 0]} />
+                  <Line
+                    type="monotone"
+                    dataKey="saldoAcumulado"
+                    name="Saldo acumulado"
+                    stroke="#5B3A29"
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: "#5B3A29" }}
+                    activeDot={{ r: 5 }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          </section>
+        </div>
+        {/* Fatura e gráfico de cartões */}
+        <section className="grid grid-cols-1">
+          <article className="overflow-hidden rounded-2xl border border-[#D9C7AB] bg-white shadow-sm">
+            {/* Cabeçalho */}
+            <div className="bg-linear-to-br from-[#5B3A29] to-[#C46A3A] p-5 text-white sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#F4EBDD]">Cartões de crédito</p>
+
+                  <h2 className="mt-1 text-2xl font-bold">Fatura do mês</h2>
+
+                  <p className="mt-1 text-sm capitalize text-white/70">{mesFatura}</p>
+                </div>
+
+                <button
+                  onClick={() => navigate("/transacao")}
+                  className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#5B3A29] shadow-sm transition hover:bg-[#EEF2E8] focus:outline-none focus:ring-4 focus:ring-white/20"
+                >
+                  Ver compras parceladas
+                  <span className="ml-2">→</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-5 p-5 sm:p-6">
+              {/* Total de todos os cartões */}
+              <div className="rounded-2xl bg-[#F4EBDD] p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[#5B3A29]">Total gasto em todos os cartões neste mês</p>
+
+                    <p className="mt-3 wrap-break-word text-3xl font-bold tracking-tight text-[#5B3A29] sm:text-4xl">
+                      {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
+                    </p>
+
+                    <p className="mt-2 text-sm text-[#5B3A29]/70">
+                      {loadingFaturas
+                        ? "Buscando faturas..."
+                        : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento" : "lançamentos"} neste mês`}
+                    </p>
+                  </div>
+
+                  {/* Período no canto superior direito */}
+                  <div className="shrink-0 text-right">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#5B3A29]/60">Período considerado</p>
+
+                    <p className="mt-1 text-sm font-semibold text-[#5B3A29]">
+                      {dayjs().startOf("month").format("DD/MM")} a {dayjs().endOf("month").format("DD/MM/YYYY")}
+                    </p>
+                  </div>
+                </div>
+                {/* Planejamento: abaixo dos indicadores e acima da fatura */}
+                <section className="w-full">
+                  <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                    <div className="mb-5">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Planejamento</p>
+                      <h2 className="mt-1 text-xl font-bold text-[#5B3A29]">Fatura total por mês</h2>
+                    </div>
+                    <div className="h-40 w-full sm:h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={historicoFaturas} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                          <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                          <YAxis
+                            tickFormatter={(valor) => `R$${valor}`}
+                            width={62}
+                            tickLine={false}
+                            axisLine={false}
+                            tick={{ fill: "#64748b", fontSize: 11 }}
+                          />
+                          <Tooltip formatter={(valor) => formatarValor(Number(valor))} contentStyle={{ borderRadius: 12, borderColor: "#D9C7AB" }} />
+                          <Bar dataKey="total" name="Fatura total" fill="#87A878" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </article>
+                </section>
+              </div>
+
+              {/* Seletor de cartões */}
+              <div>
+                <div className="mb-3">
+                  <h3 className="text-base font-bold text-[#5B3A29]">Seus cartões</h3>
+
+                  <p className="mt-1 text-sm text-slate-500">Selecione um cartão para consultar seus lançamentos.</p>
+                </div>
+
+                {cartoes.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {cartoes.map((cartao) => {
+                      const selecionado = cartaoSelecionadoId === cartao.id;
+
+                      const faturaCartao = faturasPorCartao.find((fatura) => fatura.cartaoId === cartao.id);
+
+                      return (
+                        <button
+                          key={cartao.id}
+                          type="button"
+                          onClick={() => setCartaoSelecionadoId(selecionado ? null : cartao.id)}
+                          className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+                            selecionado
+                              ? "border-[#87A878] bg-[#EEF2E8] ring-2 ring-[#87A878]/30"
+                              : "border-[#D9C7AB] bg-white hover:border-[#87A878] hover:bg-[#F9F6F0]"
+                          }`}
+                        >
+                          {obterImagem(cartao.imagem) ? (
+                            <img
+                              src={obterImagem(cartao.imagem)}
+                              alt={`Cartão ${cartao.nome}`}
+                              className="h-12 w-16 shrink-0 rounded-lg object-contain"
+                            />
+                          ) : (
+                            <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-[#5B3A29] to-[#C46A3A] text-white">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                className="h-7 w-7"
+                              >
+                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                <path d="M2 10h20" />
+                              </svg>
+                            </div>
+                          )}
+
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-bold text-[#5B3A29]">{cartao.nome}</p>
+
+                            <p className="mt-1 text-sm text-slate-500">{formatarValor(faturaCartao?.total ?? 0)}</p>
+                          </div>
+
+                          <div
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                              selecionado ? "border-[#87A878] bg-[#87A878] text-white" : "border-[#D9C7AB]"
+                            }`}
+                          >
+                            {selecionado && (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                className="h-3 w-3"
+                              >
+                                <path d="m5 12 4 4L19 6" />
+                              </svg>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="rounded-xl border border-dashed border-[#D9C7AB] p-5 text-center text-sm text-slate-500">Nenhum cartão cadastrado.</p>
+                )}
+              </div>
+
+              {/* Lançamentos do cartão selecionado */}
+              {cartaoSelecionadoId !== null && (
+                <div className="mt-5 border-t border-[#D9C7AB]/60 pt-5">
+                  {(() => {
+                    const cartao = cartoes.find((item) => item.id === cartaoSelecionadoId);
+
+                    const fatura = faturasPorCartao.find((item) => item.cartaoId === cartaoSelecionadoId);
+
+                    if (!cartao) return null;
+
+                    return (
+                      <>
+                        {/* Cabeçalho da fatura */}
+                        <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-[#D9C7AB]/60 bg-[#F4EBDD]/50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-xl text-[#5B3A29] shadow-sm">
+                              $
+                            </div>
+
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#87A878]">Extrato do cartão</p>
+
+                              <h3 className="mt-1 wrap-break-word text-lg font-bold text-[#5B3A29]">{cartao.nome}</h3>
+
+                              <p className="mt-1 text-sm text-[#5B3A29]/65">
+                                {loadingFaturas
+                                  ? "Atualizando lançamentos..."
+                                  : `${fatura?.compras.length ?? 0} ${fatura?.compras.length === 1 ? "lançamento" : "lançamentos"} nesta fatura`}
+                              </p>
+                              <p className="mt-2 text-sm font-semibold text-[#5B3A29]">Vencimento: dia {cartao.diaVencimento}</p>
+                            </div>
+                          </div>
+
+                          <div className="border-t border-[#D9C7AB]/60 pt-3 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:text-right">
+                            <p className="text-xs font-medium text-[#5B3A29]/65">Total da fatura</p>
+
+                            <p className="mt-1 text-2xl font-bold tracking-tight text-[#5B3A29]">{formatarValor(fatura?.total ?? 0)}</p>
+                          </div>
+                        </div>
+
+                        {/* Lista de compras */}
+                        {loadingFaturas ? (
+                          <div className="space-y-3">
+                            {[...Array(3)].map((_, index) => (
+                              <div key={index} className="flex animate-pulse items-center gap-3 rounded-xl border border-slate-100 p-4">
+                                <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-200" />
+
+                                <div className="flex-1 space-y-2">
+                                  <div className="h-4 w-2/3 rounded bg-slate-200" />
+                                  <div className="h-3 w-1/3 rounded bg-slate-100" />
+                                </div>
+
+                                <div className="h-4 w-20 rounded bg-slate-200" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : fatura && fatura.compras.length > 0 ? (
+                          <div className="space-y-2">
+                            <div className="mb-3 flex items-center justify-between px-1">
+                              <p className="text-sm font-semibold text-[#5B3A29]">Compras da fatura</p>
+
+                              <p className="text-xs text-slate-400">
+                                {fatura.compras.length} {fatura.compras.length === 1 ? "compra" : "compras"}
+                              </p>
+                            </div>
+
+                            {fatura.compras.map((compra) => {
+                              const isParcela = compra.origem === "parcela";
+
+                              return (
+                                <div
+                                  key={`${compra.origem}-${compra.id}`}
+                                  className="group flex flex-col gap-3 rounded-xl border border-[#E8DCC6]/70 bg-white p-4 transition duration-200 hover:border-[#C8A45D]/70 hover:bg-[#FDFBF7] sm:flex-row sm:items-center sm:justify-between"
+                                >
+                                  <div className="flex min-w-0 items-center gap-3">
+                                    <div className={`h-10 w-1 shrink-0 rounded-full ${isParcela ? "bg-[#C46A3A]" : "bg-[#87A878]"}`} />
+
+                                    <div className="min-w-0">
+                                      <p className="wrap-break-word text-sm font-semibold text-[#5B3A29]">{compra.descricaoCompra}</p>
+
+                                      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                                        <span
+                                          className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                                            isParcela ? "bg-[#F8E9DF] text-[#A94F2B]" : "bg-[#EEF2E8] text-[#587B4C]"
+                                          }`}
+                                        >
+                                          {compra.origem === "parcela" ? "Parcela" : "Compra à vista"} ·{" "}
+                                        </span>
+
+                                        <span className="text-xs text-slate-500">
+                                          Data da compra: {dayjs(compra.dataCompra).format("DD/MM/YYYY")}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <p className="pl-13 text-base font-bold text-[#5B3A29] sm:pl-4 sm:text-right">{formatarValor(compra.valor)}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-[#D9C7AB] bg-[#F9F6F0] px-4 py-10 text-center">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#F4EBDD] text-xl text-[#5B3A29]">—</div>
+
+                            <p className="mt-3 font-semibold text-[#5B3A29]">Nenhuma compra encontrada</p>
+
+                            <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">Não há compras pendentes neste cartão para o mês atual.</p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {!loadingFaturas && faturasPorCartao.length === 0 && (
+                <p className="rounded-xl border border-dashed border-[#D9C7AB] px-4 py-5 text-center text-sm text-slate-500">
+                  Nenhuma compra pendente nas faturas deste mês.
+                </p>
+              )}
             </div>
           </article>
         </section>
 
-        {/* Evolução financeira */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Visão de longo prazo</p>
-              <h2 className="mt-1 text-xl font-bold text-[#5B3A29] sm:text-2xl">Evolução financeira</h2>
-              <p className="mt-1 text-sm text-slate-500">Compare receitas, despesas, investimentos e saldo acumulado.</p>
-            </div>
-            <div className="inline-flex w-fit rounded-xl bg-slate-100 p-1" aria-label="Período do gráfico">
-              {[3, 6, 12].map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p as 3 | 6 | 12)}
-                  aria-pressed={period === p}
-                  className={`rounded-lg px-3 py-2 text-sm font-bold transition ${period === p ? "bg-white text-[#5B3A29] shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
-                >
-                  {p} meses
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="h-72 w-full sm:h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dadosPorMes} barGap={8} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
-                <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
-                <YAxis
-                  tickFormatter={(valor) => `R$ ${valor}`}
-                  width={75}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: "#64748b", fontSize: 11 }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
-                <Bar dataKey="receita" name="Receitas" fill="#87A878" radius={[5, 5, 0, 0]} />
-                <Bar dataKey="despesa" name="Despesas" fill="#C46A3A" radius={[5, 5, 0, 0]} />
-                <Bar dataKey="investimento" name="Investimentos" fill="#C8A45D" radius={[5, 5, 0, 0]} />
-                <Line
-                  type="monotone"
-                  dataKey="saldoAcumulado"
-                  name="Saldo acumulado"
-                  stroke="#5B3A29"
-                  strokeWidth={3}
-                  dot={{ r: 3, fill: "#5B3A29" }}
-                  activeDot={{ r: 5 }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-
         {/* Transações recentes */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <section className="overflow-hidden rounded-2xl border border-[#D9C7AB]/70 bg-white shadow-sm">
+          {/* Cabeçalho */}
+          <div className="flex flex-col gap-4 border-b border-[#D9C7AB]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Atividade recente</p>
-              <h2 className="mt-1 text-xl font-bold text-[#5B3A29] sm:text-2xl">Últimas transações</h2>
-              <p className="mt-1 text-sm text-slate-500">Os cinco lançamentos mais recentes dentro dos filtros atuais.</p>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#87A878]" />
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Atividade recente</p>
+              </div>
+
+              <h2 className="mt-2 text-xl font-bold tracking-tight text-[#5B3A29] sm:text-2xl">Últimas transações</h2>
+
+              <p className="mt-1 text-sm text-slate-500">Seus cinco lançamentos mais recentes nos filtros atuais.</p>
             </div>
+
             <button
               onClick={() => navigate("/transacao")}
-              className="inline-flex items-center justify-center rounded-xl border border-[#D9C7AB] px-4 py-2.5 text-sm font-bold text-[#5B3A29] transition hover:bg-[#F4EBDD] focus:outline-none focus:ring-4 focus:ring-[#87A878]/20"
+              className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-[#D9C7AB] bg-[#F4EBDD]/50 px-4 py-2.5 text-sm font-bold text-[#5B3A29] transition duration-200 hover:border-[#C8A45D] hover:bg-[#F4EBDD] focus:outline-none focus:ring-4 focus:ring-[#87A878]/20 sm:self-auto"
             >
-              Ver todas <span className="ml-2">→</span>
+              Ver todas
+              <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
             </button>
           </div>
-          {loading ? (
-            <div className="space-y-3">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse rounded-xl border border-slate-100 p-4">
-                  <div className="mb-2 h-4 w-1/2 rounded bg-slate-200" />
-                  <div className="h-3 w-1/3 rounded bg-slate-100" />
-                </div>
-              ))}
-            </div>
-          ) : ultimasTransacoes.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center">
-              <p className="font-semibold text-slate-700">Nenhuma transação encontrada</p>
-              <p className="mt-1 text-sm text-slate-500">Tente limpar os filtros para visualizar outros lançamentos.</p>
-              {filtrosAtivos && (
-                <button onClick={limparFiltros} className="mt-3 rounded-lg px-3 py-2 text-sm font-bold text-[#5B3A29] hover:bg-[#EEF2E8]">
-                  Limpar filtros
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className={`space-y-2 transition-all duration-200 ${animando ? "translate-y-1 opacity-60" : "opacity-100"}`}>
-              {ultimasTransacoes.map((t) => (
-                <div
-                  key={t.id}
-                  className={`flex flex-col gap-3 rounded-xl border p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:justify-between ${t.id === maiorTransacaoId ? "border-[#B8CDAA] bg-[#EEF2E8]/50" : "border-slate-100 bg-white"}`}
-                >
-                  <div className="flex min-w-0 items-start gap-3">
-                    <span
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg font-bold ${t.tipo === 1 ? "bg-[#EEF2E8] text-[#587B4C]" : "bg-[#F8E9DF] text-[#A94F2B]"}`}
-                      aria-hidden="true"
-                    >
-                      {t.tipo === 1 ? "↙" : "↗"}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="break-words font-semibold text-slate-800">{t.descricao}</p>
-                      <p className="mt-1 text-sm text-slate-500">{dayjs(t.data).isValid() ? dayjs(t.data).format("DD/MM/YYYY") : t.data}</p>
+
+          {/* Conteúdo */}
+          <div className="p-4 sm:p-6">
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="flex animate-pulse items-center gap-4 rounded-xl border border-slate-100 p-4">
+                    <div className="h-11 w-11 shrink-0 rounded-xl bg-slate-200" />
+
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-1/2 rounded bg-slate-200" />
+                      <div className="h-3 w-1/4 rounded bg-slate-100" />
                     </div>
+
+                    <div className="h-5 w-24 rounded bg-slate-200" />
                   </div>
-                  <p className={`pl-14 text-lg font-bold sm:pl-0 sm:text-right ${t.tipo === 1 ? "text-[#587B4C]" : "text-[#A94F2B]"}`}>
-                    {t.tipo === 1 ? "+" : "−"} {formatarValor(t.valor)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            ) : ultimasTransacoes.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-[#D9C7AB] bg-[#F4EBDD]/30 px-4 py-12 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F4EBDD] text-2xl text-[#5B3A29]">—</div>
+
+                <p className="mt-4 font-semibold text-[#5B3A29]">Nenhuma transação encontrada</p>
+
+                <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">Não encontramos lançamentos para os filtros selecionados.</p>
+
+                {filtrosAtivos && (
+                  <button
+                    onClick={limparFiltros}
+                    className="mt-4 rounded-lg px-4 py-2 text-sm font-bold text-[#5B3A29] transition hover:bg-[#EEF2E8]"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className={`space-y-3 transition-all duration-200 ${animando ? "translate-y-1 opacity-60" : "opacity-100"}`}>
+                {ultimasTransacoes.map((t) => {
+                  const isEntrada = t.tipo === 1;
+                  const isMaiorTransacao = t.id === maiorTransacaoId;
+
+                  return (
+                    <article
+                      key={t.id}
+                      className={`group flex flex-col gap-3 rounded-xl border p-4 transition duration-200 hover:-translate-y-px hover:shadow-sm sm:flex-row sm:items-center sm:justify-between ${
+                        isMaiorTransacao
+                          ? "border-[#B8CDAA] bg-[#EEF2E8]/40 hover:border-[#87A878]"
+                          : "border-slate-100 bg-white hover:border-[#D9C7AB]"
+                      }`}
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div
+                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold ${
+                            isEntrada ? "bg-[#EEF2E8] text-[#587B4C]" : "bg-[#F8E9DF] text-[#A94F2B]"
+                          }`}
+                          aria-label={isEntrada ? "Entrada" : "Saída"}
+                        >
+                          {isEntrada ? "↙" : "↗"}
+                        </div>
+
+                        <div className="min-w-0">
+                          <p className="wrap-break-word font-semibold text-[#5B3A29]">{t.descricao}</p>
+
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
+                            <span>{dayjs(t.data).isValid() ? dayjs(t.data).format("DD/MM/YYYY") : t.data}</span>
+
+                            <span className="h-1 w-1 rounded-full bg-slate-300" />
+
+                            <span className={`font-medium ${isEntrada ? "text-[#587B4C]" : "text-[#A94F2B]"}`}>
+                              {isEntrada ? "Entrada" : "Saída"}
+                            </span>
+
+                            {isMaiorTransacao && (
+                              <>
+                                <span className="h-1 w-1 rounded-full bg-slate-300" />
+
+                                <span className="rounded-md bg-[#DDE8D5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#587B4C]">
+                                  Maior valor
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <p
+                        className={`pl-14 text-lg font-bold tracking-tight sm:pl-4 sm:text-right ${isEntrada ? "text-[#587B4C]" : "text-[#A94F2B]"}`}
+                      >
+                        {isEntrada ? "+" : "−"} {formatarValor(t.valor)}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </section>
 
         {!loading && resumoPorUsuario.length === 0 && (
