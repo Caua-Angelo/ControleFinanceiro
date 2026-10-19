@@ -28,13 +28,13 @@ import { CustomTooltip } from "../Components/CustomTooltip";
 
 import { Finalidade } from "../Types/Finalidade";
 
-import nubank from "../assets/Cartoes/Cartao-nubank.png";
-import santander from "../assets/Cartoes/Cartao-santander.png";
-import bradesco from "../assets/Cartoes/Cartao-bradesco.png";
-import inter from "../assets/Cartoes/Cartao-inter.png";
-import amazonPrime from "../assets/Cartoes/Cartao-amazon-prime.png";
-import bancoBrasil from "../assets/Cartoes/Cartao-banco-brasil.png";
-import caixa from "../assets/Cartoes/Cartao-caixa.png";
+import nubank from "../assets/Cartoes/Cartao-Nubank.png";
+import santander from "../assets/Cartoes/Cartao-Santander.png";
+import bradesco from "../assets/Cartoes/Cartao-Bradesco.png";
+import inter from "../assets/Cartoes/Cartao-Inter.png";
+import amazonPrime from "../assets/Cartoes/Cartao-Amazon-Prime.png";
+import bancoBrasil from "../assets/Cartoes/Cartao-Canco-Brasil.png";
+import caixa from "../assets/Cartoes/Cartao-Caixa.png";
 
 const CARTOES_DISPONIVEIS = [
   { nome: "Nubank", imagem: "nubank.png", src: nubank },
