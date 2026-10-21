@@ -83,7 +83,6 @@ export default function Transacao() {
   const [parcelasProcessando, setParcelasProcessando] = useState<number[]>([]);
 
   const [showModal, setShowModal] = useState(false);
-  const [showAdicionarModal, setShowAdicionarModal] = useState(false);
 
   const [transacaoSelecionada, setTransacaoSelecionada] = useState<TransacaoResponse | null>(null);
 
@@ -119,9 +118,9 @@ export default function Transacao() {
 
   const isMenorDeIdade = usuario ? usuario.idade < 18 : false;
 
-  const ehParcelada = quantidadeParcelas !== "1" && (tipoSelecionado !== "despesa" || formaPagamento === "cartao");
+  const usaCartao = (tipoSelecionado === "despesa" || tipoSelecionado === "investimento") && formaPagamento === "cartao";
 
-  const usaCartao = tipoSelecionado === "despesa" ? formaPagamento === "cartao" : Number(tipo) === 2;
+  const ehParcelada = quantidadeParcelas !== "1" && usaCartao;
 
   const classeCampo =
     "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#52796F] focus:ring-4 focus:ring-[#52796F]/15 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
@@ -207,8 +206,8 @@ export default function Transacao() {
       return;
     }
 
-    if (tipoSelecionado === "despesa" && formaPagamento === "") {
-      toast.error("Selecione a forma de pagamento da despesa.");
+    if ((tipoSelecionado === "despesa" || tipoSelecionado === "investimento") && formaPagamento === "") {
+      toast.error(`Selecione a forma de pagamento do ${tipoSelecionado === "investimento" ? "investimento" : "despesa"}.`);
 
       return;
     }
@@ -314,6 +313,8 @@ export default function Transacao() {
 
       setTipoSelecionado("");
 
+      setFormaPagamento("");
+
       setCategoriaId("");
 
       setData("");
@@ -321,7 +322,6 @@ export default function Transacao() {
       setCartaoId("");
 
       setQuantidadeParcelas("1");
-      setShowAdicionarModal(false);
     } catch (error) {
       console.error(error);
 
@@ -727,298 +727,256 @@ export default function Transacao() {
     setPaginaParceladas((pagina) => Math.min(pagina, Math.max(1, totalPaginasParceladas)));
   }, [totalPaginasParceladas]);
 
-  useEffect(() => {
-    if (!showAdicionarModal) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !loadingCriar) setShowAdicionarModal(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showAdicionarModal, loadingCriar]);
-
   const totalParcelasPagas = comprasParceladas.reduce((total, compra) => total + compra.parcelas.filter((parcela) => parcela.paga).length, 0);
 
   const totalParcelas = comprasParceladas.reduce((total, compra) => total + compra.parcelas.length, 0);
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8 px-3 pb-10 sm:px-5 lg:px-8">
-      {/* MODAL DE CADASTRO */}
-      {showAdicionarModal &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-100 flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5"
-            onMouseDown={(event) => {
-              if (event.target === event.currentTarget && !loadingCriar) setShowAdicionarModal(false);
-            }}
-          >
-            <section
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="titulo-modal-adicionar"
-              className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/60 bg-white p-5 shadow-2xl sm:p-7 lg:p-8"
+      {/* FORMULÁRIO ÚNICO */}
+
+      <section className="mx-auto w-full rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
+        <div className="mb-7 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#648879]">Lançamentos</p>
+
+            <h2 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">Adicionar transação</h2>
+
+            <p className="mt-1 text-sm text-slate-500">Registre receitas, despesas e compras parceladas.</p>
+          </div>
+
+          <span className="w-fit rounded-full bg-[#E8EFED] px-3 py-1.5 text-xs font-semibold text-[#2F4F4F]">Novo lançamento</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="descricao" className="mb-2 block text-sm font-semibold text-slate-700">
+              Descrição
+            </label>
+
+            <input id="descricao" className={classeCampo} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+          </div>
+
+          <div>
+            <label htmlFor="valor" className="mb-2 block text-sm font-semibold text-slate-700">
+              Valor total
+            </label>
+
+            <input
+              id="valor"
+              inputMode="decimal"
+              className={classeCampo}
+              value={valor}
+              onChange={(e) => setValor(e.target.value)}
+              placeholder="Ex.: 1200,00"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="data" className="mb-2 block text-sm font-semibold text-slate-700">
+              Data da compra/transação
+            </label>
+
+            <input id="data" type="date" className={classeCampo} value={data} onChange={(e) => setData(e.target.value)} />
+          </div>
+
+          <div>
+            <label htmlFor="tipo" className="mb-2 block text-sm font-semibold text-slate-700">
+              Tipo
+            </label>
+
+            <select
+              id="tipo"
+              className={classeCampo}
+              value={tipoSelecionado}
+              onChange={(e) => {
+                const novoTipo = e.target.value as typeof tipoSelecionado;
+
+                setTipoSelecionado(novoTipo);
+
+                setFormaPagamento("");
+
+                setTipo(novoTipo === "receita" ? 1 : novoTipo === "" ? "" : 2);
+
+                setCategoriaId("");
+
+                if (novoTipo !== "despesa") {
+                  setCartaoId("");
+
+                  setQuantidadeParcelas("1");
+                }
+              }}
             >
-              <div className="mb-7 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#648879]">Lançamentos</p>
+              <option value="">Selecione</option>
 
-                  <h2 id="titulo-modal-adicionar" className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">
-                    Adicionar transação
-                  </h2>
+              {!isMenorDeIdade && <option value="receita">Receita</option>}
 
-                  <p className="mt-1 text-sm text-slate-500">Registre receitas, despesas e compras parceladas.</p>
-                </div>
+              <option value="despesa">Despesa</option>
+
+              <option value="investimento">Investimento</option>
+            </select>
+          </div>
+
+          {(tipoSelecionado === "despesa" || tipoSelecionado === "investimento") && (
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormaPagamento("dinheiro");
+
+                    setCartaoId("");
+
+                    setQuantidadeParcelas("1");
+                  }}
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                    formaPagamento === "dinheiro"
+                      ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  Dinheiro / Débito / Pix
+                </button>
 
                 <button
                   type="button"
-                  onClick={() => setShowAdicionarModal(false)}
-                  disabled={loadingCriar}
-                  aria-label="Fechar formulário"
-                  className="rounded-full px-3 py-2 text-xl font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 disabled:opacity-50"
+                  onClick={() => setFormaPagamento("cartao")}
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                    formaPagamento === "cartao"
+                      ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
                 >
-                  ×
+                  Cartão de crédito
                 </button>
               </div>
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {tipo === 2 && usaCartao && (
+            <div>
+              <label htmlFor="parcelas" className="mb-2 block text-sm font-semibold text-slate-700">
+                Parcelas
+              </label>
+
+              <select id="parcelas" className={classeCampo} value={quantidadeParcelas} onChange={(e) => setQuantidadeParcelas(e.target.value)}>
+                <option value="1">À vista</option>
+
+                {Array.from({ length: 19 }, (_, i) => i + 2).map((qtd) => (
+                  <option key={qtd} value={qtd}>
+                    {qtd}x
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {tipo !== 2 && (
+            <div>
+              <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
+                Categoria
+              </label>
+
+              <select
+                id="categoria"
+                className={classeCampo}
+                value={categoriaId}
+                onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
+              >
+                <option value="">Selecione</option>
+
+                {categoriasFiltradas.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.descricao}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {tipo === 2 && (
+            <>
+              <div>
+                <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
+                  Categoria
+                </label>
+
+                <select
+                  id="categoria"
+                  className={classeCampo}
+                  value={categoriaId}
+                  onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
+                >
+                  <option value="">Selecione uma categoria</option>
+
+                  {categoriasFiltradas.map((categoria) => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.descricao}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {usaCartao && (
                 <div>
-                  <label htmlFor="descricao" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Descrição
-                  </label>
-
-                  <input id="descricao" className={classeCampo} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-                </div>
-
-                <div>
-                  <label htmlFor="valor" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Valor total
-                  </label>
-
-                  <input
-                    id="valor"
-                    inputMode="decimal"
-                    className={classeCampo}
-                    value={valor}
-                    onChange={(e) => setValor(e.target.value)}
-                    placeholder="Ex.: 1200,00"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="data" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Data da compra/transação
-                  </label>
-
-                  <input id="data" type="date" className={classeCampo} value={data} onChange={(e) => setData(e.target.value)} />
-                </div>
-
-                <div>
-                  <label htmlFor="tipo" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Tipo
+                  <label htmlFor="cartao" className="mb-2 block text-sm font-semibold text-slate-700">
+                    Cartão de crédito
                   </label>
 
                   <select
-                    id="tipo"
+                    id="cartao"
                     className={classeCampo}
-                    value={tipoSelecionado}
-                    onChange={(e) => {
-                      const novoTipo = e.target.value as typeof tipoSelecionado;
-
-                      setTipoSelecionado(novoTipo);
-
-                      setFormaPagamento("");
-
-                      setTipo(novoTipo === "receita" ? 1 : novoTipo === "" ? "" : 2);
-
-                      setCategoriaId("");
-
-                      if (novoTipo !== "despesa") {
-                        setCartaoId("");
-
-                        setQuantidadeParcelas("1");
-                      }
-                    }}
+                    value={cartaoId}
+                    onChange={(e) => setCartaoId(e.target.value === "" ? "" : Number(e.target.value))}
                   >
-                    <option value="">Selecione</option>
+                    <option value="">Selecione o cartão</option>
 
-                    {!isMenorDeIdade && <option value="receita">Receita</option>}
-
-                    <option value="despesa">Despesa</option>
-
-                    <option value="investimento">Investimento</option>
+                    {cartoes.map((cartao) => (
+                      <option key={cartao.id} value={cartao.id}>
+                        {cartao.nome}
+                      </option>
+                    ))}
                   </select>
                 </div>
+              )}
+            </>
+          )}
 
-                {tipoSelecionado === "despesa" && (
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">Como você pagou?</label>
+          {ehParcelada && tipo === 2 && valor !== "" && Number(valor.replace(",", ".")) > 0 && (
+            <div className="md:col-span-2 rounded-2xl border border-[#C8D6D1] bg-linear-to-br from-[#F5F9F7] to-white p-5">
+              <p className="font-semibold text-slate-800">Resumo do parcelamento</p>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormaPagamento("dinheiro");
+              <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
+                  Valor total<strong className="mt-1 block text-lg text-slate-900">{formatarMoeda(Number(valor.replace(",", ".")))}</strong>
+                </span>
 
-                          setCartaoId("");
-
-                          setQuantidadeParcelas("1");
-                        }}
-                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                          formaPagamento === "dinheiro"
-                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                        }`}
-                      >
-                        Dinheiro / Débito / Pix
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setFormaPagamento("cartao")}
-                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                          formaPagamento === "cartao"
-                            ? "border-[#52796F] bg-[#E8EFED] text-[#2F4F4F] ring-2 ring-[#52796F]/20"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                        }`}
-                      >
-                        Cartão de crédito
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {tipo === 2 && (tipoSelecionado !== "despesa" || formaPagamento === "cartao") && (
-                  <div>
-                    <label htmlFor="parcelas" className="mb-2 block text-sm font-semibold text-slate-700">
-                      Parcelas
-                    </label>
-
-                    <select id="parcelas" className={classeCampo} value={quantidadeParcelas} onChange={(e) => setQuantidadeParcelas(e.target.value)}>
-                      <option value="1">À vista</option>
-
-                      {Array.from({ length: 19 }, (_, i) => i + 2).map((qtd) => (
-                        <option key={qtd} value={qtd}>
-                          {qtd}x
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {tipo !== 2 && (
-                  <div>
-                    <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
-                      Categoria
-                    </label>
-
-                    <select
-                      id="categoria"
-                      className={classeCampo}
-                      value={categoriaId}
-                      onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
-                    >
-                      <option value="">Selecione</option>
-
-                      {categoriasFiltradas.map((categoria) => (
-                        <option key={categoria.id} value={categoria.id}>
-                          {categoria.descricao}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {tipo === 2 && (
-                  <>
-                    <div>
-                      <label htmlFor="categoria" className="mb-2 block text-sm font-semibold text-slate-700">
-                        Categoria
-                      </label>
-
-                      <select
-                        id="categoria"
-                        className={classeCampo}
-                        value={categoriaId}
-                        onChange={(e) => setCategoriaId(e.target.value === "" ? "" : Number(e.target.value))}
-                      >
-                        <option value="">Selecione uma categoria</option>
-
-                        {categoriasFiltradas.map((categoria) => (
-                          <option key={categoria.id} value={categoria.id}>
-                            {categoria.descricao}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {usaCartao && (
-                      <div>
-                        <label htmlFor="cartao" className="mb-2 block text-sm font-semibold text-slate-700">
-                          Cartão de crédito
-                        </label>
-
-                        <select
-                          id="cartao"
-                          className={classeCampo}
-                          value={cartaoId}
-                          onChange={(e) => setCartaoId(e.target.value === "" ? "" : Number(e.target.value))}
-                        >
-                          <option value="">Selecione o cartão</option>
-
-                          {cartoes.map((cartao) => (
-                            <option key={cartao.id} value={cartao.id}>
-                              {cartao.nome}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {ehParcelada && tipo === 2 && valor !== "" && Number(valor.replace(",", ".")) > 0 && (
-                  <div className="md:col-span-2 rounded-2xl border border-[#C8D6D1] bg-linear-to-br from-[#F5F9F7] to-white p-5">
-                    <p className="font-semibold text-slate-800">Resumo do parcelamento</p>
-
-                    <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                      <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
-                        Valor total<strong className="mt-1 block text-lg text-slate-900">{formatarMoeda(Number(valor.replace(",", ".")))}</strong>
-                      </span>
-
-                      <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
-                        Valor aproximado por parcela
-                        <strong className="mt-1 block text-lg text-slate-900">
-                          {formatarMoeda(Number(valor.replace(",", ".")) / Number(quantidadeParcelas))}
-                        </strong>
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-gray-500 mt-2">
-                      O valor exato de cada parcela será calculado pelo back-end, com os centavos distribuídos corretamente.
-                    </p>
-                  </div>
-                )}
-
-                <div className="md:col-span-2 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdicionarModal(false)}
-                    disabled={loadingCriar}
-                    className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
-                  >
-                    Cancelar
-                  </button>
-                  <Button
-                    onClick={CriarTransacao}
-                    label={loadingCriar ? "Salvando..." : ehParcelada && tipo === 2 ? "Criar Compra Parcelada" : "Criar Transação"}
-                    variant="primary"
-                    disabled={loadingCriar}
-                  />
-                </div>
+                <span className="rounded-xl bg-white px-3 py-3 text-slate-600 shadow-sm">
+                  Valor aproximado por parcela
+                  <strong className="mt-1 block text-lg text-slate-900">
+                    {formatarMoeda(Number(valor.replace(",", ".")) / Number(quantidadeParcelas))}
+                  </strong>
+                </span>
               </div>
-            </section>
-          </div>,
-          document.body,
-        )}
+
+              <p className="text-xs text-gray-500 mt-2">
+                O valor exato de cada parcela será calculado pelo back-end, com os centavos distribuídos corretamente.
+              </p>
+            </div>
+          )}
+
+          <div className="md:col-span-2 border-t border-slate-100 pt-5">
+            <Button
+              onClick={CriarTransacao}
+              label={loadingCriar ? "Salvando..." : ehParcelada && tipo === 2 ? "Criar Compra Parcelada" : "Criar Transação"}
+              variant="primary"
+              disabled={loadingCriar}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* LISTAGEM UNIFICADA */}
 
@@ -1032,31 +990,9 @@ export default function Transacao() {
             <p className="mt-1 text-sm text-slate-500">Pesquise, filtre e gerencie seus lançamentos.</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="w-fit rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-              {transacoesFiltradas.length + comprasParceladasFiltradas.length} resultado(s)
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setDescricao("");
-                setValor("");
-                setTipo("");
-                setTipoSelecionado("");
-                setCategoriaId("");
-                setData("");
-                setCartaoId("");
-                setQuantidadeParcelas("1");
-                setShowAdicionarModal(true);
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2F4F4F] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#243D3D] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#52796F]/25"
-            >
-              <span aria-hidden="true" className="text-lg leading-none">
-                +
-              </span>{" "}
-              Adicionar transação
-            </button>
-          </div>
+          <span className="w-fit rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+            {transacoesFiltradas.length + comprasParceladasFiltradas.length} resultado(s)
+          </span>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-5">
