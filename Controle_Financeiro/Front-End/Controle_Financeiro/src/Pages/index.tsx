@@ -75,6 +75,8 @@ export default function RelatorioFinanceiro() {
 
   const [cartaoSelecionadoId, setCartaoSelecionadoId] = useState<number | null>(null);
 
+  const [mesFaturaSelecionado, setMesFaturaSelecionado] = useState<string>(() => dayjs().format("YYYY-MM"));
+
   const [animando, setAnimando] = useState(false);
 
   const [period, setPeriod] = useState<3 | 6 | 12>(6);
@@ -313,7 +315,7 @@ export default function RelatorioFinanceiro() {
   const saldoGeralFinal = totalGeralReceitas - totalGeralDespesas - totalGeralInvestimentos;
 
   const ultimasTransacoes = useMemo(
-    () => [...transacoesFiltradas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()).slice(0, 5),
+    () => [...transacoesFiltradas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()).slice(0, 8),
 
     [transacoesFiltradas],
   );
@@ -471,11 +473,11 @@ export default function RelatorioFinanceiro() {
   }
 
   const faturasPorCartao = useMemo(() => {
-    const hoje = dayjs();
+    const mesSelecionado = dayjs(`${mesFaturaSelecionado}-01`);
 
-    const inicioMes = hoje.startOf("month");
+    const inicioMes = mesSelecionado.startOf("month");
 
-    const fimMes = hoje.endOf("month");
+    const fimMes = mesSelecionado.endOf("month");
 
     const itens: Array<{
       id: number;
@@ -583,7 +585,7 @@ export default function RelatorioFinanceiro() {
       })
 
       .filter((fatura) => fatura.compras.length > 0);
-  }, [comprasParceladas, transacoes, cartoes]);
+  }, [comprasParceladas, transacoes, cartoes, mesFaturaSelecionado]);
 
   const historicoFaturas = useMemo(() => {
     const meses = Array.from({ length: period + 4 }, (_, indice) => {
@@ -653,263 +655,346 @@ export default function RelatorioFinanceiro() {
 
   dayjs.locale("pt-br");
 
-  const mesFatura = dayjs().format("MMMM [de] YYYY");
+  const mesFatura = dayjs(`${mesFaturaSelecionado}-01`).format("MMMM [de] YYYY");
+
+  // Se nenhum cartão foi escolhido, mostra o primeiro por padrão.
+  const cartaoAtivoId = cartaoSelecionadoId ?? cartoes[0]?.id ?? null;
 
   return (
-    <main className="min-h-full w-full overflow-x-hidden bg-[#E8DCC6] px-3 py-5 text-slate-800 sm:px-5 lg:px-7">
-      <div className="mx-auto w-full max-w-400 space-y-5">
-        {/* Cabeçalho e filtros */}
-        <section className="rounded-3xl border border-[#D9C7AB] bg-white p-5 shadow-sm sm:p-7">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+    <main className="min-h-full w-full overflow-x-hidden bg-[#3E5C76] px-3 py-4 text-[#0D1321] sm:px-4 lg:px-6">
+      <div className="mx-auto w-full max-w-400 space-y-4">
+        {/* Cabeçalho, filtros e indicadores */}
+        <section className="rounded-2xl border border-[#748CAB]/40 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#87A878]">Sua vida financeira, em perspectiva</p>
-              <h1 className="text-3xl font-bold tracking-tight text-[#5B3A29] sm:text-4xl">Resumo financeiro</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                Acompanhe entradas, despesas, investimentos e compromissos do cartão em um só lugar.
-              </p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#3E5C76]">Sua vida financeira, em perspectiva</p>
+              <h1 className="text-2xl font-bold tracking-tight text-[#1D2D44]">Resumo financeiro</h1>
             </div>
-            <div className="flex flex-col gap-3 sm:items-end">
+
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#3E5C76]">
+                Período
+                <select
+                  id="select-mes"
+                  value={mesSelecionado}
+                  onChange={(e) => setMesSelecionado(e.target.value)}
+                  className="min-w-40 rounded-lg border border-[#748CAB]/30 bg-[#F0EBD8] px-3 py-2 text-sm font-medium text-[#1D2D44] outline-none transition focus:border-[#3E5C76] focus:ring-4 focus:ring-[#3E5C76]/20"
+                >
+                  <option value="todos">Todos os meses</option>
+                  {gerarMeses().map((mes) => (
+                    <option key={mes.valor} value={mes.valor}>
+                      {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#3E5C76]">
+                Tipo de lançamento
+                <select
+                  id="select-tipo"
+                  value={tipoSelecionado}
+                  onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
+                  className="min-w-36 rounded-lg border border-[#748CAB]/30 bg-[#F0EBD8] px-3 py-2 text-sm font-medium text-[#1D2D44] outline-none transition focus:border-[#3E5C76] focus:ring-4 focus:ring-[#3E5C76]/20"
+                >
+                  <option value="todos">Todos os tipos</option>
+                  <option value={1}>Receitas</option>
+                  <option value={2}>Despesas</option>
+                </select>
+              </label>
               <button
                 onClick={limparFiltros}
                 disabled={!filtrosAtivos}
-                className="self-end rounded-lg border border-[#D9C7AB] px-3 py-2 text-xs font-bold text-[#5B3A29] transition hover:bg-[#F4EBDD] disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-lg border border-[#748CAB]/40 px-3 py-2 text-sm font-bold text-[#1D2D44] transition hover:bg-[#F0EBD8] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Limpar filtros
+                Limpar
               </button>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
-                  Período
-                  <select
-                    id="select-mes"
-                    value={mesSelecionado}
-                    onChange={(e) => setMesSelecionado(e.target.value)}
-                    className="min-w-44 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
-                  >
-                    <option value="todos">Todos os meses</option>
-                    {gerarMeses().map((mes) => (
-                      <option key={mes.valor} value={mes.valor}>
-                        {mes.label.charAt(0).toUpperCase() + mes.label.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-500">
-                  Tipo de lançamento
-                  <select
-                    id="select-tipo"
-                    value={tipoSelecionado}
-                    onChange={(e) => setTipoSelecionado(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-                    className="min-w-40 rounded-xl border border-slate-200 bg-[#FFF9F0] px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition focus:border-[#87A878] focus:ring-4 focus:ring-[#87A878]/20"
-                  >
-                    <option value="todos">Todos os tipos</option>
-                    <option value={1}>Receitas</option>
-                    <option value={2}>Despesas</option>
-                  </select>
-                </label>
-              </div>
             </div>
           </div>
 
-          {/* Indicadores integrados ao resumo financeiro */}
-          <div className="mt-5 grid grid-cols-1 gap-3 border-t border-[#E8DCC6] pt-5 sm:grid-cols-2 2xl:grid-cols-4">
-            <article className="relative overflow-hidden rounded-2xl border border-[#D5E2CC] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#EEF2E8]" />
-              <div className="relative flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF2E8] text-xl font-bold text-[#587B4C]">↙</span>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Receitas</p>
-                  <p className="mt-1 text-xs text-[#587B4C]">Entradas no período</p>
-                </div>
+          {/* Indicadores */}
+          <div className="mt-4 grid grid-cols-2 gap-2.5 border-t border-[#748CAB]/30 pt-4 lg:grid-cols-4">
+            <article className="flex items-center gap-3 rounded-xl border border-[#86BA90]/60 bg-white p-3 transition hover:shadow-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#86BA90]/25 text-lg font-bold text-[#3E7F54]">↙</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-[#3E5C76]">Receitas</p>
+                <p className="wrap-break-word text-lg font-bold tracking-tight text-[#3E7F54] sm:text-xl">{formatarValor(totalGeralReceitas)}</p>
               </div>
-              <p className="relative mt-5 wrap-break-word text-2xl font-bold tracking-tight text-[#587B4C] sm:text-3xl">
-                {formatarValor(totalGeralReceitas)}
-              </p>
             </article>
-            <article className="relative overflow-hidden rounded-2xl border border-[#E8C7B4] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F8E9DF]" />
-              <div className="relative flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8E9DF] text-xl font-bold text-[#A94F2B]">↗</span>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Despesas</p>
-                  <p className="mt-1 text-xs text-[#A94F2B]">Saídas no período</p>
-                </div>
+            <article className="flex items-center gap-3 rounded-xl border border-[#C44536]/30 bg-white p-3 transition hover:shadow-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#C44536]/10 text-lg font-bold text-[#C44536]">↗</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-[#3E5C76]">Despesas</p>
+                <p className="wrap-break-word text-lg font-bold tracking-tight text-[#C44536] sm:text-xl">{formatarValor(totalGeralDespesas)}</p>
               </div>
-              <p className="relative mt-5 wrap-break-word text-2xl font-bold tracking-tight text-[#A94F2B] sm:text-3xl">
-                {formatarValor(totalGeralDespesas)}
-              </p>
             </article>
-            <article className="relative overflow-hidden rounded-2xl border border-[#E5D6B5] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-[#F6EEDB]" />
-              <div className="relative flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F6EEDB] text-xl font-bold text-[#94732F]">◇</span>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Investimentos</p>
-                  <p className="mt-1 text-xs text-[#94732F]">Valores investidos</p>
-                </div>
+            <article className="flex items-center gap-3 rounded-xl border border-[#748CAB]/40 bg-white p-3 transition hover:shadow-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#748CAB]/20 text-lg font-bold text-[#3E5C76]">◇</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-[#3E5C76]">Investimentos</p>
+                <p className="wrap-break-word text-lg font-bold tracking-tight text-[#3E5C76] sm:text-xl">{formatarValor(totalGeralInvestimentos)}</p>
               </div>
-              <p className="relative mt-5 wrap-break-word text-2xl font-bold tracking-tight text-[#94732F] sm:text-3xl">
-                {formatarValor(totalGeralInvestimentos)}
-              </p>
             </article>
-            <article className="relative overflow-hidden rounded-2xl border border-[#D9C7AB] bg-[#5B3A29] p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="absolute -right-4 -top-8 h-28 w-28 rounded-full border-18 border-white/5" />
-              <div className="relative flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-xl font-bold text-white">=</span>
-                <div>
-                  <p className="text-sm font-medium text-white/75">Saldo final</p>
-                  <p className="mt-1 text-xs text-white/60">Receitas menos saídas</p>
-                </div>
+            <article className="flex items-center gap-3 rounded-xl border border-[#0D1321] bg-[#0D1321] p-3 transition hover:shadow-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-lg font-bold text-white">=</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-white/75">Saldo final</p>
+                <p
+                  className={`wrap-break-word text-lg font-bold tracking-tight sm:text-xl ${saldoGeralFinal >= 0 ? "text-[#86BA90]" : "text-[#C44536]"}`}
+                >
+                  {formatarValor(saldoGeralFinal)}
+                </p>
               </div>
-              <p
-                className={`relative mt-5 wrap-break-word text-2xl font-bold tracking-tight sm:text-3xl ${saldoGeralFinal >= 0 ? "text-white" : "text-[#F0C8AE]"}`}
-              >
-                {formatarValor(saldoGeralFinal)}
-              </p>
             </article>
           </div>
         </section>
-        <div className="flex gap-5 flex-col 2xl:flex-row">
-          {/* Evolução financeira */}
-          <section className=" w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Visão de longo prazo</p>
-                <h2 className="mt-1 text-xl font-bold text-[#5B3A29] sm:text-2xl">Evolução financeira</h2>
-                <p className="mt-1 text-sm text-slate-500">Compare receitas, despesas, investimentos e saldo acumulado.</p>
-              </div>
-              <div className="inline-flex w-fit rounded-xl bg-slate-100 p-1" aria-label="Período do gráfico">
-                {[3, 6, 12].map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPeriod(p as 3 | 6 | 12)}
-                    aria-pressed={period === p}
-                    className={`rounded-lg px-3 py-2 text-sm font-bold transition ${period === p ? "bg-white text-[#5B3A29] shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
-                  >
-                    {p} meses
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="h-72 w-full sm:h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dadosPorMes} barGap={8} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
-                  <YAxis
-                    tickFormatter={(valor) => `R$ ${valor}`}
-                    width={75}
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: "#64748b", fontSize: 11 }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
-                  <Bar dataKey="receita" name="Receitas" fill="#87A878" radius={[5, 5, 0, 0]} />
-                  <Bar dataKey="despesa" name="Despesas" fill="#C46A3A" radius={[5, 5, 0, 0]} />
-                  <Bar dataKey="investimento" name="Investimentos" fill="#C8A45D" radius={[5, 5, 0, 0]} />
-                  <Line
-                    type="monotone"
-                    dataKey="saldoAcumulado"
-                    name="Saldo acumulado"
-                    stroke="#5B3A29"
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: "#5B3A29" }}
-                    activeDot={{ r: 5 }}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-        </div>
-        {/* Fatura e gráfico de cartões */}
-        <section className="grid grid-cols-1">
-          <article className="overflow-hidden rounded-2xl border border-[#D9C7AB] bg-white shadow-sm">
-            {/* Cabeçalho */}
-            <div className="bg-linear-to-br from-[#5B3A29] to-[#C46A3A] p-5 text-white sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+        {/* Conteúdo principal em duas colunas */}
+        <div className="grid grid-cols-1 items-stretch gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          {/* Coluna esquerda: evolução + últimas transações */}
+          <div className="flex min-w-0 flex-col gap-4">
+            <section className="rounded-2xl border border-[#748CAB]/30 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#F4EBDD]">Cartões de crédito</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#3E5C76]">Visão de longo prazo</p>
+                  <h2 className="text-lg font-bold text-[#1D2D44]">Evolução financeira</h2>
+                </div>
+                <div className="inline-flex w-fit rounded-lg bg-[#F0EBD8] p-0.5" aria-label="Período do gráfico">
+                  {[3, 6, 12].map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPeriod(p as 3 | 6 | 12)}
+                      aria-pressed={period === p}
+                      className={`rounded-md px-2.5 py-1.5 text-xs font-bold transition ${period === p ? "bg-white text-[#1D2D44] shadow-sm" : "text-[#3E5C76] hover:text-[#0D1321]"}`}
+                    >
+                      {p} meses
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dadosPorMes} barGap={6} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#3E5C76", fontSize: 12 }} />
+                    <YAxis
+                      tickFormatter={(valor) => `R$ ${valor}`}
+                      width={75}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: "#3E5C76", fontSize: 11 }}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend wrapperStyle={{ fontSize: 12, paddingTop: 6 }} />
+                    <Bar dataKey="receita" name="Receitas" fill="#86BA90" radius={[5, 5, 0, 0]} />
+                    <Bar dataKey="despesa" name="Despesas" fill="#C44536" radius={[5, 5, 0, 0]} />
+                    <Bar dataKey="investimento" name="Investimentos" fill="#748CAB" radius={[5, 5, 0, 0]} />
+                    <Line
+                      type="monotone"
+                      dataKey="saldoAcumulado"
+                      name="Saldo acumulado"
+                      stroke="#1D2D44"
+                      strokeWidth={3}
+                      dot={{ r: 3, fill: "#1D2D44" }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </section>
 
-                  <h2 className="mt-1 text-2xl font-bold">Fatura do mês</h2>
-
-                  <p className="mt-1 text-sm capitalize text-white/70">{mesFatura}</p>
+            {/* Transações recentes */}
+            <section className="flex-1 overflow-hidden rounded-2xl border border-[#748CAB]/40 bg-white shadow-sm">
+              <div className="flex items-center justify-between gap-3 border-b border-[#748CAB]/40 px-4 py-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-[#86BA90]" />
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#3E5C76]">Atividade recente</p>
+                  </div>
+                  <h2 className="text-lg font-bold tracking-tight text-[#1D2D44]">Últimas transações</h2>
                 </div>
 
                 <button
                   onClick={() => navigate("/transacao")}
-                  className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#5B3A29] shadow-sm transition hover:bg-[#EEF2E8] focus:outline-none focus:ring-4 focus:ring-white/20"
+                  className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[#748CAB]/40 bg-[#F0EBD8]/50 px-3 py-2 text-sm font-bold text-[#1D2D44] transition duration-200 hover:border-[#3E5C76] hover:bg-[#F0EBD8] focus:outline-none focus:ring-4 focus:ring-[#3E5C76]/20"
                 >
-                  Ver compras parceladas
-                  <span className="ml-2">→</span>
+                  Ver todas
+                  <span>→</span>
                 </button>
+              </div>
+
+              <div className="p-3 sm:p-4">
+                {loading ? (
+                  <div className="space-y-2">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="flex animate-pulse items-center gap-3 rounded-lg border border-[#748CAB]/20 p-3">
+                        <div className="h-9 w-9 shrink-0 rounded-lg bg-[#748CAB]/30" />
+
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3.5 w-1/2 rounded bg-[#748CAB]/30" />
+                          <div className="h-3 w-1/4 rounded bg-[#F0EBD8]" />
+                        </div>
+
+                        <div className="h-4 w-20 rounded bg-[#748CAB]/30" />
+                      </div>
+                    ))}
+                  </div>
+                ) : ultimasTransacoes.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-[#748CAB]/40 bg-[#F0EBD8]/30 px-4 py-6 text-center">
+                    <p className="font-semibold text-[#1D2D44]">Nenhuma transação encontrada</p>
+
+                    <p className="mt-1 text-sm text-[#3E5C76]">Não encontramos lançamentos para os filtros selecionados.</p>
+
+                    {filtrosAtivos && (
+                      <button
+                        onClick={limparFiltros}
+                        className="mt-3 rounded-lg px-3 py-1.5 text-sm font-bold text-[#1D2D44] transition hover:bg-[#F0EBD8]"
+                      >
+                        Limpar filtros
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className={`space-y-2 transition-all duration-200 ${animando ? "translate-y-1 opacity-60" : "opacity-100"}`}>
+                    {ultimasTransacoes.map((t) => {
+                      const isEntrada = t.tipo === 1;
+                      const isMaiorTransacao = t.id === maiorTransacaoId;
+
+                      return (
+                        <article
+                          key={t.id}
+                          className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition duration-200 hover:shadow-sm ${
+                            isMaiorTransacao
+                              ? "border-[#748CAB] bg-[#F0EBD8]/40 hover:border-[#3E5C76]"
+                              : "border-[#748CAB]/20 bg-white hover:border-[#748CAB]"
+                          }`}
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div
+                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-lg font-bold ${
+                                isEntrada ? "bg-[#86BA90]/25 text-[#3E7F54]" : "bg-[#C44536]/10 text-[#C44536]"
+                              }`}
+                              aria-label={isEntrada ? "Entrada" : "Saída"}
+                            >
+                              {isEntrada ? "↙" : "↗"}
+                            </div>
+
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-[#1D2D44]">{t.descricao}</p>
+
+                              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[#3E5C76]">
+                                <span>{dayjs(t.data).isValid() ? dayjs(t.data).format("DD/MM/YYYY") : t.data}</span>
+
+                                <span className="h-1 w-1 rounded-full bg-[#748CAB]" />
+
+                                <span className={`font-medium ${isEntrada ? "text-[#3E7F54]" : "text-[#C44536]"}`}>
+                                  {isEntrada ? "Entrada" : "Saída"}
+                                </span>
+
+                                {isMaiorTransacao && (
+                                  <span className="rounded bg-[#748CAB]/25 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1D2D44]">
+                                    Maior valor
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className={`shrink-0 text-base font-bold tracking-tight ${isEntrada ? "text-[#3E7F54]" : "text-[#C44536]"}`}>
+                            {isEntrada ? "+" : "−"} {formatarValor(t.valor)}
+                          </p>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Coluna direita: fatura e cartões */}
+          <article className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[#748CAB]/40 bg-white shadow-sm">
+            {/* Cabeçalho */}
+            <div className="bg-linear-to-br from-[#0D1321] to-[#3E5C76] px-4 py-3 text-white">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#F0EBD8]">Cartões de crédito</p>
+                  <h2 className="text-lg font-bold leading-tight">Fatura do mês</h2>
+                  <p className="text-xs capitalize text-white/70">{mesFatura}</p>
+                </div>
+
+                <div className="flex items-end gap-2">
+                  <label className="flex flex-col gap-1 text-[11px] font-medium text-white/80">
+                    Mês da fatura
+                    <input
+                      type="month"
+                      value={mesFaturaSelecionado}
+                      onChange={(event) => setMesFaturaSelecionado(event.target.value)}
+                      className="rounded-lg border border-white/30 bg-white px-2.5 py-1.5 text-sm text-[#1D2D44] outline-none transition focus:ring-4 focus:ring-white/20"
+                    />
+                  </label>
+                  <button
+                    onClick={() => navigate("/transacao")}
+                    className="inline-flex items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-bold text-[#1D2D44] shadow-sm transition hover:bg-[#F0EBD8] focus:outline-none focus:ring-4 focus:ring-white/20"
+                  >
+                    Parceladas
+                    <span className="ml-1.5">→</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-5 p-5 sm:p-6">
+            <div className="flex flex-1 flex-col gap-4 p-4">
               {/* Total de todos os cartões */}
-              <div className="rounded-2xl bg-[#F4EBDD] p-5 sm:p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-[#5B3A29]">Total gasto em todos os cartões neste mês</p>
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-[#F0EBD8] px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-[#1D2D44]">Total gasto em todos os cartões neste mês</p>
 
-                    <p className="mt-3 wrap-break-word text-3xl font-bold tracking-tight text-[#5B3A29] sm:text-4xl">
-                      {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
-                    </p>
-
-                    <p className="mt-2 text-sm text-[#5B3A29]/70">
-                      {loadingFaturas
-                        ? "Buscando faturas..."
-                        : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento" : "lançamentos"} neste mês`}
-                    </p>
-                  </div>
-
-                  {/* Período no canto superior direito */}
-                  <div className="shrink-0 text-right">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#5B3A29]/60">Período considerado</p>
-
-                    <p className="mt-1 text-sm font-semibold text-[#5B3A29]">
-                      {dayjs().startOf("month").format("DD/MM")} a {dayjs().endOf("month").format("DD/MM/YYYY")}
-                    </p>
-                  </div>
+                  <p className="wrap-break-word text-2xl font-bold tracking-tight text-[#C44536]">
+                    {loadingFaturas ? "Carregando..." : formatarValor(totalFaturaAtual)}
+                  </p>
                 </div>
-                {/* Planejamento: abaixo dos indicadores e acima da fatura */}
-                <section className="w-full">
-                  <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                    <div className="mb-5">
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Planejamento</p>
-                      <h2 className="mt-1 text-xl font-bold text-[#5B3A29]">Fatura total por mês</h2>
-                    </div>
-                    <div className="h-40 w-full sm:h-48">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={historicoFaturas} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                          <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
-                          <YAxis
-                            tickFormatter={(valor) => `R$${valor}`}
-                            width={62}
-                            tickLine={false}
-                            axisLine={false}
-                            tick={{ fill: "#64748b", fontSize: 11 }}
-                          />
-                          <Tooltip formatter={(valor) => formatarValor(Number(valor))} contentStyle={{ borderRadius: 12, borderColor: "#D9C7AB" }} />
-                          <Bar dataKey="total" name="Fatura total" fill="#87A878" radius={[6, 6, 0, 0]} maxBarSize={44} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </article>
-                </section>
+
+                <p className="shrink-0 text-right text-xs text-[#1D2D44]/70">
+                  {loadingFaturas
+                    ? "Buscando faturas..."
+                    : `${quantidadeItensFatura} ${quantidadeItensFatura === 1 ? "lançamento" : "lançamentos"} neste mês`}
+                </p>
+              </div>
+
+              {/* Planejamento */}
+              <div>
+                <div className="mb-2 flex items-baseline justify-between gap-2">
+                  <h3 className="text-sm font-bold text-[#1D2D44]">Fatura total por mês</h3>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#3E5C76]">Planejamento</p>
+                </div>
+                <div className="h-36 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={historicoFaturas} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fill: "#3E5C76", fontSize: 11 }} />
+                      <YAxis
+                        tickFormatter={(valor) => `R$${valor}`}
+                        width={62}
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: "#3E5C76", fontSize: 11 }}
+                      />
+                      <Tooltip formatter={(valor) => formatarValor(Number(valor))} contentStyle={{ borderRadius: 12, borderColor: "#748CAB" }} />
+                      <Bar dataKey="total" name="Fatura total" fill="#C44536" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
 
               {/* Seletor de cartões */}
-              <div>
-                <div className="mb-3">
-                  <h3 className="text-base font-bold text-[#5B3A29]">Seus cartões</h3>
-
-                  <p className="mt-1 text-sm text-slate-500">Selecione um cartão para consultar seus lançamentos.</p>
+              <div className="border-t border-[#748CAB]/30 pt-4">
+                <div className="mb-2">
+                  <h3 className="text-sm font-bold text-[#1D2D44]">Seus cartões</h3>
+                  <p className="text-xs text-[#3E5C76]">Selecione um cartão para consultar os lançamentos da fatura.</p>
                 </div>
 
                 {cartoes.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {cartoes.map((cartao) => {
-                      const selecionado = cartaoSelecionadoId === cartao.id;
+                      const selecionado = cartaoAtivoId === cartao.id;
 
                       const faturaCartao = faturasPorCartao.find((fatura) => fatura.cartaoId === cartao.id);
 
@@ -917,28 +1002,28 @@ export default function RelatorioFinanceiro() {
                         <button
                           key={cartao.id}
                           type="button"
-                          onClick={() => setCartaoSelecionadoId(selecionado ? null : cartao.id)}
-                          className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+                          onClick={() => setCartaoSelecionadoId(cartao.id)}
+                          className={`flex items-center gap-2.5 rounded-lg border p-2 text-left transition ${
                             selecionado
-                              ? "border-[#87A878] bg-[#EEF2E8] ring-2 ring-[#87A878]/30"
-                              : "border-[#D9C7AB] bg-white hover:border-[#87A878] hover:bg-[#F9F6F0]"
+                              ? "border-[#86BA90] bg-[#86BA90]/15 ring-2 ring-[#86BA90]/40"
+                              : "border-[#748CAB]/40 bg-white hover:border-[#86BA90] hover:bg-[#86BA90]/10"
                           }`}
                         >
                           {obterImagem(cartao.imagem) ? (
                             <img
                               src={obterImagem(cartao.imagem)}
                               alt={`Cartão ${cartao.nome}`}
-                              className="h-12 w-16 shrink-0 rounded-lg object-contain"
+                              className="h-9 w-12 shrink-0 rounded-md object-contain"
                             />
                           ) : (
-                            <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-[#5B3A29] to-[#C46A3A] text-white">
+                            <div className="flex h-9 w-12 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-[#0D1321] to-[#3E5C76] text-white">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="1.5"
-                                className="h-7 w-7"
+                                className="h-5 w-5"
                               >
                                 <rect x="2" y="5" width="20" height="14" rx="2" />
                                 <path d="M2 10h20" />
@@ -947,14 +1032,14 @@ export default function RelatorioFinanceiro() {
                           )}
 
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-bold text-[#5B3A29]">{cartao.nome}</p>
+                            <p className="truncate text-sm font-bold text-[#1D2D44]">{cartao.nome}</p>
 
-                            <p className="mt-1 text-sm text-slate-500">{formatarValor(faturaCartao?.total ?? 0)}</p>
+                            <p className="text-xs text-[#3E5C76]">{formatarValor(faturaCartao?.total ?? 0)}</p>
                           </div>
 
                           <div
-                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-                              selecionado ? "border-[#87A878] bg-[#87A878] text-white" : "border-[#D9C7AB]"
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                              selecionado ? "border-[#86BA90] bg-[#86BA90] text-[#0D1321]" : "border-[#748CAB]/40"
                             }`}
                           >
                             {selecionado && (
@@ -964,7 +1049,7 @@ export default function RelatorioFinanceiro() {
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="3"
-                                className="h-3 w-3"
+                                className="h-2.5 w-2.5"
                               >
                                 <path d="m5 12 4 4L19 6" />
                               </svg>
@@ -975,118 +1060,115 @@ export default function RelatorioFinanceiro() {
                     })}
                   </div>
                 ) : (
-                  <p className="rounded-xl border border-dashed border-[#D9C7AB] p-5 text-center text-sm text-slate-500">Nenhum cartão cadastrado.</p>
+                  <p className="rounded-lg border border-dashed border-[#748CAB]/40 p-4 text-center text-sm text-[#3E5C76]">
+                    Nenhum cartão cadastrado.
+                  </p>
                 )}
               </div>
 
               {/* Lançamentos do cartão selecionado */}
-              {cartaoSelecionadoId !== null && (
-                <div className="mt-5 border-t border-[#D9C7AB]/60 pt-5">
+              {cartaoAtivoId !== null && (
+                <div className="flex min-h-0 flex-1 flex-col border-t border-[#748CAB]/40 pt-4">
                   {(() => {
-                    const cartao = cartoes.find((item) => item.id === cartaoSelecionadoId);
+                    const cartao = cartoes.find((item) => item.id === cartaoAtivoId);
 
-                    const fatura = faturasPorCartao.find((item) => item.cartaoId === cartaoSelecionadoId);
+                    const fatura = faturasPorCartao.find((item) => item.cartaoId === cartaoAtivoId);
 
                     if (!cartao) return null;
 
                     return (
                       <>
                         {/* Cabeçalho da fatura */}
-                        <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-[#D9C7AB]/60 bg-[#F4EBDD]/50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                          <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-xl text-[#5B3A29] shadow-sm">
-                              $
-                            </div>
+                        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#748CAB]/40 bg-[#F0EBD8]/50 px-3 py-2.5">
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#3E5C76]">Extrato do cartão</p>
 
-                            <div className="min-w-0">
-                              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#87A878]">Extrato do cartão</p>
+                            <h3 className="truncate text-base font-bold text-[#1D2D44]">{cartao.nome}</h3>
 
-                              <h3 className="mt-1 wrap-break-word text-lg font-bold text-[#5B3A29]">{cartao.nome}</h3>
-
-                              <p className="mt-1 text-sm text-[#5B3A29]/65">
-                                {loadingFaturas
-                                  ? "Atualizando lançamentos..."
-                                  : `${fatura?.compras.length ?? 0} ${fatura?.compras.length === 1 ? "lançamento" : "lançamentos"} nesta fatura`}
-                              </p>
-                              <p className="mt-2 text-sm font-semibold text-[#5B3A29]">Vencimento: dia {cartao.diaVencimento}</p>
-                            </div>
+                            <p className="text-xs text-[#1D2D44]/65">
+                              {loadingFaturas
+                                ? "Atualizando lançamentos..."
+                                : `${fatura?.compras.length ?? 0} ${fatura?.compras.length === 1 ? "lançamento" : "lançamentos"} nesta fatura`}
+                            </p>
                           </div>
 
-                          <div className="border-t border-[#D9C7AB]/60 pt-3 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:text-right">
-                            <p className="text-xs font-medium text-[#5B3A29]/65">Total da fatura</p>
+                          <div className="shrink-0 text-right">
+                            <p className="text-[11px] font-medium text-[#1D2D44]/65">Total da fatura</p>
 
-                            <p className="mt-1 text-2xl font-bold tracking-tight text-[#5B3A29]">{formatarValor(fatura?.total ?? 0)}</p>
+                            <p className="text-xl font-bold tracking-tight text-[#1D2D44]">{formatarValor(fatura?.total ?? 0)}</p>
                           </div>
                         </div>
 
                         {/* Lista de compras */}
                         {loadingFaturas ? (
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             {[...Array(3)].map((_, index) => (
-                              <div key={index} className="flex animate-pulse items-center gap-3 rounded-xl border border-slate-100 p-4">
-                                <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-200" />
+                              <div key={index} className="flex animate-pulse items-center gap-3 rounded-lg border border-[#748CAB]/20 p-3">
+                                <div className="h-8 w-8 shrink-0 rounded-lg bg-[#748CAB]/30" />
 
                                 <div className="flex-1 space-y-2">
-                                  <div className="h-4 w-2/3 rounded bg-slate-200" />
-                                  <div className="h-3 w-1/3 rounded bg-slate-100" />
+                                  <div className="h-3.5 w-2/3 rounded bg-[#748CAB]/30" />
+                                  <div className="h-3 w-1/3 rounded bg-[#F0EBD8]" />
                                 </div>
 
-                                <div className="h-4 w-20 rounded bg-slate-200" />
+                                <div className="h-4 w-16 rounded bg-[#748CAB]/30" />
                               </div>
                             ))}
                           </div>
                         ) : fatura && fatura.compras.length > 0 ? (
-                          <div className="space-y-2">
-                            <div className="mb-3 flex items-center justify-between px-1">
-                              <p className="text-sm font-semibold text-[#5B3A29]">Compras da fatura</p>
+                          <div className="flex min-h-0 flex-1 flex-col">
+                            <div className="mb-2 flex items-center justify-between px-1">
+                              <p className="text-sm font-semibold text-[#1D2D44]">Compras da fatura</p>
 
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-[#748CAB]">
                                 {fatura.compras.length} {fatura.compras.length === 1 ? "compra" : "compras"}
                               </p>
                             </div>
 
-                            {fatura.compras.map((compra) => {
-                              const isParcela = compra.origem === "parcela";
+                            <div className="relative min-h-60 flex-1">
+                              <div className="absolute inset-0 space-y-1.5 overflow-y-auto pr-1">
+                                {fatura.compras.map((compra) => {
+                                  const isParcela = compra.origem === "parcela";
 
-                              return (
-                                <div
-                                  key={`${compra.origem}-${compra.id}`}
-                                  className="group flex flex-col gap-3 rounded-xl border border-[#E8DCC6]/70 bg-white p-4 transition duration-200 hover:border-[#C8A45D]/70 hover:bg-[#FDFBF7] sm:flex-row sm:items-center sm:justify-between"
-                                >
-                                  <div className="flex min-w-0 items-center gap-3">
-                                    <div className={`h-10 w-1 shrink-0 rounded-full ${isParcela ? "bg-[#C46A3A]" : "bg-[#87A878]"}`} />
+                                  return (
+                                    <div
+                                      key={`${compra.origem}-${compra.id}`}
+                                      className="flex items-center justify-between gap-3 rounded-lg border border-[#748CAB]/30 bg-white px-3 py-2 transition duration-200 hover:border-[#3E5C76] hover:bg-[#F0EBD8]"
+                                    >
+                                      <div className="flex min-w-0 items-center gap-2.5">
+                                        <div className={`h-8 w-1 shrink-0 rounded-full ${isParcela ? "bg-[#C44536]" : "bg-[#86BA90]"}`} />
 
-                                    <div className="min-w-0">
-                                      <p className="wrap-break-word text-sm font-semibold text-[#5B3A29]">{compra.descricaoCompra}</p>
+                                        <div className="min-w-0">
+                                          <p className="truncate text-sm font-semibold text-[#1D2D44]">{compra.descricaoCompra}</p>
 
-                                      <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                                        <span
-                                          className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                                            isParcela ? "bg-[#F8E9DF] text-[#A94F2B]" : "bg-[#EEF2E8] text-[#587B4C]"
-                                          }`}
-                                        >
-                                          {compra.origem === "parcela" ? "Parcela" : "Compra à vista"} ·{" "}
-                                        </span>
+                                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                            <span
+                                              className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                                                isParcela ? "bg-[#C44536]/10 text-[#C44536]" : "bg-[#86BA90]/25 text-[#3E7F54]"
+                                              }`}
+                                            >
+                                              {isParcela ? "Parcela" : "Compra à vista"}
+                                            </span>
 
-                                        <span className="text-xs text-slate-500">
-                                          Data da compra: {dayjs(compra.dataCompra).format("DD/MM/YYYY")}
-                                        </span>
+                                            <span className="text-xs text-[#3E5C76]">
+                                              Data da compra: {dayjs(compra.dataCompra).format("DD/MM/YYYY")}
+                                            </span>
+                                          </div>
+                                        </div>
                                       </div>
-                                    </div>
-                                  </div>
 
-                                  <p className="pl-13 text-base font-bold text-[#5B3A29] sm:pl-4 sm:text-right">{formatarValor(compra.valor)}</p>
-                                </div>
-                              );
-                            })}
+                                      <p className="shrink-0 text-sm font-bold text-[#1D2D44]">{formatarValor(compra.valor)}</p>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           </div>
                         ) : (
-                          <div className="rounded-2xl border border-dashed border-[#D9C7AB] bg-[#F9F6F0] px-4 py-10 text-center">
-                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#F4EBDD] text-xl text-[#5B3A29]">—</div>
+                          <div className="rounded-lg border border-dashed border-[#748CAB]/40 bg-[#F0EBD8] px-4 py-6 text-center">
+                            <p className="font-semibold text-[#1D2D44]">Nenhuma compra encontrada</p>
 
-                            <p className="mt-3 font-semibold text-[#5B3A29]">Nenhuma compra encontrada</p>
-
-                            <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">Não há compras pendentes neste cartão para o mês atual.</p>
+                            <p className="mt-1 text-sm text-[#3E5C76]">Não há compras pendentes neste cartão para {mesFatura}.</p>
                           </div>
                         )}
                       </>
@@ -1096,137 +1178,16 @@ export default function RelatorioFinanceiro() {
               )}
 
               {!loadingFaturas && faturasPorCartao.length === 0 && (
-                <p className="rounded-xl border border-dashed border-[#D9C7AB] px-4 py-5 text-center text-sm text-slate-500">
-                  Nenhuma compra pendente nas faturas deste mês.
+                <p className="rounded-lg border border-dashed border-[#748CAB]/40 px-4 py-3 text-center text-sm text-[#3E5C76]">
+                  Nenhuma compra pendente nas faturas de {mesFatura}.
                 </p>
               )}
             </div>
           </article>
-        </section>
-
-        {/* Transações recentes */}
-        <section className="overflow-hidden rounded-2xl border border-[#D9C7AB]/70 bg-white shadow-sm">
-          {/* Cabeçalho */}
-          <div className="flex flex-col gap-4 border-b border-[#D9C7AB]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#87A878]" />
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#87A878]">Atividade recente</p>
-              </div>
-
-              <h2 className="mt-2 text-xl font-bold tracking-tight text-[#5B3A29] sm:text-2xl">Últimas transações</h2>
-
-              <p className="mt-1 text-sm text-slate-500">Seus cinco lançamentos mais recentes nos filtros atuais.</p>
-            </div>
-
-            <button
-              onClick={() => navigate("/transacao")}
-              className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-[#D9C7AB] bg-[#F4EBDD]/50 px-4 py-2.5 text-sm font-bold text-[#5B3A29] transition duration-200 hover:border-[#C8A45D] hover:bg-[#F4EBDD] focus:outline-none focus:ring-4 focus:ring-[#87A878]/20 sm:self-auto"
-            >
-              Ver todas
-              <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
-            </button>
-          </div>
-
-          {/* Conteúdo */}
-          <div className="p-4 sm:p-6">
-            {loading ? (
-              <div className="space-y-3">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="flex animate-pulse items-center gap-4 rounded-xl border border-slate-100 p-4">
-                    <div className="h-11 w-11 shrink-0 rounded-xl bg-slate-200" />
-
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 w-1/2 rounded bg-slate-200" />
-                      <div className="h-3 w-1/4 rounded bg-slate-100" />
-                    </div>
-
-                    <div className="h-5 w-24 rounded bg-slate-200" />
-                  </div>
-                ))}
-              </div>
-            ) : ultimasTransacoes.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-[#D9C7AB] bg-[#F4EBDD]/30 px-4 py-12 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F4EBDD] text-2xl text-[#5B3A29]">—</div>
-
-                <p className="mt-4 font-semibold text-[#5B3A29]">Nenhuma transação encontrada</p>
-
-                <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">Não encontramos lançamentos para os filtros selecionados.</p>
-
-                {filtrosAtivos && (
-                  <button
-                    onClick={limparFiltros}
-                    className="mt-4 rounded-lg px-4 py-2 text-sm font-bold text-[#5B3A29] transition hover:bg-[#EEF2E8]"
-                  >
-                    Limpar filtros
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className={`space-y-3 transition-all duration-200 ${animando ? "translate-y-1 opacity-60" : "opacity-100"}`}>
-                {ultimasTransacoes.map((t) => {
-                  const isEntrada = t.tipo === 1;
-                  const isMaiorTransacao = t.id === maiorTransacaoId;
-
-                  return (
-                    <article
-                      key={t.id}
-                      className={`group flex flex-col gap-3 rounded-xl border p-4 transition duration-200 hover:-translate-y-px hover:shadow-sm sm:flex-row sm:items-center sm:justify-between ${
-                        isMaiorTransacao
-                          ? "border-[#B8CDAA] bg-[#EEF2E8]/40 hover:border-[#87A878]"
-                          : "border-slate-100 bg-white hover:border-[#D9C7AB]"
-                      }`}
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div
-                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold ${
-                            isEntrada ? "bg-[#EEF2E8] text-[#587B4C]" : "bg-[#F8E9DF] text-[#A94F2B]"
-                          }`}
-                          aria-label={isEntrada ? "Entrada" : "Saída"}
-                        >
-                          {isEntrada ? "↙" : "↗"}
-                        </div>
-
-                        <div className="min-w-0">
-                          <p className="wrap-break-word font-semibold text-[#5B3A29]">{t.descricao}</p>
-
-                          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
-                            <span>{dayjs(t.data).isValid() ? dayjs(t.data).format("DD/MM/YYYY") : t.data}</span>
-
-                            <span className="h-1 w-1 rounded-full bg-slate-300" />
-
-                            <span className={`font-medium ${isEntrada ? "text-[#587B4C]" : "text-[#A94F2B]"}`}>
-                              {isEntrada ? "Entrada" : "Saída"}
-                            </span>
-
-                            {isMaiorTransacao && (
-                              <>
-                                <span className="h-1 w-1 rounded-full bg-slate-300" />
-
-                                <span className="rounded-md bg-[#DDE8D5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#587B4C]">
-                                  Maior valor
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <p
-                        className={`pl-14 text-lg font-bold tracking-tight sm:pl-4 sm:text-right ${isEntrada ? "text-[#587B4C]" : "text-[#A94F2B]"}`}
-                      >
-                        {isEntrada ? "+" : "−"} {formatarValor(t.valor)}
-                      </p>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
+        </div>
 
         {!loading && resumoPorUsuario.length === 0 && (
-          <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500">
+          <div className="rounded-xl border border-dashed border-[#748CAB]/50 bg-white p-4 text-center text-sm text-[#3E5C76]">
             Não há lançamentos para os filtros selecionados.
           </div>
         )}

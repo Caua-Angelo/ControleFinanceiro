@@ -20,9 +20,9 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div className="min-h-screen w-full flex flex-col bg-[#3E5C76]">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-[#3F6464] shadow-md">
+      <header className="sticky top-0 z-50 bg-[#3E5C76] shadow-md">
         <nav className="px-4 md:px-8 py-3">
           <div className="flex items-center justify-between">
             {/* Logo / Nome */}
